@@ -1023,6 +1023,35 @@
   .pdf-btn:hover{background:var(--rust);color:#fff;transform:translateY(-1px);}
   .pdf-btn[disabled]{opacity:.6;cursor:default;transform:none;}
 
+  /* ---------- panel diagnostyczny ---------- */
+  .diag-backdrop{
+    position:fixed;inset:0;z-index:9900;display:none;
+    align-items:center;justify-content:center;padding:20px;background:rgba(8,14,12,.82);
+  }
+  .diag-backdrop.active{display:flex;}
+  .diag-modal{
+    width:min(560px,96vw);max-height:88vh;overflow-y:auto;position:relative;
+    background:#13171A;color:#E8EDEA;border-radius:18px;padding:26px 24px;
+    font-family:var(--font-mono),ui-monospace,monospace;font-size:.82rem;line-height:1.6;
+    box-shadow:0 26px 70px rgba(0,0,0,.6);
+  }
+  .diag-modal h3{font-family:var(--font-body);font-size:1.2rem;margin:0 0 4px;color:#fff;}
+  .diag-modal .diag-sub{font-family:var(--font-body);opacity:.6;margin:0 0 18px;font-size:.8rem;}
+  .diag-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid rgba(255,255,255,.08);}
+  .diag-row:first-of-type{border-top:none;}
+  .diag-ico{flex:none;width:18px;text-align:center;}
+  .diag-name{flex:none;width:130px;color:#9FB3AA;}
+  .diag-val{flex:1;word-break:break-word;}
+  .diag-ok{color:#4ADE80;} .diag-bad{color:#F87171;} .diag-warn{color:#FBBF24;}
+  .diag-close{
+    position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;
+    border:none;cursor:pointer;background:rgba(255,255,255,.12);color:#fff;font-size:.9rem;
+  }
+  .diag-copy{
+    margin-top:16px;width:100%;border:none;border-radius:10px;cursor:pointer;
+    background:#2A3B33;color:#E8EDEA;padding:11px;font-family:var(--font-body);font-weight:700;font-size:.85rem;
+  }
+
   /* ---------- pasek trybu offline ---------- */
   .offline-bar{
     position:fixed;left:0;right:0;top:0;z-index:9800;
@@ -2157,6 +2186,73 @@
   };
 
   /* =========================================================================
+     PAMIĘĆ APLIKACJI
+
+     Strona zapisuje Twoje podróże, język, motyw i kraj. W podglądzie
+     narzędziowym robi to wbudowane window.storage; na prawdziwej stronie
+     (i po otwarciu pliku z dysku) takiego obiektu nie ma, więc podstawiamy
+     własny, oparty na pamięci przeglądarki.
+
+     UWAGA przy przenoszeniu na backend: trzeci argument "shared" oznaczał
+     licznik wspólny dla wszystkich użytkowników (lista oczekujących, numery
+     zgłoszeń VIP). localStorage jest prywatny dla jednej przeglądarki, więc
+     te liczniki są na razie lokalne — to pierwsza rzecz do przepięcia na
+     serwer.
+     ========================================================================= */
+  (function installStorage(){
+    if(window.storage && typeof window.storage.get === 'function') return;
+    const PREFIX = 'wojazer.';
+    const JSONTAG = '\u0001json\u0001';
+    function pack(v){
+      if(v === null || v === undefined) return '';
+      if(typeof v === 'object') return JSONTAG + JSON.stringify(v);
+      return String(v);
+    }
+    function unpack(raw){
+      if(raw === null) return null;
+      if(raw.indexOf(JSONTAG) === 0){
+        try{ return JSON.parse(raw.slice(JSONTAG.length)); }catch(e){ return null; }
+      }
+      return raw;
+    }
+    window.storage = {
+      get: function(key){
+        return new Promise(function(resolve){
+          let raw = null;
+          try{ raw = window.localStorage.getItem(PREFIX + key); }catch(e){ raw = null; }
+          resolve(raw === null ? null : {key: key, value: unpack(raw)});
+        });
+      },
+      set: function(key, value){
+        return new Promise(function(resolve){
+          try{ window.localStorage.setItem(PREFIX + key, pack(value)); }catch(e){}
+          resolve({key: key, value: value});
+        });
+      },
+      delete: function(key){
+        return new Promise(function(resolve){
+          try{ window.localStorage.removeItem(PREFIX + key); }catch(e){}
+          resolve(true);
+        });
+      },
+      list: function(){
+        return new Promise(function(resolve){
+          const out = [];
+          try{
+            for(let i = 0; i < window.localStorage.length; i++){
+              const k = window.localStorage.key(i);
+              if(k && k.indexOf(PREFIX) === 0){
+                out.push({key: k.slice(PREFIX.length), value: unpack(window.localStorage.getItem(k))});
+              }
+            }
+          }catch(e){}
+          resolve(out);
+        });
+      }
+    };
+  })();
+
+  /* =========================================================================
      DANE OPERATORA SERWISU — UZUPEŁNIJ PRZED PUBLIKACJĄ
      To jedyne miejsce, w którym trzeba je wpisać; podstawiają się same
      do regulaminu, polityki prywatności i polityki cookies.
@@ -2684,6 +2780,9 @@
 
   <div class="offline-bar" id="offline-bar" role="status" aria-live="polite"></div>
 
+  <!-- Panel diagnostyczny - otwiera sie po dopisaniu #diag do adresu -->
+  <div class="diag-backdrop" id="diag-backdrop"><div class="diag-modal" id="diag-modal"></div></div>
+
   <!-- Plan podrozy do wydruku / zapisania jako PDF (widoczny tylko przy drukowaniu) -->
   <div id="print-plan" aria-hidden="true"></div>
 
@@ -3008,6 +3107,15 @@
       'planner.welcome':'Witamy na pokładzie!',
       'planner.intro':'Cieszymy się bardzo, że będziemy mogli razem podróżować. Sprawa jest bardzo prosta — poniżej jest quiz, który pomoże Twojemu asystentowi wybrać odpowiednie dla Ciebie miejsca. Uzupełnij go i daj nam działać.',
       'common.close':'Zamknij',
+      'cur.czk':'korona czeska (CZK)','cur.huf':'forint (HUF)','cur.ron':'lej (RON)','cur.bgn':'lew (BGN)',
+      'cur.gbp':'funt szterling (GBP)','cur.sek':'korona szwedzka (SEK)','cur.dkk':'korona duńska (DKK)',
+      'cur.try':'lira turecka (TRY)','cur.egp':'funt egipski (EGP)','cur.tzs':'szyling tanzański (TZS)',
+      'cur.mur':'rupia Mauritiusu (MUR)','cur.kes':'szyling kenijski (KES)','cur.cad':'dolar kanadyjski (CAD)',
+      'cur.mxn':'peso meksykańskie (MXN)','cur.cup':'peso kubańskie (CUP)','cur.dop':'peso dominikańskie (DOP)',
+      'cur.ars':'peso argentyńskie (ARS)','cur.pen':'sol (PEN)','cur.jpy':'jen (JPY)','cur.krw':'won (KRW)',
+      'cur.cny':'juan (CNY)','cur.sgd':'dolar singapurski (SGD)','cur.inr':'rupia indyjska (INR)',
+      'cur.lkr':'rupia lankijska (LKR)','cur.mvr':'rufiyaa (MVR)','cur.khr':'riel (KHR)',
+      'cur.qar':'rial katarski (QAR)','cur.jod':'dinar jordański (JOD)','cur.nzd':'dolar nowozelandzki (NZD)',
       'offline.ready':'Jesteś offline — Twoje potwierdzone podróże działają dalej.',
       'offline.limited':'Jesteś offline — część funkcji będzie niedostępna.',
       'offline.active':'Tryb offline włączony',
@@ -3296,6 +3404,15 @@
       'planner.welcome':'Welcome aboard!',
       'planner.intro':'We are glad we get to travel together. It is simple — below is a quiz that helps your assistant pick the right places for you. Fill it in and let us do the rest.',
       'common.close':'Close',
+      'cur.czk':'the Czech koruna (CZK)','cur.huf':'the forint (HUF)','cur.ron':'the leu (RON)','cur.bgn':'the lev (BGN)',
+      'cur.gbp':'the pound sterling (GBP)','cur.sek':'the Swedish krona (SEK)','cur.dkk':'the Danish krone (DKK)',
+      'cur.try':'the Turkish lira (TRY)','cur.egp':'the Egyptian pound (EGP)','cur.tzs':'the Tanzanian shilling (TZS)',
+      'cur.mur':'the Mauritian rupee (MUR)','cur.kes':'the Kenyan shilling (KES)','cur.cad':'the Canadian dollar (CAD)',
+      'cur.mxn':'the Mexican peso (MXN)','cur.cup':'the Cuban peso (CUP)','cur.dop':'the Dominican peso (DOP)',
+      'cur.ars':'the Argentine peso (ARS)','cur.pen':'the sol (PEN)','cur.jpy':'the yen (JPY)','cur.krw':'the won (KRW)',
+      'cur.cny':'the yuan (CNY)','cur.sgd':'the Singapore dollar (SGD)','cur.inr':'the Indian rupee (INR)',
+      'cur.lkr':'the Sri Lankan rupee (LKR)','cur.mvr':'the rufiyaa (MVR)','cur.khr':'the riel (KHR)',
+      'cur.qar':'the Qatari riyal (QAR)','cur.jod':'the Jordanian dinar (JOD)','cur.nzd':'the New Zealand dollar (NZD)',
       'offline.ready':'You are offline — your confirmed trips still work.',
       'offline.limited':'You are offline — some features are unavailable.',
       'offline.active':'Offline mode is on',
@@ -3579,13 +3696,24 @@
       applyLanguage(btn.dataset.lang, true);
     });
   });
-  (async function initLang(){
+  /* Odpalamy dopiero po wykonaniu calego skryptu (setTimeout 0), zeby
+     applyLanguage mialo juz zainicjowane wszystkie stale (CITY_RANKING,
+     DESTINATIONS...). Wczesniej, gdy odczyt pamieci rzucal bledem od razu,
+     applyLanguage startowalo za wczesnie i wywracalo sie na martwej strefie. */
+  setTimeout(function initLang(){
+    let done = false;
+    const go = function(lang){
+      if(done) return;
+      done = true;
+      try{ applyLanguage(lang, false); }
+      catch(e){ try{ applyLanguage('pl', false); }catch(e2){} }
+    };
     try{
-      const saved = await window.storage.get('lang');
-      if(saved && saved.value) { applyLanguage(saved.value, false); return; }
-    }catch(e){}
-    applyLanguage('pl', false);
-  })();
+      Promise.resolve(window.storage.get('lang'))
+        .then(function(saved){ go(saved && saved.value ? saved.value : 'pl'); })
+        .catch(function(){ go('pl'); });
+    }catch(e){ go('pl'); }
+  }, 0);
 
   // ---------- scroll reveal ----------
   const revealEls = document.querySelectorAll('.reveal');
@@ -4042,16 +4170,45 @@
 
   function looksLikePhoto(item){
     const title = (item && item.title) || '';
-    if(!/\.(jpe?g)$/i.test(title)) return false;        // fotografie to praktycznie zawsze JPG
+    // SVG to praktycznie zawsze mapa, flaga albo herb - nigdy fotografia
+    if(/\.svg$/i.test(title)) return false;
+    if(!/\.(jpe?g|png|webp)$/i.test(title)) return false;
     if(BAD_IMAGE.test(title)) return false;
     if(item.caption && item.caption.text && BAD_IMAGE.test(item.caption.text)) return false;
-    // ujecie poziome wyglada lepiej na pocztowce i odsiewa portrety oraz herby
     if(item.original && item.original.width && item.original.height){
-      if(item.original.width < item.original.height * 1.15) return false;
-      if(item.original.width < 800) return false;
+      if(item.original.width < item.original.height) return false;   // odsiewa portrety i herby
+      if(item.original.width < 600) return false;
     }
     return true;
   }
+
+  /* Narzedzie diagnostyczne. W konsoli przegladarki na zywej stronie wpisz:
+       wojazerSprawdzZdjecia()
+     i zobaczysz, co API zwrocilo dla kazdego kierunku i co zostalo wybrane. */
+  window.wojazerSprawdzZdjecia = async function(limit){
+    const keys = DESTINATIONS.map(function(d){ return d.key; }).slice(0, limit || 12);
+    const out = [];
+    for(let i = 0; i < keys.length; i++){
+      const k = keys[i], title = WIKI_TITLES[k];
+      let url = null, blad = null, odrzucone = [];
+      try{
+        const res = await fetch('https://en.wikipedia.org/api/rest_v1/page/media-list/' + encodeURIComponent(title));
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        (data.items || []).forEach(function(it){
+          if(it.type !== 'image') return;
+          if(!url && looksLikePhoto(it)) url = bestSrcFromItem(it);
+          else if(!url) odrzucone.push(it.title);
+        });
+      }catch(e){ blad = String(e.message || e); }
+      out.push({kierunek:k, wikipedia:title, wybrane:url, blad:blad, odrzucone:odrzucone.slice(0,4)});
+    }
+    console.table(out.map(function(r){
+      return {kierunek:r.kierunek, zdjecie: r.wybrane ? 'TAK' : 'NIE', blad:r.blad || '', adres:(r.wybrane||'').slice(0,70)};
+    }));
+    console.log('Pelne dane:', out);
+    return out;
+  };
 
   function bestSrcFromItem(item){
     if(item.original && item.original.source){
@@ -4414,7 +4571,7 @@
 
   const BOOKABLE_TRIPS = {};
   DESTINATIONS.forEach(function(d){
-    BOOKABLE_TRIPS[d.key] = {city:d.name, cityEn:d.nameEn, continent:d.continent, grad:d.grad, code:d.code, icon:d.icon, flag:d.flag, cc:d.cc};
+    BOOKABLE_TRIPS[d.key] = {key:d.key, city:d.name, cityEn:d.nameEn, continent:d.continent, grad:d.grad, code:d.code, icon:d.icon, flag:d.flag, cc:d.cc};
   });
 
   function scoreDestination(dest, answers){
@@ -4689,7 +4846,7 @@
      da sie osiagnac wbudowanymi fontami generatorow PDF.
      ================================================================== */
   function buildPrintablePlan(trip){
-    const dest = DESTINATIONS.find(function(d){ return d.key === trip.key || d.icon === trip.icon; });
+    const dest = DESTINATIONS.find(function(d){ return d.key === (trip.key || trip.icon); });
     const city = (currentLang === 'en' && trip.cityEn) ? trip.cityEn : (trip.city || '');
     const grad = (dest && dest.grad) || ['#1B5E3F','#8FAFC0'];
     const icon = CITY_ICONS[trip.icon] || '';
@@ -4810,6 +4967,130 @@
     renderOfflineBar();
   }
   setTimeout(maybeEnableOffline, 1500);
+
+  /* ==================================================================
+     DIAGNOSTYKA  (dopisz #diag do adresu strony)
+
+     Sprawdza po kolei wszystko, co wymaga sieci albo przegladarki, i mowi
+     wprost, co dziala. Przydatne przy wdrozeniu: od razu widac, czy problem
+     jest w kodzie, w hostingu, czy w blokadzie po stronie przegladarki.
+     ================================================================== */
+  async function runDiagnostics(){
+    const out = [];
+    const add = function(name, state, value){ out.push({name:name, state:state, value:value}); };
+
+    // 1. skad otwarta jest strona
+    const prot = location.protocol;
+    add('Adres', prot === 'https:' ? 'ok' : (prot === 'file:' ? 'warn' : 'ok'),
+        prot + '//' + (location.host || '(plik z dysku)')
+        + (prot === 'file:' ? ' — część funkcji wymaga https' : ''));
+
+    // 2. pamiec
+    try{
+      const probe = 'diag-' + Date.now();
+      await window.storage.set('__diag', probe);
+      const back = await window.storage.get('__diag');
+      await window.storage.delete('__diag');
+      add('Pamięć', back && back.value === probe ? 'ok' : 'bad',
+          back && back.value === probe ? 'zapis i odczyt działają' : 'odczyt nie zwrócił zapisanej wartości');
+    }catch(e){ add('Pamięć', 'bad', e.message); }
+
+    // 3. zapisane podroze
+    try{
+      const trips = await getCollectedTrips();
+      add('Twoje podróże', 'ok', trips.length + ' zapisanych');
+    }catch(e){ add('Twoje podróże', 'bad', e.message); }
+
+    // 4. zdjecia miast
+    try{
+      const t0 = Date.now();
+      const url = await imageFromMediaList('Lisbon');
+      if(url) add('Zdjęcia miast', 'ok', 'OK (' + (Date.now()-t0) + ' ms) → ' + url.split('/').pop().slice(0,46));
+      else    add('Zdjęcia miast', 'warn', 'API odpowiedziało, ale nie znalazło zdjęcia (same mapy/herby)');
+    }catch(e){
+      add('Zdjęcia miast', 'bad', 'brak połączenia z Wikimedia: ' + e.message);
+    }
+
+    // 5. pogoda
+    try{
+      const t0 = Date.now();
+      const w = await fetchWeather('lizbona');
+      add('Pogoda', w && w.current ? 'ok' : 'bad',
+          w && w.current ? Math.round(w.current.temperature_2m) + '°C w Lizbonie (' + (Date.now()-t0) + ' ms)' : 'brak danych');
+    }catch(e){ add('Pogoda', 'bad', e.message); }
+
+    // 6. flagi
+    await new Promise(function(resolve){
+      const img = new Image();
+      const timer = setTimeout(function(){ add('Flagi', 'warn', 'przekroczony czas oczekiwania'); resolve(); }, 5000);
+      img.onload  = function(){ clearTimeout(timer); add('Flagi', 'ok', 'flagcdn.com odpowiada'); resolve(); };
+      img.onerror = function(){ clearTimeout(timer); add('Flagi', 'warn', 'obrazki zablokowane — wyświetlą się emoji'); resolve(); };
+      img.src = 'https://flagcdn.com/w40/pt.png?diag=' + Date.now();
+    });
+
+    // 7. tryb offline
+    if(!('serviceWorker' in navigator)) add('Tryb offline', 'warn', 'przeglądarka nie obsługuje');
+    else if(prot !== 'https:' && location.hostname !== 'localhost') add('Tryb offline', 'warn', 'wymaga https — na Vercelu zadziała');
+    else {
+      try{
+        const regs = await navigator.serviceWorker.getRegistrations();
+        add('Tryb offline', regs.length ? 'ok' : 'warn',
+            regs.length ? 'włączony' : 'jeszcze nieaktywny (włącza się po pierwszej rezerwacji)');
+      }catch(e){ add('Tryb offline', 'bad', e.message); }
+    }
+
+    // 8. baza i tlumaczenia
+    add('Baza kierunków', DESTINATIONS.length >= 70 ? 'ok' : 'warn',
+        DESTINATIONS.length + ' kierunków, ' + Object.keys(WIKI_TITLES).length + ' tytułów do zdjęć');
+    const missing = Object.keys(I18N.pl).filter(function(k){ return !(k in I18N.en); });
+    add('Tłumaczenia', missing.length ? 'bad' : 'ok',
+        missing.length ? ('brakuje ' + missing.length + ': ' + missing.slice(0,4).join(', ')) : Object.keys(I18N.pl).length + ' kluczy, komplet PL i EN');
+
+    // 9. zgody
+    try{
+      const c = window.WojazerConsent.get();
+      add('Zgody cookie', 'ok', window.WojazerConsent.hasDecided()
+        ? ('zapisane — analityka: ' + (c.analytics ? 'tak' : 'nie') + ', marketing: ' + (c.marketing ? 'tak' : 'nie'))
+        : 'jeszcze niewybrane');
+    }catch(e){ add('Zgody cookie', 'bad', e.message); }
+
+    return out;
+  }
+
+  async function openDiagnostics(){
+    const bd = document.getElementById('diag-backdrop');
+    const box = document.getElementById('diag-modal');
+    if(!bd || !box) return;
+    box.innerHTML = '<button type="button" class="diag-close" id="diag-close">✕</button>'
+      + '<h3>Diagnostyka Wojażera</h3>'
+      + '<p class="diag-sub">Sprawdzam po kolei…</p>';
+    bd.classList.add('active');
+    document.getElementById('diag-close').addEventListener('click', function(){ bd.classList.remove('active'); });
+
+    const rows = await runDiagnostics();
+    const ico = {ok:'<span class="diag-ok">●</span>', bad:'<span class="diag-bad">●</span>', warn:'<span class="diag-warn">●</span>'};
+    box.innerHTML = '<button type="button" class="diag-close" id="diag-close2">✕</button>'
+      + '<h3>Diagnostyka Wojażera</h3>'
+      + '<p class="diag-sub">' + new Date().toLocaleString() + ' · ' + navigator.userAgent.slice(0, 70) + '</p>'
+      + rows.map(function(r){
+          return '<div class="diag-row"><span class="diag-ico">' + ico[r.state] + '</span>'
+               + '<span class="diag-name">' + escapeHtml(r.name) + '</span>'
+               + '<span class="diag-val">' + escapeHtml(String(r.value)) + '</span></div>';
+        }).join('')
+      + '<button type="button" class="diag-copy" id="diag-copy">Skopiuj raport</button>';
+    document.getElementById('diag-close2').addEventListener('click', function(){ bd.classList.remove('active'); });
+    document.getElementById('diag-copy').addEventListener('click', function(){
+      const txt = 'Wojażer — diagnostyka ' + new Date().toISOString() + '\n'
+        + location.href + '\n' + navigator.userAgent + '\n\n'
+        + rows.map(function(r){ return '[' + r.state.toUpperCase() + '] ' + r.name + ': ' + r.value; }).join('\n');
+      const btn = document.getElementById('diag-copy');
+      const done = function(){ btn.textContent = 'Skopiowane!'; setTimeout(function(){ btn.textContent = 'Skopiuj raport'; }, 1600); };
+      if(navigator.clipboard) navigator.clipboard.writeText(txt).then(done).catch(done); else done();
+    });
+  }
+
+  if((location.hash || '').indexOf('diag') !== -1){ setTimeout(openDiagnostics, 900); }
+  window.wojazerDiag = openDiagnostics;   // mozna tez wpisac wojazerDiag() w konsoli
 
   // ---------- Wojazer Wrapped: podsumowanie roku ----------
   const WRAPPED_COORDS = {
@@ -5407,7 +5688,7 @@
     return '<div class="trip-card" style="transform:rotate('+rot+'deg) translateY('+dy+'px);">'
       + '<div class="stamp'+stateClass+'">'
       + '<div class="stamp-photo" style="background:'+sceneGradient(trip.grad)+';">'
-      + '<img class="real-photo" data-city-key="'+trip.icon+'" alt="" loading="lazy" decoding="async">'
+      + '<img class="real-photo" data-city-key="'+(trip.key || trip.icon)+'" alt="" loading="lazy" decoding="async">'
       + '</div>'
       + '<svg class="stamp-icon" viewBox="0 0 140 60" aria-hidden="true" fill="#fff" fill-opacity=".92">'+iconMarkup+'</svg>'
       + '<span class="stamp-flag">'
@@ -5439,7 +5720,7 @@
         grid.innerHTML = '<p class="trip-empty">'+t('passport.empty')+'</p>';
       } else {
         grid.innerHTML = forContinent.map(function(t){ return buildStampHTML(t, t.city); }).join('');
-        forContinent.forEach(function(t){ attachRealPhoto(grid, t.icon); });
+        forContinent.forEach(function(t){ attachRealPhoto(grid, t.key || t.icon); });
       }
     }
     document.querySelectorAll('.continent-pill').forEach(function(p){
@@ -5483,7 +5764,7 @@
     const dlugosc = dest.days <= 4 ? t('card.short') : t('card.long');
     return '<div class="result-card" data-offer="'+dest.key+'" tabindex="0" role="button">'
       + '<div class="result-card-art" style="background:'+sceneGradient(dest.grad)+';">'
-      + '<img class="real-photo" data-city-key="'+dest.icon+'" alt="" loading="lazy" decoding="async">'
+      + '<img class="real-photo" data-city-key="'+dest.key+'" alt="" loading="lazy" decoding="async">'
       + '<span class="result-card-flag">'
         + (dest.cc ? '<img src="https://flagcdn.com/w40/'+dest.cc+'.png" alt="" class="flag-img" loading="lazy" decoding="async" onerror="flagFail(this)">' : '')
         + '<span class="flag-emoji">'+(dest.flag||'')+'</span>'
@@ -5503,7 +5784,7 @@
     if(container){
       container.innerHTML = matches.map(buildResultCardHTML).join('');
       wireResultCards();
-      matches.forEach(function(dest){ attachRealPhoto(container, dest.icon); });
+      matches.forEach(function(dest){ attachRealPhoto(container, dest.key); });
     }
   }
 
@@ -6864,7 +7145,7 @@
     if(photoEl){
       photoEl.classList.remove('loaded');
       photoEl.removeAttribute('src');
-      fetchCityImage(trip.icon).then(function(url){
+      fetchCityImage(trip.key || trip.icon).then(function(url){
         if(!url) return;
         photoEl.addEventListener('load', function(){ photoEl.classList.add('loaded'); }, {once:true});
         photoEl.src = url;
@@ -6873,7 +7154,7 @@
     if(noclegEl) noclegEl.textContent = trip.nocleg || t('trip.stayPending');
     if(planEl) planEl.textContent = trip.plan || t('trip.planPending');
     if(noclegLinkEl) noclegLinkEl.href = buildAccommodationLink(trip.city);
-    loadWeatherInto('trip-weather', trip.icon || trip.key);
+    loadWeatherInto('trip-weather', trip.key || trip.icon);
     const pdfBtn = document.getElementById('trip-pdf-btn');
     if(pdfBtn) pdfBtn.onclick = function(){ printTripPlan(trip); };
     if(controlBtn) controlBtn.style.display = trip.travelDate ? 'block' : 'none';
@@ -6949,14 +7230,31 @@
   }
 
   // ---------- Niezbednik: pytania i odpowiedzi dla konkretnej podrozy ----------
+  /* Waluta dla kierunkow spoza recznej listy - po kodzie kraju. */
+  const CC_CURRENCY = {
+    pt:'eur', es:'eur', it:'eur', fr:'eur', de:'eur', at:'eur', nl:'eur', be:'eur',
+    ie:'eur', gr:'eur', fi:'eur', ee:'eur', lv:'eur', lt:'eur', hr:'eur', mt:'eur',
+    pl:'pln', cz:'czk', hu:'huf', ro:'ron', bg:'bgn',
+    gb:'gbp', ch:'chf', no:'nok', se:'sek', dk:'dkk', is:'isk',
+    tr:'try', ma:'mad', eg:'egp', tz:'tzs', mu:'mur', za:'zar', ke:'kes',
+    us:'usd', ca:'cad', mx:'mxn', cu:'cup', do:'dop', br:'brl', ar:'ars', pe:'pen',
+    jp:'jpy', kr:'krw', cn:'cny', th:'thb', vn:'vnd', sg:'sgd', id:'idr',
+    in:'inr', lk:'lkr', mv:'mvr', kh:'khr', ae:'aed', qa:'qar', jo:'jod',
+    au:'aud', nz:'nzd'
+  };
+  function currencyForCountry(dest){
+    const key = dest && dest.cc ? CC_CURRENCY[dest.cc] : null;
+    return key ? t('cur.' + key) : t('cur.local');
+  }
+
   function generateTripFaq(trip){
     const city = trip.city || 'miejsce';
-    const dest = DESTINATIONS.find(function(d){ return d.key === trip.icon; });
+    const dest = DESTINATIONS.find(function(d){ return d.key === (trip.key || trip.icon); });
     const curKey = {lizbona:'eur', santorini:'eur', bergen:'nok',
       zermatt:'chf', marrakesz:'mad', islandia:'isk',
       bangkok:'thb', bali:'idr', nowyjork:'usd',
       kapsztad:'zar', rio:'brl', sydney:'aud',
-      dubaj:'aed', hanoi:'vnd', krakow:'pln', zakopane:'pln'}[trip.icon];
+      dubaj:'aed', hanoi:'vnd', krakow:'pln', zakopane:'pln'}[trip.key || trip.icon] || currencyForCountry(dest);
     const cur = curKey ? t('cur.' + curKey) : t('cur.local');
     return [
       {q:t('faq.money.q'), a:t('faq.money.a', {city: city, cur: cur})},
@@ -7040,7 +7338,7 @@
     }
     const planList = document.getElementById('day-plan-list');
     if(planList){
-      const dest = DESTINATIONS.find(function(d){ return d.key === trip.icon; });
+      const dest = DESTINATIONS.find(function(d){ return d.key === (trip.key || trip.icon); });
       const days = dest ? dest.days : 5;
       const plans = generateDayPlan(trip.city, quizAnswers, days);
       planList.innerHTML = plans.map(function(text, i){

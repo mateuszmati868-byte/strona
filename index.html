@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- ikona w karcie przegladarki: kompas Wojazera, rysowany wektorowo -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231B5E3F%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23F3EFE6%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2210.5%22%20r%3D%222%22%20fill%3D%22%23F3EFE6%22%2F%3E%3Cpolygon%20points%3D%2232%2C12%2037.5%2C32%2026.5%2C32%22%20fill%3D%22%23E4432E%22%2F%3E%3Cpolygon%20points%3D%2232%2C52%2037.5%2C32%2026.5%2C32%22%20fill%3D%22%23F3EFE6%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%224.2%22%20fill%3D%22%231B5E3F%22%20stroke%3D%22%23F3EFE6%22%20stroke-width%3D%222.4%22%2F%3E%3C%2Fsvg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231B5E3F%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23F3EFE6%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2210.5%22%20r%3D%222%22%20fill%3D%22%23F3EFE6%22%2F%3E%3Cpolygon%20points%3D%2232%2C12%2037.5%2C32%2026.5%2C32%22%20fill%3D%22%23E4432E%22%2F%3E%3Cpolygon%20points%3D%2232%2C52%2037.5%2C32%2026.5%2C32%22%20fill%3D%22%23F3EFE6%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%224.2%22%20fill%3D%22%231B5E3F%22%20stroke%3D%22%23F3EFE6%22%20stroke-width%3D%222.4%22%2F%3E%3C%2Fsvg%3E">
+<meta name="theme-color" content="#1B5E3F">
 <title>Wojażer — Twój osobisty asystent podróży</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -363,14 +367,19 @@
     margin:0;display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;
   }
   .qp-bar{
-    display:block;width:100%;max-width:300px;height:7px;border-radius:999px;
+    position:relative;display:block;width:100%;max-width:300px;height:8px;border-radius:999px;
     background:rgba(243,239,230,.22);overflow:hidden;
   }
-  .qp-fill{
-    display:block;height:100%;border-radius:999px;
-    background:linear-gradient(90deg,var(--rust),var(--rust-dark));
-    transition:width .45s cubic-bezier(.2,.8,.3,1);
+  /* Gradient zolty -> pomaranczowy -> czerwony malujemy na CALYM torze i przycinamy
+     do aktualnego postepu. Dzieki temu kolor na koncu paska naprawde pokazuje,
+     jak daleko jestes - a nie scisniete cale przejscie w kazdym kawalku. */
+  .qp-bar::before{
+    content:"";position:absolute;inset:0;border-radius:999px;
+    background:linear-gradient(90deg,#FFD12E 0%,#FFA62B 38%,#F2742B 64%,#E23A2E 100%);
+    clip-path:inset(0 calc(100% - var(--qp,0%)) 0 0 round 999px);
+    transition:clip-path .45s cubic-bezier(.2,.8,.3,1);
   }
+  @media (prefers-reduced-motion: reduce){ .qp-bar::before{transition:none;} }
   .qp-text strong{font-weight:700;}
   body.theme-light .qp-bar{background:rgba(19,42,58,.15);}
 
@@ -1767,13 +1776,46 @@
 
   /* ---------- dekoracyjny kompas w tle VIP (statyczny, bez animacji) ---------- */
   .compass-decor{position:absolute;pointer-events:none;z-index:0;}
-  .compass-decor--vip{width:300px;height:300px;bottom:-60px;left:-50px;color:var(--vip-gold);opacity:.12;}
+  /* kompas miesci sie w calosci w panelu - wczesniej byl przyciety krawedzia */
+  .compass-decor--vip{width:250px;height:250px;bottom:150px;left:3%;color:var(--vip-gold);opacity:.13;}
   .vip-lux-icon{position:absolute;pointer-events:none;z-index:0;color:var(--vip-gold);}
-  .vip-lux-icon--yacht{width:220px;height:auto;top:8%;right:4%;opacity:.14;transform:rotate(-4deg);}
-  .vip-lux-icon--heli{width:180px;height:auto;top:52%;left:2%;opacity:.12;transform:rotate(3deg);}
-  .vip-lux-icon--island{width:170px;height:auto;bottom:4%;right:8%;opacity:.13;}
+  .vip-lux-icon--yacht{width:220px;height:auto;top:7%;right:5%;opacity:.14;transform:rotate(-4deg);}
+  .vip-lux-icon--heli{width:180px;height:auto;top:34%;left:3%;opacity:.12;transform:rotate(3deg);}
+  .vip-lux-icon--island{width:180px;height:auto;bottom:150px;right:6%;opacity:.13;}
+  .vip-lux-icon--jet{width:200px;height:auto;bottom:96px;left:50%;margin-left:-100px;opacity:.09;transform:rotate(-6deg);}
   @media (max-width:900px){
-    .vip-lux-icon--yacht,.vip-lux-icon--heli,.vip-lux-icon--island{display:none;}
+    .vip-lux-icon--yacht,.vip-lux-icon--heli,.vip-lux-icon--island,.vip-lux-icon--jet{display:none;}
+    .compass-decor--vip{width:190px;height:190px;bottom:120px;left:-20px;opacity:.1;}
+  }
+
+  /* ---------- domkniecie dolu panelu VIP ---------- */
+  .vip-panel{padding-bottom:210px;}
+  .vip-panel::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:300px;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 72% 100% at 50% 100%, rgba(201,162,75,.20), transparent 72%),
+      linear-gradient(0deg, rgba(0,0,0,.5), transparent 85%);
+  }
+  .vip-bottom-rule{
+    position:absolute;left:0;right:0;bottom:46px;z-index:1;pointer-events:none;
+    display:flex;align-items:center;justify-content:center;gap:16px;
+    color:var(--vip-gold);
+  }
+  .vip-bottom-rule::before,.vip-bottom-rule::after{
+    content:"";height:1px;flex:1;max-width:240px;
+  }
+  .vip-bottom-rule::before{background:linear-gradient(90deg,transparent,rgba(201,162,75,.75));}
+  .vip-bottom-rule::after{background:linear-gradient(90deg,rgba(201,162,75,.75),transparent);}
+  .vip-bottom-mark{
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--vip-gold);opacity:.8;white-space:nowrap;
+  }
+  .vip-bottom-diamond{width:9px;height:9px;transform:rotate(45deg);border:1px solid var(--vip-gold);opacity:.9;}
+  @media (max-width:600px){
+    .vip-panel{padding-bottom:170px;}
+    .vip-bottom-rule::before,.vip-bottom-rule::after{max-width:60px;}
+    .vip-bottom-mark{font-size:.6rem;letter-spacing:.14em;}
   }
 
   /* ---------- przesuwna mapa swiata w tle Paszportu ---------- */
@@ -2123,7 +2165,6 @@
               <button type="button" class="quiz-retry-btn" id="quiz-retry-btn"><span class="retry-icon">↻</span> <span data-i18n="quiz.retry">Powtórz quiz</span></button>
             </div>
             <p class="quiz-retry-hint" data-i18n="quiz.retryHint">Nie trafiliśmy w Twój gust? Zrób quiz jeszcze raz — za każdym razem losujemy inne kierunki. Możesz też skorzystać z asystenta na dole strony, który podpowie Ci kierunek.</p>
-            <p class="ai-notice"><span aria-hidden="true">⚠️</span><span data-i18n="ai.resultsNotice">Propozycje i szacunki kosztów generuje sztuczna inteligencja. Potraktuj je jako podpowiedź — ceny, godziny i wymogi wjazdu zweryfikuj u przewoźnika, obiektu i w MSZ przed rezerwacją.</span></p>
             <div class="result-cards"></div>
             <div class="assistant-box">
               <p class="assistant-prompt" data-i18n="assistant.prompt">Jeśli żadna z naszych propozycji nie przypadła Ci do gustu, skorzystaj z asystenta podróży</p>
@@ -2132,7 +2173,6 @@
                 <input type="text" class="assistant-input" id="assistant-input" data-i18n-ph="assistant.placeholder" placeholder="Zacznij pisać nazwę miejsca…" autocomplete="off">
               </div>
               <div class="assistant-suggestions" id="assistant-suggestions"></div>
-              <p class="ai-disclaimer ai-input-warning">AI może popełniać błędy. Sprawdź ważne informacje przed rezerwacją.</p>
             </div>
           </div>
         </div>
@@ -2312,6 +2352,11 @@
             <text x="36.2" y="26.3" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.2" font-weight="600" fill="currentColor">E</text>
             <text x="11.8" y="26.3" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.2" font-weight="600" fill="currentColor">W</text>
           </svg>
+          <svg class="vip-lux-icon vip-lux-icon--jet" viewBox="0 0 120 50" aria-hidden="true">
+            <path d="M8,30 L74,24 L96,20 Q108,19 108,24 Q108,29 96,30 L74,33 L52,44 L40,44 L48,33 L26,35 L18,42 L10,42 L14,33 Z" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <path d="M60,26 L70,10 L78,10 L74,25" fill="none" stroke="currentColor" stroke-width="0.8"/>
+            <circle cx="92" cy="24" r="1.6" fill="none" stroke="currentColor" stroke-width="0.7"/>
+          </svg>
           <svg class="vip-lux-icon vip-lux-icon--yacht" viewBox="0 0 80 60" aria-hidden="true">
             <path d="M14,42 L66,42 L58,52 L22,52 Z" fill="none" stroke="currentColor" stroke-width="0.8"/>
             <line x1="40" y1="42" x2="40" y2="10" stroke="currentColor" stroke-width="0.8"/>
@@ -2376,6 +2421,13 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="vip-bottom-rule" aria-hidden="true">
+            <span class="vip-bottom-mark">
+              <span class="vip-bottom-diamond"></span>
+              <span data-i18n="vip.footerMark">Wojażer · obsługa osobista</span>
+              <span class="vip-bottom-diamond"></span>
+            </span>
           </div>
         </div>
       </div>
@@ -2720,6 +2772,7 @@
       'planner.welcome':'Witamy na pokładzie!',
       'planner.intro':'Cieszymy się bardzo, że będziemy mogli razem podróżować. Sprawa jest bardzo prosta — poniżej jest quiz, który pomoże Twojemu asystentowi wybrać odpowiednie dla Ciebie miejsca. Uzupełnij go i daj nam działać.',
       'common.close':'Zamknij',
+      'vip.footerMark':'Wojażer · obsługa osobista',
       'set.prefs':'Preferencje','avatar.title':'Wybierz swoją postać',
       'vip.ticketEmpty':'Zgłoszenie #—','offer.addedBtn':'Dodano ✓',
       'stamp.departIn':'Wyjazd za {d} dni',
@@ -2979,6 +3032,7 @@
       'planner.welcome':'Welcome aboard!',
       'planner.intro':'We are glad we get to travel together. It is simple — below is a quiz that helps your assistant pick the right places for you. Fill it in and let us do the rest.',
       'common.close':'Close',
+      'vip.footerMark':'Wojażer · personal service',
       'set.prefs':'Preferences','avatar.title':'Pick your character',
       'vip.ticketEmpty':'Request #—','offer.addedBtn':'Added ✓',
       'stamp.departIn':'Departure in {d} days',
@@ -3517,7 +3571,7 @@
       if(left === 1) tail = t('quiz.last');
       else if(left === 2) tail = t('quiz.left2');
       else tail = t('quiz.leftN', {n: left});
-      progress.innerHTML = '<span class="qp-bar"><span class="qp-fill" style="width:'+pct+'%"></span></span>'
+      progress.innerHTML = '<span class="qp-bar" style="--qp:'+pct.toFixed(1)+'%"></span>'
         + '<span class="qp-text"><strong>' + t('quiz.question') + ' ' + (quizIndex+1) + ' ' + t('quiz.of') + ' ' + total + '</strong> · ' + tail + '</span>';
     }
   }
@@ -5146,7 +5200,7 @@
         {h:'4. Korzystanie ze sztucznej inteligencji',
          p:'Odpowiedzi asystenta, opisy kierunków, propozycje planów dnia oraz szacunki kosztów są <strong>generowane automatycznie przez systemy sztucznej inteligencji</strong>. Rozmawiając z asystentem, rozmawiasz z oprogramowaniem, a nie z człowiekiem — informujemy o tym również bezpośrednio w oknie czatu, zgodnie z wymogami przejrzystości Aktu o sztucznej inteligencji (rozporządzenie UE 2024/1689).'},
         {h:'5. Ograniczenie odpowiedzialności za treści generowane przez AI',
-         p:'Modele AI mogą popełniać błędy i tworzyć informacje, które brzmią wiarygodnie, a są nieprawdziwe (tzw. „halucynacje”). <strong>Wszystkie generowane plany, ceny, godziny otwarcia, rozkłady jazdy, wymogi wizowe, opłaty i zalecenia mają wyłącznie charakter pomocniczy i poglądowy.</strong> Przed podjęciem decyzji, rezerwacją lub wyjazdem masz obowiązek samodzielnie zweryfikować je u oficjalnych źródeł: przewoźnika, obiektu noclegowego, placówki dyplomatycznej, Ministerstwa Spraw Zagranicznych oraz ubezpieczyciela. Operator nie ponosi odpowiedzialności za szkody wynikłe z oparcia się wyłącznie na treściach wygenerowanych przez Serwis.'},
+         p:'Modele AI mogą popełniać błędy i tworzyć informacje, które brzmią wiarygodnie, a są nieprawdziwe (tzw. „halucynacje”). <strong>Wszystkie generowane plany, ceny, godziny otwarcia, rozkłady jazdy, wymogi wizowe, opłaty i zalecenia mają wyłącznie charakter pomocniczy i poglądowy.</strong> Przed podjęciem decyzji, rezerwacją lub wyjazdem masz obowiązek samodzielnie zweryfikować je u oficjalnych źródeł: przewoźnika, obiektu noclegowego, placówki dyplomatycznej, Ministerstwa Spraw Zagranicznych oraz ubezpieczyciela. Dotyczy to w szczególności propozycji kierunków i szacunków kosztów pokazywanych po wypełnieniu quizu w Plannerze oraz odpowiedzi asystenta. Operator nie ponosi odpowiedzialności za szkody wynikłe z oparcia się wyłącznie na treściach wygenerowanych przez Serwis.'},
         {h:'6. Zakaz dostarczania treści bezprawnych',
          p:'Zabronione jest wprowadzanie do Serwisu — w tym do pola rozmowy z asystentem — treści bezprawnych, w szczególności: naruszających prawa autorskie lub dobra osobiste osób trzecich, obraźliwych, wulgarnych, nawołujących do nienawiści lub przemocy, zawierających dane osobowe innych osób bez podstawy prawnej, treści o charakterze pornograficznym, a także prób obejścia zabezpieczeń lub wykorzystania Serwisu do działań sprzecznych z prawem. Operator może zablokować dostęp do Serwisu w razie naruszenia tego zakazu.'},
         {h:'7. Rezerwacje i przekierowania do partnerów',
@@ -5242,7 +5296,7 @@
         {h:'4. Use of artificial intelligence',
          p:'The assistant’s replies, destination descriptions, day plans and cost estimates are <strong>generated automatically by artificial intelligence systems</strong>. When you talk to the assistant you are talking to software, not a human — we also state this directly in the chat window, in line with the transparency requirements of the EU AI Act (Regulation (EU) 2024/1689).'},
         {h:'5. Disclaimer for AI-generated content',
-         p:'AI models can make mistakes and produce information that sounds plausible but is false (so-called “hallucinations”). <strong>All generated plans, prices, opening hours, timetables, visa requirements, fees and recommendations are indicative and for guidance only.</strong> Before making any decision, booking or trip you must verify them yourself with official sources: the carrier, the accommodation provider, the relevant embassy or consulate, your foreign ministry and your insurer. The Operator is not liable for damage resulting from relying solely on content generated by the Service.'},
+         p:'AI models can make mistakes and produce information that sounds plausible but is false (so-called “hallucinations”). <strong>All generated plans, prices, opening hours, timetables, visa requirements, fees and recommendations are indicative and for guidance only.</strong> Before making any decision, booking or trip you must verify them yourself with official sources: the carrier, the accommodation provider, the relevant embassy or consulate, your foreign ministry and your insurer. This applies in particular to the destination suggestions and cost estimates shown after completing the Planner quiz, and to the assistant’s replies. The Operator is not liable for damage resulting from relying solely on content generated by the Service.'},
         {h:'6. No unlawful content',
          p:'You must not submit unlawful content to the Service — including in the assistant’s input field — in particular content that infringes copyright or personal rights of third parties, is abusive, obscene, incites hatred or violence, contains other people’s personal data without a legal basis, is pornographic, or attempts to bypass security measures or use the Service for unlawful purposes. The Operator may block access to the Service if this prohibition is breached.'},
         {h:'7. Bookings and redirects to partners',

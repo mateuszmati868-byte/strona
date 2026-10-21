@@ -444,7 +444,7 @@
   .qp-text strong{font-weight:700;}
   body.theme-light .qp-bar{background:rgba(19,42,58,.15);}
 
-  .quiz-results{display:none;width:100%;max-width:760px;text-align:center;}
+  .quiz-results{display:none;width:100%;max-width:1040px;text-align:center;}
   .quiz-results.visible{display:block;animation:panelIn .5s ease;}
   .quiz-results-head{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
   .quiz-retry-hint{
@@ -463,8 +463,8 @@
   .quiz-retry-btn .retry-icon{font-size:1rem;display:inline-block;transition:transform .4s ease;}
   .quiz-retry-btn:hover .retry-icon{transform:rotate(180deg);}
   .result-cards{
-    display:flex;gap:20px;flex-wrap:nowrap;
-    overflow-x:auto;overflow-y:hidden;
+    display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:22px;
+    overflow:visible;
     padding:26px 8px 30px;scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:thin;scrollbar-color:rgba(243,239,230,.35) transparent;
@@ -473,7 +473,9 @@
   .result-cards::-webkit-scrollbar-track{background:rgba(255,255,255,.08);border-radius:999px;}
   .result-cards::-webkit-scrollbar-thumb{background:rgba(243,239,230,.4);border-radius:999px;}
   .result-cards::-webkit-scrollbar-thumb:hover{background:rgba(243,239,230,.6);}
-  .result-cards .result-card{flex:0 0 auto;scroll-snap-align:center;}
+  .result-cards .result-card{width:auto;min-width:0;}
+  @media (max-width:820px){ .result-cards{grid-template-columns:repeat(2, minmax(0, 1fr));} }
+  @media (max-width:480px){ .result-cards{grid-template-columns:1fr;} }
   /* efekt "lupy": najechana karta rosnie, pozostale maleja i przygasaja */
   .result-cards:hover .result-card{transform:scale(.93);opacity:.72;}
   .result-cards .result-card:hover{transform:scale(1.09) translateY(-6px)!important;opacity:1!important;z-index:3;}
@@ -502,6 +504,14 @@
   .result-card[draggable="true"]{cursor:grab;}
   .result-card[draggable="true"]:active{cursor:grabbing;}
   .result-card.dragging{opacity:.45;transform:scale(.97);}
+  .vip-cta{margin:30px auto 0;max-width:620px;display:flex;flex-direction:column;align-items:center;gap:14px;
+    padding:22px 24px;border-radius:24px;background:linear-gradient(135deg,#1C1915,#2A2318);color:#EDE6D6;
+    box-shadow:0 16px 36px rgba(20,16,10,.25);border:1px solid rgba(201,162,75,.35);}
+  .vip-cta-text{margin:0;font-family:var(--font-display);font-size:1.15rem;line-height:1.4;color:#EDE6D6;}
+  .vip-cta-btn{background:linear-gradient(135deg,#E2BE62,#C9A24B);color:#1F1707;border:none;border-radius:999px;
+    padding:13px 28px;font-weight:800;font-size:.95rem;letter-spacing:.02em;cursor:pointer;
+    box-shadow:0 8px 22px rgba(201,162,75,.35);transition:transform .2s ease, box-shadow .2s ease;}
+  .vip-cta-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 28px rgba(201,162,75,.5);}
   .result-drag-hint{font-size:.76rem;color:var(--deep-text-soft);margin:-6px 0 14px;text-align:center;}
 
   /* ---------- SZYBKI PODGLAD BUDZETU ----------
@@ -991,6 +1001,10 @@
   .day-plan-item .dp-time{flex:none;min-width:92px;font-weight:700;color:var(--mustard);}
   /* zakladki w oknie szczegolow podrozy */
   .td-pane[hidden]{display:none!important;}
+  html.modal-open, html.modal-open body{overflow:hidden!important;}
+  html.modal-open body{padding-right:var(--sbw, 0px);}
+  .chat-modal,.offer-modal,.avatar-modal,.trips-modal,.settings-modal,.trip-detail-modal,
+  .trip-control-modal,.legal-modal,.diag-modal,.auth-modal,.cmp-modal{overscroll-behavior:contain;}
   /* ---------- WSZYSTKIE OKNA WYSKAKUJACE: jeden, obly ksztalt ----------
      clip-path przycina tez pasek przewijania i obrazki w naroznikach. */
   .chat-modal,.offer-modal,.avatar-modal,.trips-modal,.settings-modal,.trip-detail-modal,
@@ -1115,6 +1129,10 @@
   .live-toast.dragging{cursor:grabbing;animation:none;transition:none;box-shadow:0 18px 40px rgba(0,0,0,.35);}
   .live-toast.moved{bottom:auto;right:auto;}
   @keyframes toastFloat{0%,100%{translate:0 0;}50%{translate:0 -5px;}}
+  /* drganie przy odbiciu od krawedzi i przy pojawieniu sie */
+  .live-toast.bump{animation:toastBump .38s ease-out!important;}
+  @keyframes toastBump{0%{rotate:0deg;scale:1;}20%{rotate:-3deg;scale:1.05 .95;}40%{rotate:2.5deg;scale:.97 1.03;}60%{rotate:-1.5deg;}80%{rotate:.8deg;}100%{rotate:0deg;scale:1;}}
+  .live-toast.on.jiggle{animation:toastBump .5s ease-out .35s, toastFloat 5s ease-in-out 1.2s infinite;}
   .lt-cc{display:inline-flex;align-items:center;gap:6px;margin-left:6px;font-weight:800;letter-spacing:.06em;color:#F7F5EF;}
   .lt-cc img{width:20px;height:auto;border-radius:3px;display:inline-block;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,.25);}
   .lt-sep{opacity:.55;font-weight:400;}
@@ -1770,7 +1788,8 @@
 
   /* paszport: pamiętnik podróży */
   /* PASZPORT: motyw papieru dokumentu - drobna siatka i guilloche jak w paszporcie */
-  #panel-library{position:relative;overflow:hidden;background:transparent;}
+  /* overflow:clip zamiast hidden - przycina tak samo, ale nie psuje przyklejania (sticky) kolumny z odznakami */
+  #panel-library{position:relative;overflow:clip;background:transparent;}
   .library-title{
     color:var(--deep-text);font-family:var(--font-display);font-weight:500;
     font-size:clamp(1.5rem, 3vw, 2.1rem);
@@ -2883,6 +2902,10 @@
             <p class="quiz-retry-hint" data-i18n="quiz.retryHint">Nie trafiliśmy w Twój gust? Zrób quiz jeszcze raz — za każdym razem losujemy inne kierunki. Poniżej sprawdzisz też, ile mniej więcej kosztuje dzień na miejscu.</p>
             <p class="result-drag-hint" data-i18n="quiz.dragHint">Kafelki można przestawiać — przytrzymaj i przeciągnij myszką.</p>
             <div class="result-cards"></div>
+            <div class="vip-cta">
+              <p class="vip-cta-text" data-i18n="vipcta.text">Nie trafiliśmy w Twój gust? Stworzymy coś wyjątkowego — tylko dla Ciebie.</p>
+              <button type="button" class="vip-cta-btn" id="vip-cta-btn" data-i18n="vipcta.btn">✦ Poczuj się jak VIP</button>
+            </div>
           </div>
           <!-- kalkulator budzetu: zawsze w plannerze; po quizie pokazuje wylosowane kierunki -->
           <div class="budget-peek" id="budget-peek-planner" data-source="planner"></div>
@@ -3539,6 +3562,7 @@
       'planner.intro':'Cieszymy się bardzo, że będziemy mogli razem podróżować. Sprawa jest bardzo prosta — poniżej jest quiz, który pomoże Twojemu asystentowi wybrać odpowiednie dla Ciebie miejsca. Uzupełnij go i daj nam działać.',
       'common.close':'Zamknij',
       'space.skip':'Pomiń →',
+      'vipcta.text':'Nie trafiliśmy w Twój gust? Stworzymy coś wyjątkowego — tylko dla Ciebie.','vipcta.btn':'✦ Poczuj się jak VIP',
       'map.title':'Mapa: {city}','map.open':'Otwórz w Mapach Google ↗','map.show':'Pokaż mapę Google',
       'map.note':'Mapa ładuje się z serwerów Google. Na razie pokazuje centrum miasta — dokładny adres pojawi się po potwierdzeniu noclegu.',
       'quiz.dragHint':'Kafelki można przestawiać — przytrzymaj i przeciągnij myszką.',
@@ -3903,6 +3927,7 @@
       'planner.intro':'We are glad we get to travel together. It is simple — below is a quiz that helps your assistant pick the right places for you. Fill it in and let us do the rest.',
       'common.close':'Close',
       'space.skip':'Skip →',
+      'vipcta.text':'Not quite your taste? We will create something unique — just for you.','vipcta.btn':'✦ Feel like a VIP',
       'map.title':'Map: {city}','map.open':'Open in Google Maps ↗','map.show':'Show Google map',
       'map.note':'The map loads from Google servers. For now it shows the city centre — the exact address appears once the stay is confirmed.',
       'quiz.dragHint':'You can rearrange the tiles — press and drag with the mouse.',
@@ -4414,10 +4439,20 @@
   ];
   let lastQuoteIdx = -1;
   function pickQuote(){
-    let i;
-    do { i = Math.floor(Math.random() * TRAVEL_QUOTES.length); }
-    while(TRAVEL_QUOTES.length > 1 && i === lastQuoteIdx);
+    const n = TRAVEL_QUOTES.length;
+    let bag = [];
+    try{ bag = JSON.parse(localStorage.getItem('wojazer.quoteBag') || '[]'); }catch(e){}
+    try{ lastQuoteIdx = parseInt(localStorage.getItem('wojazer.quoteLast') || '-1', 10); }catch(e){}
+    bag = bag.filter(function(i){ return i >= 0 && i < n; });
+    if(!bag.length){
+      for(let i = 0; i < n; i++) bag.push(i);
+      for(let i = n - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const tmp = bag[i]; bag[i] = bag[j]; bag[j] = tmp; }
+      // nowa runda nie zaczyna sie od cytatu, ktory byl przed chwila
+      if(n > 1 && bag[0] === lastQuoteIdx){ bag.push(bag.shift()); }
+    }
+    const i = bag.shift();
     lastQuoteIdx = i;
+    try{ localStorage.setItem('wojazer.quoteBag', JSON.stringify(bag)); localStorage.setItem('wojazer.quoteLast', String(i)); }catch(e){}
     return TRAVEL_QUOTES[i];
   }
 
@@ -6859,6 +6894,9 @@
   /* Kafelki propozycji mozna przestawiac: przytrzymanie lewym przyciskiem myszy
      i przeciagniecie. Nowa kolejnosc zostaje (tez po zmianie jezyka). */
   let draggedCard = null;
+  document.addEventListener('click', function(e){
+    if(e.target.closest('#vip-cta-btn')){ goToTab('vip'); window.scrollTo({top:0, behavior:'smooth'}); }
+  });
   function wireResultCards(){
     document.querySelectorAll('.result-card').forEach(function(card){
       card.setAttribute('draggable', 'true');
@@ -9023,22 +9061,55 @@
       el.classList.remove('on');
     });
     document.body.appendChild(el);
+    el.addEventListener('animationend', function(ev){ if(ev.animationName === 'toastBump') el.classList.remove('bump'); });
     makeDraggable(el);
   }
   /* dymek mozna zlapac i przesunac w dowolne miejsce ekranu (mysz, palec) */
   let dragPos = null;
+  /* "Krazek hokejowy": rzucony dymek leci dalej, zwalnia i odbija sie od krawedzi
+     ekranu z lekkim drganiem (na telefonie takze krotka wibracja). */
+  let flingRaf = 0;
+  function fling(box, vx, vy){
+    cancelAnimationFrame(flingRaf);
+    let x = box.getBoundingClientRect().left, y = box.getBoundingClientRect().top, last = performance.now();
+    const step = function(now){
+      const dt = Math.min(32, now - last); last = now;
+      x += vx * dt; y += vy * dt;
+      const w = box.offsetWidth, h = box.offsetHeight, maxX = innerWidth - w - 6, maxY = innerHeight - h - 6;
+      let hit = false;
+      if(x < 6){ x = 6; vx = -vx * 0.72; hit = true; }
+      if(x > maxX){ x = maxX; vx = -vx * 0.72; hit = true; }
+      if(y < 6){ y = 6; vy = -vy * 0.72; hit = true; }
+      if(y > maxY){ y = maxY; vy = -vy * 0.72; hit = true; }
+      if(hit){
+        box.classList.remove('bump'); void box.offsetWidth; box.classList.add('bump');
+        try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+      }
+      const f = Math.pow(0.9965, dt);          // tarcie "lodu"
+      vx *= f; vy *= f;
+      box.style.left = x + 'px'; box.style.top = y + 'px';
+      dragPos = {x: x, y: y};
+      if(Math.abs(vx) + Math.abs(vy) > 0.02) flingRaf = requestAnimationFrame(step);
+    };
+    flingRaf = requestAnimationFrame(step);
+  }
   function makeDraggable(box){
     let sx = 0, sy = 0, ox = 0, oy = 0, active = false, moved = false;
+    let hist = [];
     box.addEventListener('pointerdown', function(e){
       if(e.button !== 0 || e.target.closest('.live-toast-close')) return;
       const r = box.getBoundingClientRect();
+      cancelAnimationFrame(flingRaf);
       sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top; active = true; moved = false;
+      hist = [{x:e.clientX, y:e.clientY, t:performance.now()}];
       clearTimeout(hideTimer);                 // trzymany dymek nie znika
       box.setPointerCapture(e.pointerId);
     });
     box.addEventListener('pointermove', function(e){
       if(!active) return;
       const dx = e.clientX - sx, dy = e.clientY - sy;
+      hist.push({x:e.clientX, y:e.clientY, t:performance.now()});
+      if(hist.length > 6) hist.shift();
       if(!moved && Math.abs(dx) + Math.abs(dy) < 4) return;
       moved = true;
       box.classList.add('dragging', 'moved');
@@ -9052,6 +9123,14 @@
       if(!active) return;
       active = false;
       box.classList.remove('dragging');
+      // predkosc z ostatnich ruchow -> rzut
+      if(moved && hist.length > 1){
+        const a = hist[0], b = hist[hist.length - 1], dt = Math.max(1, b.t - a.t);
+        const vx = (b.x - a.x) / dt, vy = (b.y - a.y) / dt;
+        if(Math.abs(vx) + Math.abs(vy) > 0.25 && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){
+          fling(box, Math.max(-3, Math.min(3, vx)), Math.max(-3, Math.min(3, vy)));
+        }
+      }
       hideTimer = setTimeout(function(){ box.classList.remove('on'); }, SHOW_MS);
     };
     box.addEventListener('pointerup', end);
@@ -9075,7 +9154,8 @@
     }
     el.querySelector('.live-toast-text').textContent = item[L] || item.pl;
     el.querySelector('.live-toast-close').setAttribute('aria-label', L === 'en' ? 'Close' : 'Zamknij');
-    el.classList.add('on');
+    el.classList.remove('jiggle'); void el.offsetWidth;
+    el.classList.add('on', 'jiggle');
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function(){ el.classList.remove('on'); }, SHOW_MS);
     shown++;
@@ -9098,6 +9178,32 @@
     queue.push(ev);
   };
   setTimeout(tick, FIRST_DELAY);
+})();
+</script>
+
+<script>
+/* Gdy otwarte jest jakiekolwiek okno, strona w tle stoi w miejscu -
+   przewijanie kolkiem dziala tylko wewnatrz okna. */
+(function(){
+  const SEL = '[class*="-backdrop"].active, .wrapped-overlay.active, .wrapped-overlay.open, .cmp-backdrop.active, .cmp-backdrop.open';
+  function sync(){
+    const open = !!document.querySelector(SEL);
+    const root = document.documentElement;
+    if(open && !root.classList.contains('modal-open')){
+      root.style.setProperty('--sbw', (window.innerWidth - root.clientWidth) + 'px');   // bez "skoku" po zniknieciu paska
+      root.classList.add('modal-open');
+    } else if(!open && root.classList.contains('modal-open')){
+      root.classList.remove('modal-open');
+    }
+  }
+  new MutationObserver(sync).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
+  // kolko myszy poza oknem (nad przyciemnionym tlem) nic nie przewija
+  document.addEventListener('wheel', function(e){
+    if(!document.documentElement.classList.contains('modal-open')) return;
+    const box = e.target.closest('.chat-modal,.offer-modal,.avatar-modal,.trips-modal,.settings-modal,.trip-detail-modal,.trip-control-modal,.legal-modal,.diag-modal,.auth-modal,.cmp-modal,.wrapped-card,.wrapped-overlay');
+    if(!box) e.preventDefault();
+  }, {passive:false});
+  sync();
 })();
 </script>
 </body>

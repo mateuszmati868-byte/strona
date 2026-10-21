@@ -482,6 +482,27 @@
     .result-cards .result-card:hover{transform:none!important;opacity:1!important;}
   }
   .assistant-box{max-width:440px;margin:36px auto 0;text-align:center;}
+  /* ---------- paszport: tresc + stala kolumna z informacja o odznakach ---------- */
+  .passport-layout{width:100%;max-width:1320px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:32px;align-items:start;}
+  .passport-main{min-width:0;display:flex;flex-direction:column;align-items:center;gap:36px;}
+  .passport-aside{position:sticky;top:110px;text-align:left;background:rgba(255,255,255,.72);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border:1px solid rgba(27,94,63,.14);border-radius:24px;padding:22px 22px 20px;color:#173D2B;
+    box-shadow:0 14px 34px rgba(60,45,20,.08);}
+  .passport-aside h3{font-family:var(--font-display);font-size:1.3rem;margin:0 0 14px;color:#173D2B;}
+  .pa-block{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;}
+  .pa-ico{flex:none;width:34px;height:34px;border-radius:50%;background:rgba(27,94,63,.09);display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;}
+  .pa-block p{margin:0;font-size:.84rem;line-height:1.55;color:rgba(23,61,43,.86);}
+  .pa-block strong{color:#173D2B;}
+  .pa-cheer{margin:6px 0 0;padding-top:14px;border-top:1px dashed rgba(27,94,63,.25);font-size:.86rem;line-height:1.55;font-style:italic;color:#1B5E3F;}
+  @media (max-width:1100px){
+    .passport-layout{grid-template-columns:1fr;}
+    .passport-aside{position:static;max-width:640px;width:100%;margin:0 auto;}
+  }
+  .result-card[draggable="true"]{cursor:grab;}
+  .result-card[draggable="true"]:active{cursor:grabbing;}
+  .result-card.dragging{opacity:.45;transform:scale(.97);}
+  .result-drag-hint{font-size:.76rem;color:var(--deep-text-soft);margin:-6px 0 14px;text-align:center;}
 
   /* ---------- SZYBKI PODGLAD BUDZETU ----------
      Celowo maly i spokojny - nie moze odciagac uwagi od quizu. Ciemne szklo,
@@ -654,6 +675,9 @@
   }
   .offer-option-name{font-family:var(--font-display);font-weight:600;font-size:1rem;margin:0 0 2px;}
   .offer-option-type{font-size:.78rem;color:var(--rust-dark);font-weight:700;margin-bottom:6px;}
+  .offer-coffee-note, .td-aff-note{font-size:.74rem;color:var(--rust-dark);font-weight:600;margin-top:6px;line-height:1.45;}
+  .td-aff-note{grid-column:1/-1;color:var(--ink-soft);font-weight:500;text-align:center;}
+  .td-coffee{color:var(--rust-dark);font-weight:600;}
   .offer-affiliate-note{font-size:.7rem;color:var(--ink-soft);font-style:italic;margin-top:12px;line-height:1.4;}
   .offer-plan-extra{margin-top:10px;font-size:.88rem;line-height:1.6;}
   .offer-plan-cta{
@@ -807,7 +831,7 @@
   }
   .trip-detail-backdrop.active{display:flex;}
   .trip-detail-modal{
-    background:#FFFDF6;max-width:620px;width:100%;color:var(--ink);
+    background:#FFFDF6;max-width:840px;width:100%;color:var(--ink);
     max-height:90vh;overflow-y:auto;padding:0 0 32px;position:relative;
     box-shadow:0 40px 80px -20px rgba(0,0,0,.55);text-align:left;
   }
@@ -815,9 +839,18 @@
   .trip-detail-icon{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:60%;opacity:.9;}
   .trip-detail-title{font-size:1.5rem;font-weight:600;padding:0 32px;margin-top:20px;}
   .trip-detail-date{font-size:.85rem;color:var(--ink-soft);padding:0 32px;margin-top:4px;}
-  .trip-detail-grid{display:grid;grid-template-columns:150px 1fr;gap:24px;padding:24px 32px 0;}
+  .trip-detail-grid{display:grid;grid-template-columns:300px 1fr;gap:26px;padding:24px 32px 0;}
+  @media (max-width:760px){ .trip-detail-grid{grid-template-columns:1fr;} }
   @media (max-width:520px){ .trip-detail-grid{grid-template-columns:1fr;} }
-  .trip-detail-map{background:var(--paper-deep);padding:10px;}
+  .trip-detail-map{background:var(--paper-deep);padding:0;border-radius:20px;overflow:hidden;position:relative;min-height:300px;align-self:stretch;}
+  .gmap-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+  .gmap-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;text-align:center;}
+  .gmap-placeholder svg{position:absolute;inset:0;width:100%;height:100%;opacity:.55;}
+  .gmap-btn{position:relative;z-index:1;background:#fff;color:var(--rust-dark);border:1.5px solid var(--rust);border-radius:999px;padding:10px 16px;font-weight:700;font-size:.82rem;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.08);}
+  .gmap-btn:hover{background:var(--rust);color:#fff;}
+  .gmap-note{position:relative;z-index:1;font-size:.7rem;color:var(--ink-soft);max-width:220px;line-height:1.4;}
+  .gmap-open{position:absolute;left:10px;bottom:10px;z-index:2;background:rgba(255,255,255,.95);color:var(--rust-dark);border-radius:999px;padding:6px 12px;font-size:.72rem;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+  @media (max-width:760px){ .trip-detail-map{min-height:230px;} }
   .trip-detail-map svg{width:100%;height:auto;}
   .trip-detail-row{margin-bottom:20px;}
   .trip-detail-label{
@@ -829,8 +862,9 @@
     display:inline-block;margin-top:8px;font-size:.82rem;font-weight:700;
     color:var(--rust-dark);text-decoration:underline;
   }
+  .trip-detail-grid .trip-control-open-btn, .trip-detail-grid .pdf-btn{grid-column:1/-1;}
   .trip-control-open-btn{
-    display:block;width:calc(100% - 64px);margin:8px 32px 0;
+    display:block;width:calc(100% - 64px);margin:8px 32px 0;min-height:52px;white-space:normal;
     background:var(--rust);color:var(--ink);border:none;border-radius:999px;
     padding:14px 16px;font-weight:700;font-size:.92rem;cursor:pointer;
     transition:background .15s ease;
@@ -957,6 +991,19 @@
   .day-plan-item .dp-time{flex:none;min-width:92px;font-weight:700;color:var(--mustard);}
   /* zakladki w oknie szczegolow podrozy */
   .td-pane[hidden]{display:none!important;}
+  /* ---------- WSZYSTKIE OKNA WYSKAKUJACE: jeden, obly ksztalt ----------
+     clip-path przycina tez pasek przewijania i obrazki w naroznikach. */
+  .chat-modal,.offer-modal,.avatar-modal,.trips-modal,.settings-modal,.trip-detail-modal,
+  .trip-control-modal,.legal-modal,.diag-modal,.auth-modal,.cmp-modal,.wrapped-card{
+    border-radius:28px!important;
+    clip-path:inset(0 round 28px);
+    scrollbar-width:thin;
+  }
+  .cookie-banner{border-radius:24px!important;}
+  :is(.chat-modal,.offer-modal,.avatar-modal,.trips-modal,.settings-modal,.trip-detail-modal,.trip-control-modal,.legal-modal,.diag-modal,.auth-modal,.cmp-modal)
+    :is(input,textarea,select){border-radius:14px!important;}
+  :is(.trip-control-modal,.trip-detail-modal) :is(.lodging-map-inner,.wall-calendar,.weather-box,.weather-now,.faq-item,.safepocket-item,.day-plan-item){border-radius:18px!important;}
+  .offer-tab{border-radius:999px!important;}
   .td-tabs{display:flex;gap:6px;padding:14px 32px 0;flex-wrap:wrap;}
   .td-tab{border:1px solid rgba(42,36,32,.18);background:transparent;color:var(--ink);border-radius:999px;padding:7px 14px;font-weight:600;font-size:.82rem;cursor:pointer;}
   .td-tab.active{background:var(--rust-dark);border-color:var(--rust-dark);color:#fff;}
@@ -1063,8 +1110,17 @@
     opacity:0;transform:translateY(14px);pointer-events:none;
     transition:opacity .45s ease, transform .45s cubic-bezier(.2,.8,.3,1);
   }
-  .live-toast.on{opacity:1;transform:none;pointer-events:auto;}
+  .live-toast.on{opacity:1;transform:none;pointer-events:auto;animation:toastFloat 5s ease-in-out 1s infinite;}
+  .live-toast{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:22px;}
+  .live-toast.dragging{cursor:grabbing;animation:none;transition:none;box-shadow:0 18px 40px rgba(0,0,0,.35);}
+  .live-toast.moved{bottom:auto;right:auto;}
+  @keyframes toastFloat{0%,100%{translate:0 0;}50%{translate:0 -5px;}}
+  .lt-cc{display:inline-flex;align-items:center;gap:6px;margin-left:6px;font-weight:800;letter-spacing:.06em;color:#F7F5EF;}
+  .lt-cc img{width:20px;height:auto;border-radius:3px;display:inline-block;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,.25);}
+  .lt-sep{opacity:.55;font-weight:400;}
+  @media (prefers-reduced-motion: reduce){ .live-toast.on{animation:none;} }
   .live-toast-icon{font-size:1.15rem;line-height:1.2;flex:none;}
+  .live-toast-kicker{display:flex!important;align-items:center;flex-wrap:wrap;}
   .live-toast-kicker{display:block;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9FE3BE;margin-bottom:2px;}
   .live-toast-close{flex:none;background:none;border:0;color:rgba(247,245,239,.6);cursor:pointer;font-size:1rem;line-height:1;padding:2px 0 0 4px;}
   .live-toast-close:hover{color:#fff;}
@@ -2401,9 +2457,12 @@
     position:relative;display:inline-block;margin:0;
     /* zwykla czcionka tekstowa (Inter) - ma pelny zestaw polskich znakow,
        wiec nic sie nie "rozjezdza" nawet gdy font ozdobny sie nie wczyta */
-    font-family:var(--font-body);
-    font-weight:500;font-style:normal;
-    font-size:clamp(1.15rem, 2.4vw, 1.9rem);line-height:1.42;
+    font-family:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-weight:500;font-style:normal;font-synthesis:none;
+    font-size:clamp(1.15rem, 2.4vw, 1.9rem);line-height:1.5;
+    /* zapas wokol tekstu: maska animacji przycina wszystko poza ramka elementu,
+       a kreski nad Ż, Ś, Ć i ogonki ą, ę wystaja poza linie tekstu */
+    padding:.35em .5em;
     color:#EADCC0;
     text-shadow:0 2px 14px rgba(0,0,0,.45);
     letter-spacing:.01em;
@@ -2822,6 +2881,7 @@
               <button type="button" class="quiz-retry-btn" id="quiz-retry-btn"><span class="retry-icon">↻</span> <span data-i18n="quiz.retry">Powtórz quiz</span></button>
             </div>
             <p class="quiz-retry-hint" data-i18n="quiz.retryHint">Nie trafiliśmy w Twój gust? Zrób quiz jeszcze raz — za każdym razem losujemy inne kierunki. Poniżej sprawdzisz też, ile mniej więcej kosztuje dzień na miejscu.</p>
+            <p class="result-drag-hint" data-i18n="quiz.dragHint">Kafelki można przestawiać — przytrzymaj i przeciągnij myszką.</p>
             <div class="result-cards"></div>
           </div>
           <!-- kalkulator budzetu: zawsze w plannerze; po quizie pokazuje wylosowane kierunki -->
@@ -2830,6 +2890,8 @@
 
         <div class="tab-panel" id="panel-library">
           <h2 class="library-title" data-i18n="passport.title">Osobisty pamiętnik z podróży</h2>
+          <div class="passport-layout">
+          <div class="passport-main">
 
           <div class="level-scale">
             <div class="level-scale-header">
@@ -2934,6 +2996,25 @@
               </div>
             </div>
           </div>
+
+          </div><!-- /passport-main -->
+          <aside class="passport-aside" aria-labelledby="pa-title">
+            <h3 id="pa-title" data-i18n="pa.title">Jak działają odznaki?</h3>
+            <div class="pa-block">
+              <span class="pa-ico">🛂</span>
+              <p data-i18n-html="pa.stamps"><strong>Pieczątki i poziomy.</strong> Każda podróż zarezerwowana z Wojażerem to nowa pieczątka w paszporcie. Pieczątki podnoszą poziom: Odkrywca od 5, Podróżnik od 10, Wędrowiec od 20, Globtroter od 35, Zdobywca Kontynentów od 50, a Legenda Wojażera od 75.</p>
+            </div>
+            <div class="pa-block">
+              <span class="pa-ico">🏅</span>
+              <p data-i18n-html="pa.badges"><strong>Odznaki specjalne.</strong> Przyznawane za konkretne osiągnięcia — pierwszą podróż, 10 noclegów, 3 odwiedzone kontynenty czy pierwszą recenzję. Zablokowane mają kłódkę, która znika w chwili zdobycia.</p>
+            </div>
+            <div class="pa-block">
+              <span class="pa-ico">🌍</span>
+              <p data-i18n-html="pa.continents"><strong>Kontynenty.</strong> Pieczątki układają się według kontynentów. Spróbuj zdobyć choć jedną z każdego — mapa świata sama zacznie się zapełniać.</p>
+            </div>
+            <p class="pa-cheer" data-i18n="pa.cheer">Świat jest ogromny, a każda pieczątka to osobna historia. Zacznij od miejsca, które od dawna chodzi Ci po głowie — kolejne przyjdą same. Do zobaczenia na szlaku! 🧭</p>
+          </aside>
+          </div><!-- /passport-layout -->
 
         </div>
 
@@ -3232,7 +3313,7 @@
         <div class="trip-recs" id="trip-recs"></div>
       </div>
       <div class="trip-detail-grid td-pane" data-tdpane="info">
-        <div class="trip-detail-map">
+        <div class="trip-detail-map" id="trip-detail-map">
           <svg viewBox="0 0 140 100" aria-hidden="true">
             <g stroke="var(--ink-soft)" stroke-width="0.4" opacity="0.5">
               <line x1="0" y1="20" x2="140" y2="20"/><line x1="0" y1="40" x2="140" y2="40"/>
@@ -3263,6 +3344,7 @@
           </div>
         </div>
         <button type="button" class="pdf-btn" id="trip-pdf-btn" data-i18n="pdf.button">📄 Zapisz plan jako PDF</button>
+        <p class="td-aff-note"><span data-i18n="offer.affNote">Linki prowadzą do partnerów rezerwacyjnych. Możemy otrzymać prowizję — cena dla Ciebie się nie zmienia.</span><br><span class="td-coffee">☕ <span data-i18n="coffee.text">Postaw nam kawę, a my dalej będziemy ulepszać naszego Wojażera.</span></span></p>
         <button type="button" class="trip-control-open-btn" id="trip-control-open-btn" data-i18n="trip.manage">Zarządzaj podróżą →</button>
       </div>
     </div>
@@ -3457,6 +3539,14 @@
       'planner.intro':'Cieszymy się bardzo, że będziemy mogli razem podróżować. Sprawa jest bardzo prosta — poniżej jest quiz, który pomoże Twojemu asystentowi wybrać odpowiednie dla Ciebie miejsca. Uzupełnij go i daj nam działać.',
       'common.close':'Zamknij',
       'space.skip':'Pomiń →',
+      'map.title':'Mapa: {city}','map.open':'Otwórz w Mapach Google ↗','map.show':'Pokaż mapę Google',
+      'map.note':'Mapa ładuje się z serwerów Google. Na razie pokazuje centrum miasta — dokładny adres pojawi się po potwierdzeniu noclegu.',
+      'quiz.dragHint':'Kafelki można przestawiać — przytrzymaj i przeciągnij myszką.',
+      'pa.title':'Jak działają odznaki?',
+      'pa.stamps':'<strong>Pieczątki i poziomy.</strong> Każda podróż zarezerwowana z Wojażerem to nowa pieczątka w paszporcie. Pieczątki podnoszą poziom: Odkrywca od 5, Podróżnik od 10, Wędrowiec od 20, Globtroter od 35, Zdobywca Kontynentów od 50, a Legenda Wojażera od 75.',
+      'pa.badges':'<strong>Odznaki specjalne.</strong> Przyznawane za konkretne osiągnięcia — pierwszą podróż, 10 noclegów, 3 odwiedzone kontynenty czy pierwszą recenzję. Zablokowane mają kłódkę, która znika w chwili zdobycia.',
+      'pa.continents':'<strong>Kontynenty.</strong> Pieczątki układają się według kontynentów. Spróbuj zdobyć choć jedną z każdego — mapa świata sama zacznie się zapełniać.',
+      'pa.cheer':'Świat jest ogromny, a każda pieczątka to osobna historia. Zacznij od miejsca, które od dawna chodzi Ci po głowie — kolejne przyjdą same. Do zobaczenia na szlaku! 🧭',
       'td.info':'Szczegóły','td.recs':'Nasze rekomendacje',
       'rec.note':'Rekomendacje redakcji Wojażera — godziny otwarcia i ceny warto sprawdzić przed wizytą.',
       'rec.none':'Rekomendacje dla tego miejsca są w przygotowaniu.',
@@ -3813,6 +3903,14 @@
       'planner.intro':'We are glad we get to travel together. It is simple — below is a quiz that helps your assistant pick the right places for you. Fill it in and let us do the rest.',
       'common.close':'Close',
       'space.skip':'Skip →',
+      'map.title':'Map: {city}','map.open':'Open in Google Maps ↗','map.show':'Show Google map',
+      'map.note':'The map loads from Google servers. For now it shows the city centre — the exact address appears once the stay is confirmed.',
+      'quiz.dragHint':'You can rearrange the tiles — press and drag with the mouse.',
+      'pa.title':'How do badges work?',
+      'pa.stamps':'<strong>Stamps and levels.</strong> Every trip booked with Wojażer adds a stamp to the passport. Stamps raise the level: Explorer from 5, Traveller from 10, Wanderer from 20, Globetrotter from 35, Continent Conqueror from 50 and Wojażer Legend from 75.',
+      'pa.badges':'<strong>Special badges.</strong> Earned for specific achievements — the first trip, 10 stays, 3 continents visited or the first review. Locked ones show a padlock that disappears once earned.',
+      'pa.continents':'<strong>Continents.</strong> Stamps are grouped by continent. Try to collect at least one from each — the world map will start filling up on its own.',
+      'pa.cheer':'The world is huge, and every stamp is its own story. Start with the place that has been on your mind for ages — the rest will follow. See you on the trail! 🧭',
       'td.info':'Details','td.recs':'Our recommendations',
       'rec.note':'Picked by the Wojażer team — check opening hours and prices before visiting.',
       'rec.none':'Recommendations for this place are on their way.',
@@ -4333,7 +4431,8 @@
     p.textContent = '„' + text + '”';
     if(currentLang === 'en') p.textContent = '“' + text + '”';
     // krople sciekaja z losowych miejsc pod napisem, kazda z innym opoznieniem
-    const drips = Math.min(7, 3 + Math.floor(text.length / 28));
+    // krople usuniete: nachodzily na ogonki (ą, ę) i wygladaly jak bledy w literach
+    const drips = 0;
     for(let i = 0; i < drips; i++){
       const d = document.createElement('span');
       d.className = 'quote-drip';
@@ -6757,8 +6856,33 @@
   }
 
 
+  /* Kafelki propozycji mozna przestawiac: przytrzymanie lewym przyciskiem myszy
+     i przeciagniecie. Nowa kolejnosc zostaje (tez po zmianie jezyka). */
+  let draggedCard = null;
   function wireResultCards(){
     document.querySelectorAll('.result-card').forEach(function(card){
+      card.setAttribute('draggable', 'true');
+      card.querySelectorAll('img').forEach(function(im){ im.setAttribute('draggable', 'false'); });
+      card.addEventListener('dragstart', function(e){
+        draggedCard = card;
+        card.classList.add('dragging');
+        try{ e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', card.dataset.offer); }catch(_){}
+      });
+      card.addEventListener('dragend', function(){
+        card.classList.remove('dragging');
+        document.querySelectorAll('.result-card.drop-target').forEach(function(c){ c.classList.remove('drop-target'); });
+        draggedCard = null;
+        lastResultKeys = Array.prototype.map.call(document.querySelectorAll('.result-cards .result-card'), function(c){ return c.dataset.offer; });
+        if(typeof renderAllBudgetPeeks === 'function') renderAllBudgetPeeks();
+      });
+      card.addEventListener('dragover', function(e){
+        if(!draggedCard || draggedCard === card) return;
+        e.preventDefault();
+        const r = card.getBoundingClientRect();
+        const after = (e.clientX - r.left) > r.width / 2;
+        card.parentNode.insertBefore(draggedCard, after ? card.nextSibling : card);
+      });
+      card.addEventListener('drop', function(e){ e.preventDefault(); });
       card.addEventListener('click', function(){ openOfferModal(card.dataset.offer); });
       card.addEventListener('keydown', function(e){
         if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openOfferModal(card.dataset.offer); }
@@ -6781,7 +6905,8 @@
               + '<a href="'+link+'" target="_blank" rel="sponsored nofollow noopener" class="offer-detail-link">'+t('offer.seePrices')+'</a><span class="aff-tag">'+t('aff.tag')+'</span>'
               + '</div>';
           }).join('')
-        + '<p class="offer-affiliate-note">'+t('offer.affNote')+'</p>';
+        + '<p class="offer-affiliate-note">'+t('offer.affNote')+'</p>'
+        + '<p class="offer-coffee-note">☕ '+t('coffee.text')+'</p>';
     }
     if(detail === 'transport'){
       const opts = getTransportOptions(dest, answers);
@@ -6795,7 +6920,8 @@
               + (o.link ? '<a href="'+o.link+'" target="_blank" rel="sponsored nofollow noopener" class="offer-detail-link">'+o.linkLabel+'</a><span class="aff-tag">'+t('aff.tag')+'</span>' : '')
               + '</div>';
           }).join('')
-        + '<p class="offer-affiliate-note">'+t('offer.affNote')+'</p>';
+        + '<p class="offer-affiliate-note">'+t('offer.affNote')+'</p>'
+        + '<p class="offer-coffee-note">☕ '+t('coffee.text')+'</p>';
     }
     if(detail === 'plan'){
       return '<p>'+getPlanText(dest, answers)+'</p>'
@@ -8045,6 +8171,7 @@
         : '<p class="rec-note">' + t('rec.none') + '</p>';
     }
     showTripDetailTab('info');
+    renderTripMap(document.getElementById('trip-detail-map'), trip);
     if(noclegLinkEl) noclegLinkEl.href = buildAccommodationLink(trip.city);
     loadWeatherInto('trip-weather', trip.key || trip.icon);
     const pdfBtn = document.getElementById('trip-pdf-btn');
@@ -8053,6 +8180,45 @@
     const detailBackdrop = document.getElementById('trip-detail-backdrop');
     if(detailBackdrop) detailBackdrop.classList.add('active');
   }
+
+  /* ==================================================================
+     MAPA GOOGLE W SZCZEGOLACH PODROZY
+     Osadzenie mapy laduje tresci Google (z ich ciasteczkami), dlatego:
+     - przy zgodzie na personalizacje lub marketing mapa laduje sie sama,
+     - bez zgody pokazujemy przycisk "Pokaz mape" (jedno klikniecie = zgoda na te mape).
+     Na razie nocleg jest przykladowy, wiec mapa pokazuje centrum miasta;
+     gdy rezerwacje beda prawdziwe, wystarczy podac tu adres obiektu.
+     ================================================================== */
+  function mapQueryForTrip(trip){
+    if(trip && trip.address) return trip.address;              // docelowo: prawdziwy adres noclegu
+    const k = trip && (trip.key || trip.icon);
+    const c = (typeof WRAPPED_COORDS !== 'undefined') ? WRAPPED_COORDS[k] : null;
+    if(c) return c[0] + ',' + c[1];
+    const d = destForTrip(trip);
+    return d ? (d.nameEn || d.name) : (trip.city || '');
+  }
+  function gmapEmbedUrl(q){
+    return 'https://maps.google.com/maps?q=' + encodeURIComponent(q) + '&z=14&hl=' + (currentLang === 'en' ? 'en' : 'pl') + '&output=embed';
+  }
+  function gmapLinkUrl(q){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); }
+  function mapsAllowed(){
+    try{ const c = window.WojazerConsent && window.WojazerConsent.get(); return !!(c && (c.personalization || c.marketing)); }catch(e){ return false; }
+  }
+  function renderTripMap(el, trip, force){
+    if(!el) return;
+    const q = mapQueryForTrip(trip);
+    if(force || mapsAllowed()){
+      el.innerHTML = '<iframe class="gmap-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="' + escapeHtml(t('map.title', {city: tripCity(trip)})) + '" src="' + gmapEmbedUrl(q) + '"></iframe>'
+        + '<a class="gmap-open" href="' + gmapLinkUrl(q) + '" target="_blank" rel="noopener">' + t('map.open') + '</a>';
+      return;
+    }
+    el.innerHTML = '<div class="gmap-placeholder">'
+      + '<svg viewBox="0 0 140 100" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><g stroke="#B9B2A6" stroke-width=".5" fill="none"><path d="M0,20H140M0,45H140M0,70H140M25,0V100M60,0V100M95,0V100M125,0V100"/></g><path d="M0,78 Q40,70 70,80 T140,76 V100 H0Z" fill="#BFD7E6"/></svg>'
+      + '<button type="button" class="gmap-btn">📍 ' + t('map.show') + '</button>'
+      + '<span class="gmap-note">' + t('map.note') + '</span></div>';
+    el.querySelector('.gmap-btn').addEventListener('click', function(){ renderTripMap(el, trip, true); });
+  }
+
   function showTripDetailTab(name){
     document.querySelectorAll('.td-tab').forEach(function(b){
       const on = b.dataset.tdtab === name;
@@ -8830,7 +8996,7 @@
     const en = lang() === 'en';
     const name = en ? (it.place.nameEn || it.place.name) : it.place.name;
     const pick = function(str){ const i = str.indexOf('|'); return i < 0 ? str : (en ? str.slice(i + 1) : str.slice(0, i)); };
-    return {icon: it.icon || '🧭', pl: name + ': ' + pick(it.txt), en: name + ': ' + pick(it.txt), custom: it.custom};
+    return {icon: it.icon || '🧭', cc: it.place.cc, pl: name + ': ' + pick(it.txt), en: name + ': ' + pick(it.txt), custom: it.custom};
   }
   const queue = [];               // prawdziwe zdarzenia z backendu maja pierwszenstwo
   let shown = 0, muted = false, tipIdx = 0;
@@ -8857,16 +9023,56 @@
       el.classList.remove('on');
     });
     document.body.appendChild(el);
+    makeDraggable(el);
+  }
+  /* dymek mozna zlapac i przesunac w dowolne miejsce ekranu (mysz, palec) */
+  let dragPos = null;
+  function makeDraggable(box){
+    let sx = 0, sy = 0, ox = 0, oy = 0, active = false, moved = false;
+    box.addEventListener('pointerdown', function(e){
+      if(e.button !== 0 || e.target.closest('.live-toast-close')) return;
+      const r = box.getBoundingClientRect();
+      sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top; active = true; moved = false;
+      clearTimeout(hideTimer);                 // trzymany dymek nie znika
+      box.setPointerCapture(e.pointerId);
+    });
+    box.addEventListener('pointermove', function(e){
+      if(!active) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if(!moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+      moved = true;
+      box.classList.add('dragging', 'moved');
+      const w = box.offsetWidth, h = box.offsetHeight;
+      const x = Math.min(Math.max(6, ox + dx), innerWidth - w - 6);
+      const y = Math.min(Math.max(6, oy + dy), innerHeight - h - 6);
+      box.style.left = x + 'px'; box.style.top = y + 'px';
+      dragPos = {x: x, y: y};
+    });
+    const end = function(){
+      if(!active) return;
+      active = false;
+      box.classList.remove('dragging');
+      hideTimer = setTimeout(function(){ box.classList.remove('on'); }, SHOW_MS);
+    };
+    box.addEventListener('pointerup', end);
+    box.addEventListener('pointercancel', end);
   }
   function show(item, kind){
     if(!el) build();
     const L = lang();
-    el.querySelector('.live-toast-icon').textContent = item.icon || '🧭';
+    // emoji flag na Windowsie wyswietla sie jako litery (np. "PT"), wiec pokazujemy kod kraju | obrazek flagi
+    el.querySelector('.live-toast-icon').textContent = item.cc ? '🧭' : (item.icon || '🧭');
     el.querySelector('.live-toast-kicker').textContent = kind === 'live'
       ? (L === 'en' ? 'Live now' : 'Teraz na żywo')
       : kind === 'custom'
         ? (L === 'en' ? 'Local custom' : 'Lokalny zwyczaj')
         : (L === 'en' ? 'Travel tip' : 'Ciekawostka z podróży');
+    const kick = el.querySelector('.live-toast-kicker');
+    if(item.cc){
+      const cc = String(item.cc).toLowerCase();
+      kick.insertAdjacentHTML('beforeend', '<span class="lt-cc">' + cc.toUpperCase() + ' <span class="lt-sep">|</span> '
+        + '<img src="https://flagcdn.com/w40/' + cc + '.png" alt="" onerror="var p=this.previousElementSibling; if(p) p.remove(); this.remove()"></span>');
+    }
     el.querySelector('.live-toast-text').textContent = item[L] || item.pl;
     el.querySelector('.live-toast-close').setAttribute('aria-label', L === 'en' ? 'Close' : 'Zamknij');
     el.classList.add('on');

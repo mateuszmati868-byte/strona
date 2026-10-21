@@ -573,7 +573,7 @@
     width:32px;height:32px;border-radius:50%;border:none;
     background:rgba(21,43,60,.08);color:var(--ink);font-size:1rem;cursor:pointer;
   }
-  .offer-modal-art{height:120px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;margin-bottom:16px;}
+  .offer-modal-art{position:relative;overflow:hidden;height:150px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;margin-bottom:16px;}
   .offer-modal-title{font-size:1.3rem;font-weight:600;margin-bottom:6px;}
   .offer-modal-sub{font-size:.85rem;color:var(--ink-soft);margin-bottom:18px;}
   .offer-modal-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
@@ -1577,6 +1577,20 @@
     opacity:0;transition:opacity .5s ease;
   }
   .real-photo.loaded{opacity:1;}
+  /* rysunkowa sylwetka miasta jest zastepstwem zdjecia - gdy zdjecie jest, chowamy ja,
+     zeby nie lezala bialym konturem na fotografii */
+  .result-card-icon, .stamp-icon, .trip-detail-icon{transition:opacity .45s ease;}
+  .real-photo.loaded ~ .result-card-icon,
+  .real-photo.loaded ~ .trip-detail-icon,
+  .stamp:has(.real-photo.loaded) .stamp-icon{opacity:0;}
+  /* delikatne przyciemnienie dolu zdjecia, zeby flaga i napisy byly czytelne */
+  .result-card-art::after, .offer-modal-art::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(0deg, rgba(0,0,0,.28), transparent 55%);
+    opacity:0;transition:opacity .45s ease;
+  }
+  .result-card-art:has(.real-photo.loaded)::after,
+  .offer-modal-art:has(.real-photo.loaded)::after{opacity:1;}
   .stamp.stamp-frozen .stamp-photo,
   .stamp.stamp-frozen .stamp-icon{filter:blur(3.5px) saturate(.5) brightness(1.15);}
   .stamp.stamp-cracking .stamp-photo,
@@ -2820,7 +2834,7 @@
   <div class="offer-modal-backdrop" id="offer-modal-backdrop">
     <div class="offer-modal" role="dialog" aria-modal="true" aria-label="Szczegóły oferty">
       <button class="offer-modal-close" id="offer-modal-close" aria-label="Zamknij">✕</button>
-      <div class="offer-modal-art" id="offer-modal-art"></div>
+      <div class="offer-modal-art" id="offer-modal-art"><img class="real-photo" id="offer-modal-photo" alt="" decoding="async"></div>
       <h3 class="offer-modal-title" id="offer-modal-title"></h3>
       <p class="offer-modal-sub" id="offer-modal-sub"></p>
       <div class="offer-modal-tabs">
@@ -3960,7 +3974,7 @@
     if(!card) return;
     if(quizIndex >= quizQuestions.length){
       card.textContent = t('quiz.done');
-      if(progress) progress.textContent = t('quiz.doneSub');
+      if(progress) progress.textContent = '';
       if(leftBtn) leftBtn.style.visibility = 'hidden';
       if(rightBtn) rightBtn.style.visibility = 'hidden';
       const results = document.getElementById('quiz-results');
@@ -4119,9 +4133,9 @@
     cusco:'Cusco',
     vancouver:'Vancouver',
     auckland:'Auckland',
-    kenia:'Kenya',
+    kenia:'Maasai_Mara',
     petra:'Petra',
-    siemreap:'Siem_Reap',
+    siemreap:'Angkor_Wat',
     turyn:'Turin', mediolan:'Milan', rzym:'Rome', barcelona:'Barcelona', praga:'Prague', kair:'Cairo',
     lizbona:'Lisbon', krakow:'Kraków', bergen:'Bergen,_Norway', santorini:'Santorini',
     zakopane:'Zakopane', zermatt:'Zermatt', marrakesz:'Marrakesh', islandia:'Reykjavík',
@@ -4130,15 +4144,22 @@
   };
   const cityImageCache = {};
   let cityImageDisk = null;      // trwaly cache w window.storage (zdjecia nie zmieniaja sie czesto)
-  const CITY_IMG_CACHE_KEY = 'cityImageCache.v1';
+  const CITY_IMG_CACHE_KEY = 'cityImageCache.v2';   // v2: pomija wpisy zapisane przez stary mechanizm
 
-  async function loadCityImageDisk(){
-    if(cityImageDisk) return cityImageDisk;
-    try{
-      const saved = await window.storage.get(CITY_IMG_CACHE_KEY);
-      cityImageDisk = (saved && saved.value && typeof saved.value === 'object') ? saved.value : {};
-    }catch(e){ cityImageDisk = {}; }
-    return cityImageDisk;
+  /* Jeden wspolny odczyt pamieci. Wczesniej kilkanascie zdjec naraz czytalo
+     pamiec rownolegle - kazde dostawalo WLASNY obiekt i nadpisywalo zapis
+     pozostalych, wiec z 14 zdjec w pamieci zostawalo 6-7. */
+  let cityImageDiskPromise = null;
+  function loadCityImageDisk(){
+    if(cityImageDisk) return Promise.resolve(cityImageDisk);
+    if(cityImageDiskPromise) return cityImageDiskPromise;
+    cityImageDiskPromise = Promise.resolve()
+      .then(function(){ return window.storage.get(CITY_IMG_CACHE_KEY); })
+      .then(function(saved){
+        cityImageDisk = (saved && saved.value && typeof saved.value === 'object') ? saved.value : {};
+        return cityImageDisk;
+      }, function(){ cityImageDisk = {}; return cityImageDisk; });
+    return cityImageDiskPromise;
   }
   function persistCityImageDisk(){
     try{ window.storage.set(CITY_IMG_CACHE_KEY, cityImageDisk || {}); }catch(e){}
@@ -4165,7 +4186,7 @@
     'flag','banner','coat[_ ]?of[_ ]?arms','\\bcoa\\b','wappen','escudo','bandera',
     'seal','emblem','logo','crest','insignia','blason',
     'chart','diagram','graph','plan_of','schematic','metro','subway_map','timeline',
-    'portrait','signature','stamp_of','icon','symbol'
+    'portrait','signature','stamp_of','icon','symbol','montage','collage','mosaic','composite'
   ].join('|'), 'i');
 
   function looksLikePhoto(item){
@@ -4252,39 +4273,127 @@
     return cand.replace(/\/(\d+)px-/, '/1000px-');
   }
 
-  async function fetchCityImage(key){
-    if(Object.prototype.hasOwnProperty.call(cityImageCache, key)) return cityImageCache[key];
+  /* Reczne nadpisania. Jesli automat wybierze dla jakiegos miasta slabe zdjecie,
+     wpisz tu nazwe pliku z Wikimedia Commons (to, co jest po "File:" w adresie). */
+  const PHOTO_OVERRIDE = {
+    // lizbona: 'Lisbon_(36831596786).jpg',
+  };
+
+  function commonsThumb(fileName, width){
+    return 'https://commons.wikimedia.org/wiki/Special:FilePath/'
+      + encodeURIComponent(String(fileName).replace(/^File:/i, '').replace(/ /g, '_'))
+      + '?width=' + (width || 1000);
+  }
+  function goodFileName(name){
+    const n = String(name || '');
+    if(!/\.(jpe?g|png|webp)$/i.test(n)) return false;
+    return !BAD_IMAGE.test(n);
+  }
+  const WIKI_API = 'https://en.wikipedia.org/w/api.php?format=json&formatversion=2&origin=*&redirects=1&maxage=86400&smaxage=86400';
+
+  /* ZRODLO 1 - glowne zdjecie artykulu, ale tylko jesli to fotografia, nie mapka */
+  async function imageFromLead(title){
+    const res = await fetch(WIKI_API + '&action=query&prop=pageimages&piprop=thumbnail|name&pithumbsize=1000&titles=' + encodeURIComponent(title));
+    if(!res.ok) return null;
+    const data = await res.json();
+    const pg = data && data.query && data.query.pages && data.query.pages[0];
+    if(!pg || !pg.thumbnail || !pg.pageimage) return null;
+    if(!goodFileName(pg.pageimage)) return null;
+    const w = pg.thumbnail.width, h = pg.thumbnail.height;
+    if(w && h && w < h * 1.15) return null;            // pionowe kadry slabo wygladaja na pocztowce
+    return pg.thumbnail.source;
+  }
+
+  /* ZRODLO 2 - wszystkie pliki z artykulu; bierzemy najwieksze poziome zdjecie */
+  async function imageFromArticleFiles(title){
+    const res = await fetch(WIKI_API + '&action=query&generator=images&gimlimit=60&prop=imageinfo'
+      + '&iiprop=url|size|mime&iiurlwidth=1000&titles=' + encodeURIComponent(title));
+    if(!res.ok) return null;
+    const data = await res.json();
+    const pages = (data && data.query && data.query.pages) || [];
+    let best = null, bestScore = 0;
+    pages.forEach(function(pg){
+      const ii = pg.imageinfo && pg.imageinfo[0];
+      if(!ii || !ii.thumburl) return;
+      if(!/^image\/(jpeg|png|webp)$/.test(ii.mime || '')) return;
+      if(!goodFileName(pg.title)) return;
+      const w = ii.width || 0, h = ii.height || 1;
+      const ratio = w / h;
+      if(w < 1000 || ratio < 1.2 || ratio > 3.2) return;
+      const score = w * h * (ratio <= 2 ? 1 : 0.7);    // lekka preferencja dla klasycznych proporcji
+      if(score > bestScore){ bestScore = score; best = ii.thumburl; }
+    });
+    return best;
+  }
+
+  const cityImageInflight = {};
+  const badPhotoUrls = {};        // adresy, ktore sie nie wczytaly - nastepnym razem bierzemy kolejne zrodlo
+  function forgetCityImage(key){
+    delete cityImageCache[key];
+    if(cityImageDisk && cityImageDisk[key]){ delete cityImageDisk[key]; persistCityImageDisk(); }
+  }
+
+  async function resolveCityImage(key){
+    if(PHOTO_OVERRIDE[key]) return commonsThumb(PHOTO_OVERRIDE[key], 1000);
     const title = WIKI_TITLES[key];
-    if(!title){ cityImageCache[key] = null; return null; }
-
+    if(!title) return null;
     const disk = await loadCityImageDisk();
-    if(disk[key]){ cityImageCache[key] = disk[key]; return disk[key]; }
-
-    const steps = [imageFromMediaList, imageFromSummary];
+    if(disk[key] && !badPhotoUrls[disk[key]]) return disk[key];
+    const steps = [imageFromLead, imageFromArticleFiles, imageFromMediaList, imageFromSummary];
     for(let i = 0; i < steps.length; i++){
       try{
-        const url = await steps[i](title);
-        if(url){
-          cityImageCache[key] = url;
+        const url = await steps[i](title.replace(/_/g, ' '));
+        if(url && !badPhotoUrls[url]){
           disk[key] = url;
           persistCityImageDisk();
           return url;
         }
       }catch(e){ /* nastepne zrodlo */ }
     }
-    // brak zdjecia - zostaje gradient-scena, ktora i tak jest pod spodem
-    cityImageCache[key] = null;
     return null;
+  }
+
+  function fetchCityImage(key){
+    if(!key) return Promise.resolve(null);
+    if(cityImageCache[key]) return Promise.resolve(cityImageCache[key]);
+    if(cityImageInflight[key]) return cityImageInflight[key];     // ta sama prosba juz leci
+    const pr = resolveCityImage(key).then(function(url){
+      delete cityImageInflight[key];
+      if(url) cityImageCache[key] = url;                          // porazki NIE sa zapamietywane - sprobujemy znowu
+      return url;
+    }, function(){ delete cityImageInflight[key]; return null; });
+    cityImageInflight[key] = pr;
+    return pr;
+  }
+
+  /* Jeden sposob wstawiania zdjecia dla calej strony. Jesli obrazek sie nie
+     wczyta, czyscimy go z pamieci - przy nastepnym wejsciu sprobujemy innego. */
+  function setPhoto(img, key, attempt){
+    if(!img || !key) return;
+    attempt = attempt || 0;
+    fetchCityImage(key).then(function(url){
+      if(!url || !img.isConnected) return;
+      img.onload = function(){ img.classList.add('loaded'); };
+      img.onerror = function(){
+        img.classList.remove('loaded');
+        img.removeAttribute('src');
+        badPhotoUrls[url] = true;
+        forgetCityImage(key);
+        if(attempt < 3) setPhoto(img, key, attempt + 1);   // od razu probujemy nastepne zrodlo
+      };
+      if(img.getAttribute('src') !== url){
+        img.classList.remove('loaded');
+        img.src = url;
+      } else if(img.complete && img.naturalWidth){
+        img.classList.add('loaded');
+      }
+    });
   }
 
   function attachRealPhoto(rootEl, cityKey){
     if(!rootEl) return;
-    fetchCityImage(cityKey).then(function(url){
-      if(!url) return;
-      const img = rootEl.querySelector('.real-photo[data-city-key="'+cityKey+'"]');
-      if(!img) return;
-      img.addEventListener('load', function(){ img.classList.add('loaded'); });
-      img.src = url;
+    rootEl.querySelectorAll('.real-photo[data-city-key="' + cityKey + '"]').forEach(function(img){
+      setPhoto(img, cityKey);
     });
   }
 
@@ -5001,15 +5110,20 @@
       add('Twoje podróże', 'ok', trips.length + ' zapisanych');
     }catch(e){ add('Twoje podróże', 'bad', e.message); }
 
-    // 4. zdjecia miast
-    try{
+    // 4. zdjecia miast - kazde zrodlo osobno, zeby bylo widac, ktore odpowiada
+    const srcs = [['api.php — zdjęcie główne', imageFromLead], ['api.php — pliki artykułu', imageFromArticleFiles],
+                  ['REST — media-list', imageFromMediaList], ['REST — summary', imageFromSummary]];
+    let anyPhoto = false;
+    for(let i = 0; i < srcs.length; i++){
       const t0 = Date.now();
-      const url = await imageFromMediaList('Lisbon');
-      if(url) add('Zdjęcia miast', 'ok', 'OK (' + (Date.now()-t0) + ' ms) → ' + url.split('/').pop().slice(0,46));
-      else    add('Zdjęcia miast', 'warn', 'API odpowiedziało, ale nie znalazło zdjęcia (same mapy/herby)');
-    }catch(e){
-      add('Zdjęcia miast', 'bad', 'brak połączenia z Wikimedia: ' + e.message);
+      try{
+        const url = await srcs[i][1]('Lisbon');
+        if(url){ anyPhoto = true; add(srcs[i][0], 'ok', (Date.now()-t0) + ' ms → ' + decodeURIComponent(url.split('/').pop()).slice(0,48)); }
+        else add(srcs[i][0], 'warn', 'odpowiada, ale nie dało zdjęcia (np. same mapy)');
+      }catch(e){ add(srcs[i][0], 'bad', 'brak połączenia: ' + e.message); }
     }
+    add('Zdjęcia miast', anyPhoto ? 'ok' : 'bad',
+        anyPhoto ? 'przynajmniej jedno źródło działa — zdjęcia się wyświetlą' : 'żadne źródło nie odpowiada — zostaną gradienty');
 
     // 5. pogoda
     try{
@@ -5963,6 +6077,12 @@
     const dest = DESTINATIONS.find(function(d){ return d.key === key; });
     if(!dest || !offerBackdrop) return;
     document.getElementById('offer-modal-art').style.background = sceneGradient(dest.grad);
+    const offerPhoto = document.getElementById('offer-modal-photo');
+    if(offerPhoto){
+      offerPhoto.classList.remove('loaded');
+      offerPhoto.removeAttribute('src');
+      setPhoto(offerPhoto, dest.key);
+    }
     document.getElementById('offer-modal-title').textContent = destName(dest);
     document.getElementById('offer-modal-sub').textContent = getSubLine(dest, quizAnswers);
     document.querySelectorAll('.offer-tab').forEach(t=>t.classList.remove('active'));
@@ -7145,11 +7265,7 @@
     if(photoEl){
       photoEl.classList.remove('loaded');
       photoEl.removeAttribute('src');
-      fetchCityImage(trip.key || trip.icon).then(function(url){
-        if(!url) return;
-        photoEl.addEventListener('load', function(){ photoEl.classList.add('loaded'); }, {once:true});
-        photoEl.src = url;
-      });
+      setPhoto(photoEl, trip.key || trip.icon);
     }
     if(noclegEl) noclegEl.textContent = trip.nocleg || t('trip.stayPending');
     if(planEl) planEl.textContent = trip.plan || t('trip.planPending');
@@ -7489,12 +7605,8 @@
     // prawdziwe zdjecia miast (ten sam mechanizm co w Paszporcie)
     CITY_RANKING.forEach(function(item){
       const destKey = item.iconKey || item.key;
-      fetchCityImage(destKey).then(function(url){
-        if(!url) return;
-        const img = grid.querySelector('.postcard-photo img[data-city-key="'+destKey+'"]');
-        if(!img) return;
-        img.addEventListener('load', function(){ img.classList.add('loaded'); }, {once:true});
-        img.src = url;
+      grid.querySelectorAll('.postcard-photo img[data-city-key="'+destKey+'"]').forEach(function(img){
+        setPhoto(img, destKey);
       });
     });
   }

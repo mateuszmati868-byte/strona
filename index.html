@@ -949,7 +949,22 @@
     display:flex;align-items:center;justify-content:center;font-size:.62rem;
   }
   .day-plan-list{display:flex;flex-direction:column;gap:10px;}
-  .day-plan-item{position:relative;background:var(--paper-deep);padding:12px 16px;border-radius:12px;}
+  .day-plan-item{position:relative;background:var(--paper-deep);padding:12px 16px;border-radius:12px;text-align:left;}
+  .day-plan-item .dp-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:.9rem;color:var(--rust-dark);}
+  .day-plan-item .dp-no{flex:none;width:24px;height:24px;border-radius:50%;background:var(--rust-dark);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;}
+  .day-plan-item .dp-items{list-style:none;margin:0;padding:0 0 0 34px;}
+  .day-plan-item .dp-items li{display:flex;gap:10px;font-size:.84rem;line-height:1.45;padding:2px 0;color:var(--ink);}
+  .day-plan-item .dp-time{flex:none;min-width:92px;font-weight:700;color:var(--mustard);}
+  /* zakladki w oknie szczegolow podrozy */
+  .td-pane[hidden]{display:none!important;}
+  .td-tabs{display:flex;gap:6px;padding:14px 32px 0;flex-wrap:wrap;}
+  .td-tab{border:1px solid rgba(42,36,32,.18);background:transparent;color:var(--ink);border-radius:999px;padding:7px 14px;font-weight:600;font-size:.82rem;cursor:pointer;}
+  .td-tab.active{background:var(--rust-dark);border-color:var(--rust-dark);color:#fff;}
+  .trip-recs{padding:16px 32px 26px;text-align:left;}
+  .rec-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+  .rec-list li{display:flex;gap:10px;align-items:flex-start;background:var(--paper-deep);border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.5;color:var(--ink);}
+  .rec-dot{color:#C9A24B;font-size:1rem;line-height:1.35;}
+  .rec-note{font-size:.76rem;color:var(--ink-soft);margin-top:12px;}
   .day-plan-item.locked{filter:blur(2.5px) saturate(.75);opacity:.75;}
   .day-plan-num{display:block;font-weight:700;font-size:.76rem;color:var(--rust-dark);margin-bottom:4px;}
   .day-plan-item p{font-size:.86rem;color:var(--ink);line-height:1.5;margin:0;}
@@ -1277,6 +1292,18 @@
     display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10pt;
   }
   .pp-day p{margin:0;font-size:11pt;line-height:1.55;}
+  .pp-day{display:block;}
+  .pp-day .dp-head{display:flex;align-items:center;gap:4mm;margin-bottom:2mm;font-size:11.5pt;color:#1B5E3F;}
+  .pp-day .dp-no{flex:none;width:8mm;height:8mm;border-radius:50%;background:#1B5E3F;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9.5pt;}
+  .pp-day .dp-items{list-style:none;margin:0;padding:0 0 0 12mm;}
+  .pp-day .dp-items li{display:flex;gap:4mm;font-size:10.5pt;line-height:1.5;padding:.8mm 0;color:#2A2420;}
+  .pp-day .dp-time{flex:none;width:24mm;font-weight:700;color:#8A6A2A;}
+  .pp-notes{background:#FFF8E8;border-left:3px solid #C9A24B;border-radius:4px;padding:3mm 5mm;margin-top:4mm;}
+  .pp-notes ul{margin:1.5mm 0 0;padding-left:5mm;font-size:10pt;line-height:1.5;color:#55504A;}
+  .pp-h2--rust{background:#8B5E3C;}
+  .pp-rec{display:flex;gap:4mm;align-items:flex-start;background:#F7F4EE;border-radius:5px;padding:3.5mm 5mm;margin-bottom:3mm;break-inside:avoid;}
+  .pp-rec span{color:#C9A24B;font-size:12pt;line-height:1.3;}
+  .pp-rec p{margin:0;font-size:10.5pt;line-height:1.55;}
   .pp-faq{margin-bottom:4mm;}
   .pp-faq h3{font-size:11pt;color:#1B5E3F;margin:0 0 1mm;}
   .pp-faq p{font-size:10pt;line-height:1.5;color:#55504A;margin:0;}
@@ -2372,11 +2399,13 @@
   }
   .space-quote-text{
     position:relative;display:inline-block;margin:0;
-    font-family:var(--font-display);
-    font-weight:500;font-style:italic;
-    font-size:clamp(1.3rem, 2.8vw, 2.25rem);line-height:1.32;
-    color:#FFD23F;
-    text-shadow:0 0 18px rgba(255,190,40,.35), 0 3px 0 rgba(140,90,0,.35);
+    /* zwykla czcionka tekstowa (Inter) - ma pelny zestaw polskich znakow,
+       wiec nic sie nie "rozjezdza" nawet gdy font ozdobny sie nie wczyta */
+    font-family:var(--font-body);
+    font-weight:500;font-style:normal;
+    font-size:clamp(1.15rem, 2.4vw, 1.9rem);line-height:1.42;
+    color:#EADCC0;
+    text-shadow:0 2px 14px rgba(0,0,0,.45);
     letter-spacing:.01em;
     /* malowanie od lewej: maska przesuwa sie i odslania tekst */
     -webkit-mask-image:linear-gradient(100deg, #000 0%, #000 42%, rgba(0,0,0,.25) 50%, transparent 58%);
@@ -2406,12 +2435,12 @@
   /* sciekajace krople */
   .quote-drip{
     position:absolute;top:82%;width:5px;border-radius:0 0 4px 4px;
-    background:linear-gradient(180deg,#FFD23F 0%,#FFC21A 70%,rgba(255,194,26,0) 100%);
+    background:linear-gradient(180deg,#EADCC0 0%,#DCC9A4 70%,rgba(220,201,164,0) 100%);
     transform-origin:top center;transform:scaleY(0);opacity:.92;
   }
   .quote-drip::after{
     content:"";position:absolute;left:50%;bottom:-6px;width:8px;height:8px;margin-left:-4px;
-    border-radius:50%;background:#FFC21A;
+    border-radius:50%;background:#DCC9A4;
   }
   .space-quote.in .quote-drip{animation:dripDown var(--drip-ms, 2400ms) cubic-bezier(.55,0,.75,.5) forwards;}
   @keyframes dripDown{
@@ -3195,7 +3224,14 @@
       </div>
       <h3 class="trip-detail-title" id="trip-detail-title"></h3>
       <p class="trip-detail-date" id="trip-detail-date"></p>
-      <div class="trip-detail-grid">
+      <div class="td-tabs" role="tablist">
+        <button type="button" class="td-tab active" data-tdtab="info" role="tab" aria-selected="true" data-i18n="td.info">Szczegóły</button>
+        <button type="button" class="td-tab" data-tdtab="recs" role="tab" aria-selected="false" data-i18n="td.recs">Nasze rekomendacje</button>
+      </div>
+      <div class="td-pane" data-tdpane="recs" hidden>
+        <div class="trip-recs" id="trip-recs"></div>
+      </div>
+      <div class="trip-detail-grid td-pane" data-tdpane="info">
         <div class="trip-detail-map">
           <svg viewBox="0 0 140 100" aria-hidden="true">
             <g stroke="var(--ink-soft)" stroke-width="0.4" opacity="0.5">
@@ -3421,6 +3457,51 @@
       'planner.intro':'Cieszymy się bardzo, że będziemy mogli razem podróżować. Sprawa jest bardzo prosta — poniżej jest quiz, który pomoże Twojemu asystentowi wybrać odpowiednie dla Ciebie miejsca. Uzupełnij go i daj nam działać.',
       'common.close':'Zamknij',
       'space.skip':'Pomiń →',
+      'td.info':'Szczegóły','td.recs':'Nasze rekomendacje',
+      'rec.note':'Rekomendacje redakcji Wojażera — godziny otwarcia i ceny warto sprawdzić przed wizytą.',
+      'rec.none':'Rekomendacje dla tego miejsca są w przygotowaniu.',
+      'pl.slot.morn':'Rano','pl.slot.noon':'Południe','pl.slot.aft':'Po południu','pl.slot.eve':'Wieczorem',
+      'pl.t.arrival':'przyjazd','pl.t.departure':'wyjazd','pl.t.trip':'wycieczka','pl.t.easy':'spokojne tempo','pl.t.explore':'zwiedzanie','pl.t.free':'dzień swobodny',
+      'pl.arrive':'Przyjazd: {city}. Zameldowanie i chwila odpoczynku.',
+      'pl.firstWalk':'Pierwszy spacer: {place} — dobry sposób na złapanie orientacji w okolicy.',
+      'pl.dinnerLocal':'Kolacja z lokalną kuchnią — warto spróbować: {food}.',
+      'pl.dinnerWorld':'Kolacja w polecanej restauracji z kuchnią świata.',
+      'pl.localFood':'regionalnych specjałów',
+      'pl.luxDinner':'Na jeden wieczór warto zarezerwować restaurację z widokiem lub menu degustacyjnym.',
+      'pl.budgetDinner':'Taniej jest w lokalach poza głównymi deptakami.',
+      'pl.lastMorning':'Śniadanie i ostatni spacer, drobne zakupy i pamiątki.',
+      'pl.checkout':'Wymeldowanie i transfer — z zapasem czasu na dojazd.',
+      'pl.excursion':'Wycieczka jednodniowa: {place}. Wyjazd rano, powrót wieczorem.',
+      'pl.backRest':'Powrót i odpoczynek w miejscu noclegu.',
+      'pl.morningSight':'{place} — zaraz po otwarciu, zanim pojawią się tłumy.',
+      'pl.morningSightFree':'{place} — bez pośpiechu, w spokojnym rytmie.',
+      'pl.afternoonSight':'Następnie: {place}.',
+      'pl.dinnerLocal2':'Kolacja w lokalnej tawernie lub bistro, w którym jadają miejscowi.',
+      'pl.dinnerLocal3':'Wieczór przy ulicznym jedzeniu lub na targu — okazja, by spróbować kilku rzeczy naraz.',
+      'pl.dinnerWorld2':'Kolacja w restauracji z kuchnią fusion lub azjatycką — w okolicy jest duży wybór.',
+      'pl.dinnerWorld3':'Wieczór w dzielnicy gastronomicznej z wieloma kuchniami w jednym miejscu.',
+      'pl.lunchLocal':'Lunch w lokalnym barze lub na targu.',
+      'pl.lunchAny':'Lunch po drodze — w okolicy jest wybór kuchni z różnych stron świata.',
+      'pl.beach':'Czas na plaży i kąpiel.',
+      'pl.natureWalk':'Spacer na łonie natury lub krótki szlak w okolicy.',
+      'pl.slowCafe':'Wolne popołudnie: kawiarnia, park, odpoczynek.',
+      'pl.neighbourhood':'Spacer po mniej turystycznej dzielnicy.',
+      'pl.revisit':'Powrót do ulubionych miejsc z poprzednich dni.',
+      'pl.wander':'Swobodne odkrywanie okolicy bez planu.',
+      'pl.notes':'Wskazówki do planu',
+      'pl.n.spont':'Plan jest luźny — godziny to tylko orientacja, kolejność można dowolnie zmieniać.',
+      'pl.n.budget':'Oszczędnie: bilet dobowy na komunikację, lunch w formie menu dnia, darmowe punkty widokowe.',
+      'pl.n.lux':'Komfortowo: przy głównych atrakcjach warto rozważyć bilety „skip the line" lub prywatnego przewodnika.',
+      'pl.n.group':'Przy grupie stoliki w restauracjach i wycieczki najlepiej rezerwować z wyprzedzeniem.',
+      'pl.n.book':'Godziny otwarcia atrakcji warto sprawdzić dzień wcześniej — w części miejsc obowiązuje rezerwacja online.',
+      'es.money.q':'Waluta i płatności','es.money.a':'{city} — obowiązuje {cur}. Karta działa w większości miejsc; trochę gotówki przydaje się na targach i w małych lokalach. Bankomaty przy bankach mają zwykle lepsze kursy niż te na lotnisku.',
+      'es.tax.q':'Opłata turystyczna','es.plug.q':'Gniazdka i napięcie',
+      'es.sos.q':'Numery alarmowe','es.sos.a':'Numer alarmowy: {n}. Warto zapisać też adres i telefon noclegu.',
+      'es.water.q':'Woda z kranu','es.water.yes':'Woda z kranu jest zdatna do picia — butelka wielokrotnego użytku wystarczy.','es.water.no':'Woda z kranu nie jest zalecana do picia — lepiej kupować butelkowaną, także do mycia zębów.',
+      'es.tip.q':'Napiwki','es.cus.q':'Lokalne zwyczaje, które mogą zaskoczyć',
+      'es.net.q':'Internet i telefon','es.net.eu':'Na miejscu działa roaming bez dodatkowych opłat (zasady UE/EOG); Wi-Fi jest powszechne.','es.net.out':'Roaming poza UE bywa drogi — opłaca się lokalna karta SIM lub eSIM z pakietem danych.',
+      'es.air.q':'Z lotniska do noclegu','es.air.a':'Najtaniej komunikacją publiczną, najwygodniej taksówką z oficjalnego postoju lub z aplikacji. Ofert od osób zaczepiających w hali przylotów lepiej nie przyjmować.',
+      'es.docs.q':'Dokumenty','es.docs.a':'Warto mieć zdjęcia dokumentów w telefonie i w chmurze. W razie zgubienia: zgłoszenie na policji, potem kontakt z konsulatem.',
       'budget.title':'Szybki podgląd budżetu',
       'budget.note':'szacunek na miejscu, bez lotów',
       'budget.city':'Miasto',
@@ -3549,7 +3630,7 @@
       'trans.origin':'Warszawa','trans.economy':'Ekonomiczna','trans.class':'klasa',
       'trans.trainOrCar':'Pociąg lub samochód','trans.ground':'Bez lotu — elastyczny dojazd naziemny, wybierasz własne godziny.',
       'plan.a':'Dni wypełnione zwiedzaniem, wieczorami lokalne knajpki z dala od tłumów turystów.',
-      'plan.b':'Spokojne dni w Twoim tempie, lokalne smaki na wyciągnięcie ręki.',
+      'plan.b':'Spokojne dni w niespiesznym tempie, lokalne smaki na wyciągnięcie ręki.',
       'plan.c':'Intensywne zwiedzanie przeplatane degustacją kuchni z całego świata.',
       'plan.d':'Relaks bez pośpiechu, wieczorami restauracje z różnych stron świata.',
       'plan.is':' to ','plan.known':'Skupimy się na najbardziej rozpoznawalnych punktach miasta.',
@@ -3732,6 +3813,51 @@
       'planner.intro':'We are glad we get to travel together. It is simple — below is a quiz that helps your assistant pick the right places for you. Fill it in and let us do the rest.',
       'common.close':'Close',
       'space.skip':'Skip →',
+      'td.info':'Details','td.recs':'Our recommendations',
+      'rec.note':'Picked by the Wojażer team — check opening hours and prices before visiting.',
+      'rec.none':'Recommendations for this place are on their way.',
+      'pl.slot.morn':'Morning','pl.slot.noon':'Midday','pl.slot.aft':'Afternoon','pl.slot.eve':'Evening',
+      'pl.t.arrival':'arrival','pl.t.departure':'departure','pl.t.trip':'day trip','pl.t.easy':'easy pace','pl.t.explore':'sightseeing','pl.t.free':'free day',
+      'pl.arrive':'Arrival in {city}, check-in and a short rest.',
+      'pl.firstWalk':'First walk: {place} — a good way to get your bearings.',
+      'pl.dinnerLocal':'Dinner with local food — worth trying: {food}.',
+      'pl.dinnerWorld':'Dinner at a recommended restaurant with international cuisine.',
+      'pl.localFood':'regional specialities',
+      'pl.luxDinner':'For one evening, book a restaurant with a view or a tasting menu.',
+      'pl.budgetDinner':'Prices are lower away from the main promenades.',
+      'pl.lastMorning':'Breakfast and a last walk, small shopping and souvenirs.',
+      'pl.checkout':'Check-out and transfer — with time to spare.',
+      'pl.excursion':'Day trip: {place}. Leave in the morning, back in the evening.',
+      'pl.backRest':'Back and a rest at the accommodation.',
+      'pl.morningSight':'{place} — right at opening, before the crowds.',
+      'pl.morningSightFree':'{place} — unhurried, at an easy pace.',
+      'pl.afternoonSight':'Then: {place}.',
+      'pl.dinnerLocal2':'Dinner at a local tavern or bistro where residents eat.',
+      'pl.dinnerLocal3':'An evening of street food or a food market — a chance to try several things at once.',
+      'pl.dinnerWorld2':'Dinner at a fusion or Asian restaurant — there is plenty of choice nearby.',
+      'pl.dinnerWorld3':'An evening in a food district with many cuisines in one place.',
+      'pl.lunchLocal':'Lunch at a local eatery or market.',
+      'pl.lunchAny':'Lunch on the way — the area offers cuisines from around the world.',
+      'pl.beach':'Time on the beach and a swim.',
+      'pl.natureWalk':'A walk in nature or a short trail nearby.',
+      'pl.slowCafe':'A slow afternoon: café, park, rest.',
+      'pl.neighbourhood':'A walk around a less touristy neighbourhood.',
+      'pl.revisit':'Back to favourite spots from earlier days.',
+      'pl.wander':'Free exploring with no plan.',
+      'pl.notes':'Plan notes',
+      'pl.n.spont':'The plan is loose — times are only a guide and the order can change freely.',
+      'pl.n.budget':'On a budget: a day pass for public transport, a set lunch menu, free viewpoints.',
+      'pl.n.lux':'In comfort: consider skip-the-line tickets or a private guide for the main sights.',
+      'pl.n.group':'For a group, book restaurant tables and tours in advance.',
+      'pl.n.book':'Check opening hours the day before — some places require online booking.',
+      'es.money.q':'Currency and payments','es.money.a':'{city} uses {cur}. Cards work in most places; some cash helps at markets and small venues. Bank ATMs usually offer better rates than airport ones.',
+      'es.tax.q':'Tourist tax','es.plug.q':'Plugs and voltage',
+      'es.sos.q':'Emergency numbers','es.sos.a':'Emergency number: {n}. Keep the accommodation address and phone saved too.',
+      'es.water.q':'Tap water','es.water.yes':'Tap water is safe to drink — a refillable bottle is enough.','es.water.no':'Tap water is not recommended for drinking — buy bottled, also for brushing teeth.',
+      'es.tip.q':'Tipping','es.cus.q':'Local customs that may surprise',
+      'es.net.q':'Internet and phone','es.net.eu':'Roaming works at no extra cost (EU/EEA rules); Wi-Fi is widespread.','es.net.out':'Roaming outside the EU can be expensive — a local SIM or an eSIM data plan pays off.',
+      'es.air.q':'From the airport to the accommodation','es.air.a':'Public transport is cheapest; a taxi from the official rank or a ride app is the easiest. Avoid offers from people approaching in the arrivals hall.',
+      'es.docs.q':'Documents','es.docs.a':'Keep photos of documents on the phone and in the cloud. If lost: report to the police, then contact the consulate.',
       'budget.title':'Quick budget preview',
       'budget.note':'estimate on the ground, flights excluded',
       'budget.city':'City',
@@ -3860,7 +3986,7 @@
       'trans.origin':'Warsaw','trans.economy':'Economy','trans.class':'class',
       'trans.trainOrCar':'Train or car','trans.ground':'No flight — flexible overland travel, you pick your own times.',
       'plan.a':'Days packed with sightseeing, evenings in local spots away from the tourist crowds.',
-      'plan.b':'Calm days at your own pace, local flavours within easy reach.',
+      'plan.b':'Calm days at an easy pace, local flavours within easy reach.',
       'plan.c':'Intensive sightseeing interspersed with food from all over the world.',
       'plan.d':'Unhurried downtime, evenings in restaurants from every corner of the globe.',
       'plan.is':' is ','plan.known':'We will focus on the most recognisable spots in the city.',
@@ -5339,6 +5465,10 @@
   }
   function formatTravelDate(isoDate){
     const d = new Date(isoDate);
+    if(typeof currentLang !== 'undefined' && currentLang === 'en'){
+      const mEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      return d.getDate()+' '+mEn[d.getMonth()]+' '+d.getFullYear();
+    }
     const months = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
     return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   }
@@ -5349,7 +5479,8 @@
       const nocleg = dest ? getNoclegText(dest, quizAnswers) : '';
       const plan = dest ? getPlanText(dest, quizAnswers) : '';
       const travelDate = pickTravelDate();
-      list.push({key:key, nocleg:nocleg, plan:plan, bookedAt:formatTravelDate(travelDate), travelDate:travelDate});
+      list.push({key:key, nocleg:nocleg, plan:plan, bookedAt:formatTravelDate(travelDate), travelDate:travelDate,
+                 answers:(typeof quizAnswers !== 'undefined' ? quizAnswers.slice() : [])});
     }
     try{ await window.storage.set('collected-trips', JSON.stringify(list)); }catch(e){}
     return list;
@@ -5448,12 +5579,14 @@
      ================================================================== */
   function buildPrintablePlan(trip){
     const dest = DESTINATIONS.find(function(d){ return d.key === (trip.key || trip.icon); });
-    const city = (currentLang === 'en' && trip.cityEn) ? trip.cityEn : (trip.city || '');
+    const city = tripCity(trip);
     const grad = (dest && dest.grad) || ['#1B5E3F','#8FAFC0'];
     const icon = CITY_ICONS[trip.icon] || '';
-    const days = (dest && dest.days) ? dest.days : 4;
-    const plans = generateDayPlan(city, (typeof quizAnswers !== 'undefined' ? quizAnswers : []), days);
-    const faq = generateTripFaq(trip);
+    const plans = buildDayPlan(trip);
+    const notes = planNotes(trip);
+    const faq = buildEssentials(trip);
+    const recs = tripRecommendations(trip);
+    const tx = tripTexts(trip);
     const blurb = dest ? ((currentLang === 'en' && dest.blurbEn) ? dest.blurbEn : dest.blurb) : '';
 
     const card = function(label, body, cls){
@@ -5472,21 +5605,24 @@
     +     '<div>'
     +       '<p class="pp-kicker">' + t('pdf.subtitle') + '</p>'
     +       '<h1>' + escapeHtml(city) + '</h1>'
-    +       (trip.bookedAt ? '<p class="pp-date">' + t('pdf.departure') + ': ' + escapeHtml(trip.bookedAt) + '</p>' : '')
+    +       (tripDateLabel(trip) ? '<p class="pp-date">' + t('pdf.departure') + ': ' + escapeHtml(tripDateLabel(trip)) + '</p>' : '')
     +     '</div>'
     +     '<div class="pp-logo">' + (trip.flag || '') + '</div>'
     +   '</div>'
-    +   card(t('tab.stay'), trip.nocleg || t('trip.stayPending'), 'green')
-    +   card(t('trip.draftPlan'), trip.plan || t('trip.planPending'), 'gold')
+    +   card(t('tab.stay'), tx.nocleg || t('trip.stayPending'), 'green')
+    +   card(t('trip.draftPlan'), tx.plan || t('trip.planPending'), 'gold')
     +   (blurb ? card(t('pdf.about'), blurb, 'rust') : '')
     + '</section>'
     + '<section class="pp-page pp-break">'
     +   '<h2 class="pp-h2 pp-h2--green">' + t('pdf.dayByDay') + '</h2>'
-    +   plans.map(function(txt, i){
-          return '<div class="pp-day"><span class="pp-day-no">' + (i+1) + '</span>'
-               + '<p>' + escapeHtml(txt) + '</p></div>';
-        }).join('')
+    +   plans.map(function(day, i){ return dayPlanHTML(day, i, 'pp-day'); }).join('')
+    +   '<div class="pp-notes"><span class="pp-card-label">' + t('pl.notes') + '</span><ul>'
+    +     notes.map(function(n){ return '<li>' + escapeHtml(n) + '</li>'; }).join('') + '</ul></div>'
     + '</section>'
+    + (recs.length ? '<section class="pp-page pp-break">'
+    +   '<h2 class="pp-h2 pp-h2--rust">' + t('td.recs') + '</h2>'
+    +   recs.map(function(r){ return '<div class="pp-rec"><span>★</span><p>' + escapeHtml(r) + '</p></div>'; }).join('')
+    + '</section>' : '')
     + (faq.length ? '<section class="pp-page pp-break">'
     +   '<h2 class="pp-h2 pp-h2--gold">' + t('pdf.essentials') + '</h2>'
     +   faq.map(function(f){
@@ -6340,7 +6476,8 @@
     const dynamicTrips = collected.map(function(entry){
       const base = BOOKABLE_TRIPS[entry.key];
       if(!base) return null;
-      return Object.assign({date: entry.bookedAt || 'Lipiec 2026', travelDate: entry.travelDate}, base);
+      return Object.assign({date: entry.travelDate ? formatTravelDate(entry.travelDate) : (entry.bookedAt || ''), travelDate: entry.travelDate,
+                            answers: entry.answers, nocleg: entry.nocleg, plan: entry.plan}, base);
     }).filter(Boolean);
     const all = DEFAULT_TRIPS.concat(dynamicTrips);
     const forContinent = all.filter(function(t){ return t.continent === activeContinent; });
@@ -7752,10 +7889,10 @@
             const entry = collected[i];
             const base = BOOKABLE_TRIPS[entry.key];
             if(!base) return;
-            openTripDetail({
-              city:base.city, date:entry.bookedAt, grad:base.grad, icon:base.icon,
-              nocleg:entry.nocleg, plan:entry.plan, travelDate:entry.travelDate
-            });
+            openTripDetail(Object.assign({}, base, {
+              date:entry.bookedAt, nocleg:entry.nocleg, plan:entry.plan,
+              travelDate:entry.travelDate, answers:entry.answers
+            }));
           });
         });
       }
@@ -7886,8 +8023,8 @@
     const planEl = document.getElementById('trip-detail-plan');
     const noclegLinkEl = document.getElementById('trip-detail-nocleg-link');
     const controlBtn = document.getElementById('trip-control-open-btn');
-    if(titleEl) titleEl.textContent = trip.city;
-    if(dateEl) dateEl.textContent = trip.date || '';
+    if(titleEl) titleEl.textContent = tripCity(trip);
+    if(dateEl) dateEl.textContent = tripDateLabel(trip);
     if(artEl && trip.grad) artEl.style.background = sceneGradient(trip.grad);
     if(iconEl) iconEl.innerHTML = CITY_ICONS[trip.icon] || '';
     if(photoEl){
@@ -7895,8 +8032,19 @@
       photoEl.removeAttribute('src');
       setPhoto(photoEl, trip.key || trip.icon);
     }
-    if(noclegEl) noclegEl.textContent = trip.nocleg || t('trip.stayPending');
-    if(planEl) planEl.textContent = trip.plan || t('trip.planPending');
+    const tx = tripTexts(trip);
+    if(noclegEl) noclegEl.textContent = tx.nocleg || t('trip.stayPending');
+    if(planEl) planEl.textContent = tx.plan || t('trip.planPending');
+    // zakladka "Nasze rekomendacje"
+    const recEl = document.getElementById('trip-recs');
+    if(recEl){
+      const recs = tripRecommendations(trip);
+      recEl.innerHTML = recs.length
+        ? '<ul class="rec-list">' + recs.map(function(r){ return '<li><span class="rec-dot">★</span><span>' + escapeHtml(r) + '</span></li>'; }).join('') + '</ul>'
+          + '<p class="rec-note">' + t('rec.note') + '</p>'
+        : '<p class="rec-note">' + t('rec.none') + '</p>';
+    }
+    showTripDetailTab('info');
     if(noclegLinkEl) noclegLinkEl.href = buildAccommodationLink(trip.city);
     loadWeatherInto('trip-weather', trip.key || trip.icon);
     const pdfBtn = document.getElementById('trip-pdf-btn');
@@ -7905,6 +8053,18 @@
     const detailBackdrop = document.getElementById('trip-detail-backdrop');
     if(detailBackdrop) detailBackdrop.classList.add('active');
   }
+  function showTripDetailTab(name){
+    document.querySelectorAll('.td-tab').forEach(function(b){
+      const on = b.dataset.tdtab === name;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.td-pane').forEach(function(p){ p.hidden = p.dataset.tdpane !== name; });
+  }
+  document.addEventListener('click', function(e){
+    const b = e.target.closest('.td-tab');
+    if(b) showTripDetailTab(b.dataset.tdtab);
+  });
   function closeTripDetail(){
     const detailBackdrop = document.getElementById('trip-detail-backdrop');
     if(detailBackdrop) detailBackdrop.classList.remove('active');
@@ -7920,6 +8080,197 @@
       {icon:'🛒', label:t('sp.shop'), detail:t('sp.shopD')}
     ];
   }
+
+  /* ==================================================================
+     PLAN POBYTU, NIEZBEDNIK I REKOMENDACJE
+     Dane w napisach "polski|english". L() wybiera wersje w aktualnym jezyku,
+     dzieki czemu caly plan jest zawsze w JEDNYM jezyku.
+     Teksty pisane bezosobowo.
+     ================================================================== */
+  const TRAVEL_COUNTRY = {"pl":{"tax":"W Krakowie hotele nie doliczają opłaty turystycznej. W miejscowościach turystycznych i uzdrowiskach (np. Zakopane) pobierana jest opłata miejscowa — kilka zł za dobę.|Hotels in Kraków do not add a tourist tax. Resort and spa towns (e.g. Zakopane) charge a local fee of a few złoty per night.","plug":"C/E, 230 V — bez przejściówki.|C/E, 230 V — no adapter needed.","sos":"112","water":1,"tip":"W restauracjach zwyczajowo ok. 10%, gdy obsługa nie jest doliczona.|Around 10% in restaurants when service is not included.","cus":["Obowiązuje zakaz handlu w większość niedziel — duże sklepy są wtedy zamknięte, otwarte bywają małe sklepiki i stacje paliw.|Most Sundays are trading-free — large shops are closed; small corner shops and petrol stations may be open.","Przy płatności kartą kelner zwykle przynosi terminal do stolika; napiwek dodaje się do kwoty przed zatwierdzeniem lub zostawia gotówką.|When paying by card the waiter usually brings the terminal to the table; add the tip before confirming or leave it in cash."]},"pt":{"tax":"Opłata turystyczna w wielu gminach: Lizbona 4 € za osobę za noc, Porto 3 € — płatna przy zameldowaniu.|Many municipalities charge a tourist tax: Lisbon €4 per person per night, Porto €3 — paid at check-in.","plug":"C/F, 230 V — bez przejściówki.|C/F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Napiwek nie jest obowiązkowy; 5–10% w restauracji jest mile widziane.|Tipping is optional; 5–10% in restaurants is appreciated.","cus":["Pieczywo, oliwki czy masło postawione na stole na start (couvert) są płatne, jeśli się je zje — można je od razu odesłać.|Bread, olives or butter placed on the table (couvert) are charged if eaten — it is fine to send them back.","Kolacja zaczyna się późno, zwykle po 20:00; wiele restauracji ma przerwę między lunchem a kolacją.|Dinner starts late, usually after 8 pm; many restaurants close between lunch and dinner."]},"es":{"tax":"Podatek turystyczny obowiązuje m.in. w Katalonii (w Barcelonie dwie opłaty: regionalna i miejska — w hotelach 5* łącznie ponad 10 € za noc) i na Balearach. W wielu innych regionach go nie ma.|A tourist tax applies in Catalonia (Barcelona charges two: regional and city — over €10 per night in 5-star hotels) and the Balearic Islands, among others. Many other regions have none.","plug":"C/F, 230 V — bez przejściówki.|C/F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Napiwek nie jest obowiązkowy; zwykle zaokrągla się rachunek lub zostawia 5–10%.|Tipping is optional; people round up or leave 5–10%.","cus":["Sjesta: małe sklepy i urzędy bywają zamknięte mniej więcej od 14:00 do 17:00, zwłaszcza na południu i poza dużymi miastami.|Siesta: small shops and offices are often closed from around 2 pm to 5 pm, especially in the south and outside big cities.","Obiad je się ok. 14:00–15:30, kolację dopiero po 21:00 — restauracje o 19:00 bywają jeszcze puste lub zamknięte.|Lunch is around 2–3:30 pm and dinner after 9 pm — restaurants at 7 pm may still be empty or closed."]},"it":{"tax":"Opłata pobytowa (imposta di soggiorno) w większości miast — od ok. 1 do 10 € za osobę za noc, zależnie od kategorii noclegu.|Most cities charge a tourist tax (imposta di soggiorno) — roughly €1 to €10 per person per night depending on the property class.","plug":"F/L, 230 V — wtyczki typu C pasują.|F/L, 230 V — type C plugs fit.","sos":"112","water":1,"tip":"W rachunku często jest coperto (opłata za nakrycie); napiwek jest dobrowolny.|Bills often include a coperto (cover charge); tipping is optional.","cus":["Kawa wypita na stojąco przy barze kosztuje mniej niż przy stoliku; cappuccino zamawia się raczej rano, nie po obiedzie.|Coffee drunk standing at the bar costs less than at a table; cappuccino is a morning drink, not an after-dinner one.","Do wielu kościołów wchodzi się z zakrytymi ramionami i kolanami.|Many churches require covered shoulders and knees."]},"fr":{"tax":"Taxe de séjour doliczana do noclegu — od poniżej 1 € do ponad 15 € za osobę za noc, zależnie od standardu.|A taxe de séjour is added to accommodation — from under €1 to over €15 per person per night depending on the standard.","plug":"E, 230 V — wtyczki C pasują.|E, 230 V — type C plugs fit.","sos":"112","water":1,"tip":"Obsługa jest wliczona (service compris); drobne zaokrąglenie jest miłym gestem.|Service is included (service compris); rounding up is a nice gesture.","cus":["Wchodząc do sklepu czy kawiarni, wypada powiedzieć „Bonjour\" — bez tego obsługa bywa chłodniejsza.|It is polite to say \"Bonjour\" when entering a shop or café — staff can be cooler without it.","Karafka wody z kranu (carafe d'eau) jest w restauracjach bezpłatna — wystarczy o nią poprosić.|A carafe of tap water (carafe d'eau) is free in restaurants — just ask for it."]},"de":{"tax":"W wielu miastach doliczana jest opłata od noclegu (np. City Tax w Berlinie, liczona procentowo od ceny).|Many cities add an accommodation tax (e.g. Berlin's City Tax, a percentage of the room price).","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Zwykle ok. 5–10%; kwotę z napiwkiem podaje się kelnerowi od razu przy płaceniu.|Usually 5–10%; tell the waiter the total including tip when paying.","cus":["W niedziele większość sklepów jest zamknięta — zakupy najlepiej zrobić w sobotę.|Most shops are closed on Sundays — shop on Saturday.","W wielu barach i mniejszych lokalach nadal płaci się tylko gotówką.|Many bars and smaller places are still cash only."]},"at":{"tax":"Opłata lokalna (Ortstaxe) doliczana do noclegu — w Wiedniu kilka procent ceny pokoju.|A local tax (Ortstaxe) is added to accommodation — a few percent of the room price in Vienna.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Ok. 5–10%, podawane od razu przy płaceniu.|About 5–10%, given when paying.","cus":["W niedziele sklepy są zamknięte; otwarte zostają m.in. sklepy na dworcach.|Shops are closed on Sundays; station shops stay open.","W wiedeńskiej kawiarni do kawy podaje się szklankę wody, a przy stoliku można siedzieć długo — nikt nie pogania.|In a Viennese café coffee comes with a glass of water, and lingering for hours is perfectly normal."]},"nl":{"tax":"Amsterdam doliczy 12,5% ceny noclegu jako podatek turystyczny — jeden z najwyższych w Europie.|Amsterdam adds 12.5% of the accommodation price as tourist tax — one of the highest in Europe.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Zaokrąglenie lub 5–10% w restauracji.|Round up or leave 5–10% in restaurants.","cus":["Ścieżki rowerowe są czerwone i rowery mają na nich pierwszeństwo — nie wolno po nich chodzić.|Bike lanes are red and cyclists have priority — do not walk on them.","W wielu miejscach karta jest jedyną formą płatności („pin only\"); gotówka bywa nieprzyjmowana.|Many places are card only (\"pin only\"); cash may be refused."]},"cz":{"tax":"Opłata pobytowa doliczana przez hotele — w Pradze kilkadziesiąt koron za osobę za noc.|Hotels add a local accommodation fee — a few dozen crowns per person per night in Prague.","plug":"E, 230 V — wtyczki C pasują.|E, 230 V — type C plugs fit.","sos":"112","water":1,"tip":"Ok. 10%, zwykle podawane przy płaceniu.|About 10%, usually given when paying.","cus":["Kantory w turystycznym centrum często mają fatalne kursy — lepiej płacić kartą lub wypłacać z bankomatu banku.|Exchange offices in the tourist centre often have terrible rates — pay by card or use a bank ATM.","Piwo jest tańsze od wody; kelner zwykle podaje kolejne, dopóki na kuflu nie położy się podstawki.|Beer is cheaper than water; the waiter keeps bringing more until a coaster is placed on the glass."]},"hu":{"tax":"Budapeszt pobiera podatek turystyczny — kilka procent ceny noclegu.|Budapest charges a tourist tax — a few percent of the room price.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Sprawdzić rachunek: często jest już doliczona opłata za obsługę (szervizdíj) 10–15%.|Check the bill: a 10–15% service charge (szervizdíj) is often already added.","cus":["Według starego zwyczaju Węgrzy nie stukają się kuflami piwa.|By old tradition, Hungarians do not clink beer glasses.","Do łaźni termalnych warto zabrać klapki i ręcznik — wypożyczenie na miejscu kosztuje.|Bring flip-flops and a towel to the thermal baths — renting them costs extra."]},"gr":{"tax":"Opłata klimatyczna od noclegu: od kwietnia do października 2–15 € za noc (zależnie od liczby gwiazdek), poza sezonem 0,50–4 €.|A climate resilience fee per night: €2–15 from April to October (depending on star rating), €0.50–4 off-season.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Ok. 5–10% w restauracji.|About 5–10% in restaurants.","cus":["Na wyspach woda z kranu bywa odsalana i niesmaczna — tam lepiej kupić butelkowaną.|On the islands tap water is often desalinated and unpleasant — buy bottled there.","Papieru toaletowego często nie wrzuca się do muszli, tylko do kosza obok — instalacje są wąskie.|Toilet paper often goes in the bin, not the toilet — the pipes are narrow."]},"hr":{"tax":"Opłata turystyczna doliczana do noclegu — zwykle 1–2,50 € za osobę za noc.|A tourist tax is added to accommodation — usually €1–2.50 per person per night.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Ok. 10% w restauracji.|About 10% in restaurants.","cus":["Wiele plaż jest kamienistych — przydają się buty do wody.|Many beaches are pebbly — water shoes help.","W centrach starych miast (np. w Dubrowniku) obowiązują zakazy chodzenia bez koszulki i w samym stroju kąpielowym.|Old towns (e.g. Dubrovnik) ban walking around shirtless or in swimwear."]},"dk":{"tax":"Zwykle brak osobnej opłaty turystycznej — podatki są w cenie.|Usually no separate tourist tax — taxes are in the price.","plug":"K/F, 230 V — wtyczki C pasują.|K/F, 230 V — type C plugs fit.","sos":"112","water":1,"tip":"Napiwek nie jest oczekiwany — obsługa jest wliczona.|Tipping is not expected — service is included.","cus":["Rowerzyści mają własne pasy i sygnalizację; przed skrętem podnoszą rękę — nie wchodzić im pod koła.|Cyclists have their own lanes and lights and raise a hand before turning — stay out of their way.","Prawie wszędzie płaci się kartą lub telefonem; gotówka jest rzadko potrzebna.|Almost everything is paid by card or phone; cash is rarely needed."]},"se":{"tax":"Brak osobnej opłaty turystycznej.|No separate tourist tax.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Napiwek nie jest wymagany; zaokrąglenie jest miłym gestem.|Tipping is not required; rounding up is a nice gesture.","cus":["Alkohol mocniejszy niż 3,5% kupuje się tylko w państwowych sklepach Systembolaget, które mają krótkie godziny otwarcia.|Alcohol over 3.5% is sold only in state-run Systembolaget shops, which have short opening hours.","Wiele miejsc nie przyjmuje gotówki w ogóle.|Many places do not accept cash at all."]},"no":{"tax":"Gminy mogą pobierać opłatę do 3% ceny noclegu — zależy od miejscowości.|Municipalities may charge up to 3% of the room price — it depends on the town.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Napiwek nie jest oczekiwany; zaokrąglenie przy dobrej obsłudze.|Tipping is not expected; round up for good service.","cus":["Wino i mocny alkohol sprzedają tylko sklepy Vinmonopolet; w sklepach spożywczych piwo kupi się tylko do określonej godziny.|Wine and spirits are sold only in Vinmonopolet shops; supermarkets sell beer only until a set time.","Obowiązuje prawo swobodnego dostępu do natury (allemannsretten) — można biwakować, ale min. 150 m od domów.|The right to roam (allemannsretten) allows camping, but at least 150 m from houses."]},"fi":{"tax":"Brak osobnej opłaty turystycznej.|No separate tourist tax.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Napiwek nie jest oczekiwany.|Tipping is not expected.","cus":["Sauna to rytuał — do publicznych saun wchodzi się nago lub w ręczniku, zależnie od miejsca; przed wejściem obowiązkowy prysznic.|Sauna is a ritual — public saunas are entered naked or in a towel depending on the place; shower first.","Finowie cenią ciszę i przestrzeń osobistą — głośne rozmowy w transporcie publicznym są źle widziane.|Finns value silence and personal space — loud talk on public transport is frowned upon."]},"ee":{"tax":"W części miast może być pobierana niewielka opłata — warto sprawdzić przy rezerwacji.|Some towns may charge a small fee — check when booking.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Ok. 10% w restauracji, gdy obsługa była dobra.|About 10% in restaurants for good service.","cus":["Estonia to kraj cyfrowy — kartą płaci się prawie wszędzie, a darmowe Wi-Fi jest bardzo powszechne.|Estonia is a digital country — cards work almost everywhere and free Wi-Fi is very common.","Stare Miasto w Tallinnie ma bruk i strome uliczki — wygodne buty są ważniejsze niż elegancja.|Tallinn's Old Town is cobbled and steep — comfortable shoes matter more than style."]},"lv":{"tax":"W części miast może być pobierana niewielka opłata — warto sprawdzić przy rezerwacji.|Some towns may charge a small fee — check when booking.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Ok. 10% w restauracji.|About 10% in restaurants.","cus":["Rīgas Melnais balzams — ziołowy likier — to lokalna specjalność, często dodawana do kawy lub soku z czarnej porzeczki.|Riga Black Balsam, a herbal liqueur, is a local speciality often mixed into coffee or blackcurrant juice.","Noc świętojańska (Līgo, 23–24 czerwca) to największe święto — wiele firm i sklepów jest wtedy zamkniętych.|Midsummer (Līgo, 23–24 June) is the biggest holiday — many businesses close."]},"lt":{"tax":"W Wilnie i części miast pobierana jest niewielka opłata turystyczna za noc.|Vilnius and some towns charge a small nightly tourist fee.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Ok. 10% w restauracji.|About 10% in restaurants.","cus":["Kwiaty daje się w nieparzystej liczbie — parzysta jest zarezerwowana na pogrzeby.|Flowers are given in odd numbers — even numbers are for funerals.","Wiele osób mówi po polsku lub rosyjsku, ale miło jest zacząć od „Labas\" (dzień dobry).|Many people speak some Polish or Russian, but starting with \"Labas\" (hello) is appreciated."]},"ie":{"tax":"Brak opłaty turystycznej.|No tourist tax.","plug":"G, 230 V — potrzebna przejściówka.|G, 230 V — adapter needed.","sos":"112 lub 999|112 or 999","water":1,"tip":"Ok. 10–12,5% w restauracji; w pubie przy barze napiwku się nie daje.|About 10–12.5% in restaurants; no tipping at the pub bar.","cus":["W pubie zamawia się przy barze, a w grupie stawia się kolejki (rounds) na zmianę.|In pubs order at the bar; groups take turns buying rounds.","Ruch jest lewostronny — przechodząc przez ulicę, najpierw patrzy się w prawo.|Traffic drives on the left — look right first when crossing."]},"gb":{"tax":"W Londynie brak opłaty turystycznej. W Edynburgu od 24 lipca 2026 obowiązuje opłata 5% ceny noclegu (maks. za 7 nocy).|No tourist tax in London. Edinburgh charges a 5% visitor levy from 24 July 2026 (capped at 7 nights).","plug":"G, 230 V — potrzebna przejściówka.|G, 230 V — adapter needed.","sos":"999 lub 112|999 or 112","water":1,"tip":"Często doliczana jest opłata za obsługę 12,5% — wtedy dodatkowy napiwek nie jest potrzebny.|A 12.5% service charge is often added — then no extra tip is needed.","cus":["Na ruchomych schodach w metrze stoi się po prawej, lewa strona jest dla idących.|On Tube escalators stand on the right; the left is for walking.","Kolejka to świętość — wpychanie się jest bardzo źle odbierane.|Queues are sacred — pushing in is very badly received."]},"ch":{"tax":"Opłata turystyczna (Kurtaxe) kilka CHF za osobę za noc — często w zamian za darmowy transport lokalny.|A tourist tax (Kurtaxe) of a few CHF per person per night — often in exchange for free local transport.","plug":"J, 230 V — płaskie wtyczki C pasują, okrągłe grubsze (F) już nie.|J, 230 V — slim type C plugs fit, thicker type F plugs do not.","sos":"112","water":1,"tip":"Obsługa jest wliczona; zaokrąglenie przy dobrej obsłudze.|Service is included; round up for good service.","cus":["W niedziele i święta obowiązuje cisza — głośne prace czy koszenie trawy są źle widziane.|Sundays and holidays are quiet days — noisy chores are frowned upon.","Szwajcaria nie jest w strefie euro — ceny są w CHF, a euro przyjmowane jest po niekorzystnym kursie.|Switzerland is not in the eurozone — prices are in CHF and euros are accepted at poor rates."]},"is":{"tax":"Do każdej nocy doliczana jest stała opłata noclegowa za pokój.|A fixed accommodation tax per room is added for every night.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":1,"tip":"Napiwek nie jest oczekiwany — obsługa jest wliczona.|Tipping is not expected — service is included.","cus":["Przed wejściem do basenów i gorących źródeł obowiązuje prysznic nago, bez stroju — to ścisła zasada higieny.|Before entering pools and hot springs a naked shower without swimwear is mandatory — a strict hygiene rule.","Nie wolno chodzić po mchu i zjeżdżać z oznaczonych dróg — mech odrasta dziesiątki lat, a jazda w terenie grozi wysoką karą.|Never walk on moss or drive off marked roads — moss takes decades to regrow and off-road driving brings heavy fines."]},"tr":{"tax":"Do noclegu doliczany jest 2% podatek od zakwaterowania.|A 2% accommodation tax is added to the room price.","plug":"F, 230 V — bez przejściówki.|F, 230 V — no adapter needed.","sos":"112","water":0,"tip":"Ok. 5–10% w restauracji.|About 5–10% in restaurants.","cus":["W meczetach zdejmuje się buty, a kobiety zakrywają włosy; w czasie modlitw zwiedzanie jest wstrzymane.|In mosques shoes come off and women cover their hair; visits pause during prayer times.","Na bazarach targowanie się jest normalne; w sklepach z metkami — już nie.|Haggling is normal in bazaars, not in shops with price tags."]},"ma":{"tax":"Opłata pobytowa (taxe de séjour) doliczana za każdą noc, zależnie od kategorii obiektu.|A nightly taxe de séjour is added, depending on the property class.","plug":"C/E, 230 V — bez przejściówki.|C/E, 230 V — no adapter needed.","sos":"19 (policja), 15 (pogotowie)|19 (police), 15 (ambulance)","water":0,"tip":"Ok. 10% w restauracji i drobne napiwki dla przewodników i tragarzy.|About 10% in restaurants plus small tips for guides and porters.","cus":["Ludzi — zwłaszcza kobiety — fotografuje się dopiero po zapytaniu; za zdjęcia ze sprzedawcami bywa oczekiwana drobna opłata.|Ask before photographing people, especially women; vendors may expect a small fee for photos.","W czasie ramadanu jedzenie i picie w miejscach publicznych w ciągu dnia jest źle widziane, a wiele lokali otwiera się dopiero po zachodzie słońca.|During Ramadan eating and drinking in public by day is frowned upon and many places open only after sunset."]},"eg":{"tax":"Opłaty są zwykle wliczone w cenę hotelu; osobno płaci się za wstęp do zabytków.|Fees are usually included in the hotel price; entry to sites is paid separately.","plug":"C/F, 220 V — bez przejściówki.|C/F, 220 V — no adapter needed.","sos":"122 (policja), 123 (pogotowie)|122 (police), 123 (ambulance)","water":0,"tip":"Bakszysz — drobne napiwki — jest oczekiwany niemal przy każdej usłudze; przydają się małe nominały.|Baksheesh — small tips — is expected for almost every service; carry small notes.","cus":["Uprzejma, ale stanowcza odmowa wystarcza wobec natrętnych sprzedawców i „przewodników\" przy zabytkach.|A polite but firm no is enough for pushy sellers and \"guides\" at sites.","Poza kurortami obowiązuje skromny ubiór — zakryte ramiona i kolana.|Outside resorts dress modestly — cover shoulders and knees."]},"za":{"tax":"Brak osobnej opłaty turystycznej przy noclegu.|No separate tourist tax on accommodation.","plug":"M/N, 230 V — potrzebna przejściówka.|M/N, 230 V — adapter needed.","sos":"10111 (policja), 10177 (pogotowie), 112 z komórki|10111 (police), 10177 (ambulance), 112 from a mobile","water":1,"tip":"10–15% w restauracji; drobny napiwek dla parkingowych i obsługi stacji (tankują za klienta).|10–15% in restaurants; small tips for car guards and petrol attendants (they fill up for you).","cus":["Zdarzają się planowe wyłączenia prądu (load shedding) — warto mieć powerbank i sprawdzać aplikację z harmonogramem.|Scheduled power cuts (load shedding) can happen — carry a power bank and check the schedule app.","Po zmroku lepiej poruszać się taksówką lub aplikacją niż pieszo.|After dark use a taxi or ride app rather than walking."]},"ke":{"tax":"Brak opłaty przy noclegu; wysokie opłaty za wstęp do parków narodowych płaci się osobno.|No accommodation tax; national park entry fees are high and paid separately.","plug":"G, 240 V — potrzebna przejściówka.|G, 240 V — adapter needed.","sos":"999 lub 112|999 or 112","water":0,"tip":"Ok. 10% w restauracji; przewodnicy i kierowcy safari oczekują napiwku za dzień.|About 10% in restaurants; safari guides and drivers expect a daily tip.","cus":["Plastikowe torby jednorazowe są zakazane — także w bagażu; grozi za to kara.|Single-use plastic bags are banned — including in luggage; fines apply.","Na safari nie wysiada się z auta poza wyznaczonymi miejscami i nie dokarmia zwierząt.|On safari never leave the vehicle outside designated spots or feed animals."]},"tz":{"tax":"Na Zanzibarze obowiązkowe jest ubezpieczenie podróżne wykupywane przy wjeździe (ok. 44 USD).|Zanzibar requires a mandatory travel insurance bought on arrival (about USD 44).","plug":"G/D, 230 V — potrzebna przejściówka.|G/D, 230 V — adapter needed.","sos":"112","water":0,"tip":"Ok. 10%; przy wycieczkach napiwek dla przewodnika.|About 10%; tip guides on excursions.","cus":["W Stone Town obowiązuje skromny ubiór — strój kąpielowy tylko na plaży i w hotelu.|In Stone Town dress modestly — swimwear only on the beach and at the hotel.","Pływy są duże: na wschodnim wybrzeżu morze potrafi cofnąć się o setki metrów — warto sprawdzić tabelę pływów.|Tides are big: on the east coast the sea retreats hundreds of metres — check the tide table."]},"mu":{"tax":"Opłaty są zwykle wliczone w cenę noclegu — warto to potwierdzić przy rezerwacji.|Fees are usually included in the room price — confirm when booking.","plug":"C/G, 230 V — warto mieć przejściówkę na typ G.|C/G, 230 V — bring a type G adapter.","sos":"999 (policja), 114 (pogotowie)|999 (police), 114 (ambulance)","water":0,"tip":"Ok. 10% w restauracji, jeśli obsługa nie jest wliczona.|About 10% in restaurants if service is not included.","cus":["Ruch jest lewostronny.|Traffic drives on the left.","Wyspa jest wielokulturowa — w świątyniach hinduistycznych zdejmuje się buty i zakrywa ramiona.|The island is multicultural — in Hindu temples remove shoes and cover shoulders."]},"mv":{"tax":"Do każdej nocy doliczana jest opłata „green tax\" (w resortach kilkanaście USD za osobę) oraz podatki od usług.|A green tax is added for each night (around a dozen USD per person in resorts) plus service taxes.","plug":"G/D, 230 V — potrzebna przejściówka.|G/D, 230 V — adapter needed.","sos":"119 (policja), 102 (pogotowie)|119 (police), 102 (ambulance)","water":0,"tip":"Obsługa 10% jest doliczana; dodatkowy napiwek dla obsługi pokoju jest zwyczajem.|A 10% service charge is added; an extra tip for room staff is customary.","cus":["Alkohol jest dostępny tylko w resortach i na łodziach — na wyspach lokalnych jest zakazany, nie wolno go też wwozić.|Alcohol is only available in resorts and on boats — banned on local islands and cannot be brought in.","Na wyspach zamieszkanych obowiązuje skromny strój; bikini tylko na wyznaczonych „bikini beach\".|On inhabited islands dress modestly; bikinis only on designated \"bikini beaches\"."]},"us":{"tax":"Podatki hotelowe doliczane są do ceny — w Nowym Jorku łącznie ok. 15% plus stała opłata za noc. Ceny w sklepach podawane są bez podatku, który dochodzi przy kasie.|Hotel taxes are added to the price — about 15% in New York plus a flat nightly fee. Shop prices exclude sales tax, added at the till.","plug":"A/B, 120 V — potrzebna przejściówka; sprawdzić, czy ładowarka obsługuje 120 V.|A/B, 120 V — adapter needed; check the charger supports 120 V.","sos":"911","water":1,"tip":"Napiwek 18–20% w restauracji to standard, nie bonus; w barze ok. 1–2 USD za drinka.|An 18–20% tip in restaurants is standard, not a bonus; about USD 1–2 per drink at a bar.","cus":["Rachunek trzeba poprosić samemu — kelner nie przyniesie go bez prośby, a napiwek wpisuje się na paragonie.|Ask for the check — it will not come unprompted, and the tip is written on the receipt.","Picie alkoholu na ulicy i w parkach jest w większości miejsc zakazane.|Drinking alcohol on the street and in parks is banned in most places."]},"ca":{"tax":"Do noclegu i zakupów doliczane są podatki (zależne od prowincji) — ceny na metkach są bez nich.|Taxes (by province) are added to accommodation and purchases — price tags exclude them.","plug":"A/B, 120 V — potrzebna przejściówka.|A/B, 120 V — adapter needed.","sos":"911","water":1,"tip":"15–20% w restauracji.|15–20% in restaurants.","cus":["Na szlakach w górach trzeba być przygotowanym na niedźwiedzie — warto mieć spray i trzymać jedzenie szczelnie.|On mountain trails be bear-aware — carry spray and store food sealed.","Rachunek w restauracji często jest dzielony na osoby bez problemu — wystarczy poprosić.|Restaurants happily split the bill per person — just ask."]},"mx":{"tax":"W stanie Quintana Roo (Cancún) obowiązuje opłata dla turystów VISITAX płacona online; hotele doliczają też podatek od noclegu.|Quintana Roo (Cancún) charges the online VISITAX for tourists; hotels also add an accommodation tax.","plug":"A/B, 127 V — potrzebna przejściówka.|A/B, 127 V — adapter needed.","sos":"911","water":0,"tip":"10–15% w restauracji.|10–15% in restaurants.","cus":["Papier toaletowy wrzuca się do kosza, nie do muszli.|Toilet paper goes in the bin, not the toilet.","W Meksyku (stolicy) wysokość ok. 2240 m n.p.m. — pierwszego dnia warto zwolnić tempo i dużo pić.|Mexico City sits at about 2,240 m — take it easy and drink plenty on day one."]},"cu":{"tax":"Brak opłaty turystycznej, ale wymagana jest karta turystyczna/wiza przed wjazdem.|No tourist tax, but a tourist card/visa is required before entry.","plug":"A/B/C, 110/220 V — warto mieć przejściówkę.|A/B/C, 110/220 V — bring an adapter.","sos":"106 (policja), 104 (pogotowie)|106 (police), 104 (ambulance)","water":0,"tip":"Ok. 10% — napiwki są ważną częścią dochodu obsługi.|About 10% — tips are an important part of staff income.","cus":["Karty wydane w wielu krajach nie działają, a internet bywa słaby — warto mieć gotówkę (euro) i mapy offline.|Many foreign cards do not work and internet is patchy — bring cash (euros) and offline maps.","Zakupy bywają trudne — przybory higieniczne i leki warto przywieźć ze sobą.|Supplies can be scarce — bring toiletries and medicines."]},"br":{"tax":"Brak osobnej opłaty turystycznej przy noclegu.|No separate tourist tax on accommodation.","plug":"N/C, 127 lub 220 V (zależnie od miasta) — warto mieć przejściówkę.|N/C, 127 or 220 V (depends on the city) — bring an adapter.","sos":"190 (policja), 192 (pogotowie)|190 (police), 192 (ambulance)","water":0,"tip":"Do rachunku zwykle doliczane jest 10% za obsługę (serviço).|A 10% service charge (serviço) is usually added to the bill.","cus":["Na plaży nie zostawia się rzeczy bez opieki, a telefon lepiej nie trzymać na widoku przy ulicy.|Never leave belongings unattended on the beach and keep phones out of sight on the street.","Gest „OK\" z kółkiem z palców jest w Brazylii obraźliwy — lepiej pokazać kciuk w górę.|The circle \"OK\" hand sign is offensive in Brazil — use a thumbs up instead."]},"ar":{"tax":"Brak osobnej opłaty turystycznej przy noclegu.|No separate tourist tax on accommodation.","plug":"I, 220 V — potrzebna przejściówka.|I, 220 V — adapter needed.","sos":"911","water":1,"tip":"Ok. 10% w restauracji, najlepiej gotówką.|About 10% in restaurants, ideally in cash.","cus":["Kolacja zaczyna się bardzo późno — restauracje zapełniają się dopiero ok. 21:30–22:00.|Dinner is very late — restaurants fill up around 9:30–10 pm.","Kurs walut bywa zmienny; płatność kartą zagraniczną często rozliczana jest po korzystniejszym kursie niż wymiana w kantorze ulicznym.|Exchange rates fluctuate; foreign cards are often settled at a better rate than street exchanges."]},"pe":{"tax":"Brak osobnej opłaty turystycznej; bilety do Machu Picchu trzeba kupić z dużym wyprzedzeniem.|No separate tourist tax; Machu Picchu tickets must be bought well in advance.","plug":"A/C, 220 V — warto mieć przejściówkę.|A/C, 220 V — bring an adapter.","sos":"105 (policja), 106 (pogotowie)|105 (police), 106 (ambulance)","water":0,"tip":"Ok. 10% w restauracji; napiwki dla przewodników i tragarzy na trekkingach.|About 10% in restaurants; tip guides and porters on treks.","cus":["Cusco leży na ok. 3400 m n.p.m. — pierwsze 1–2 dni powinny być spokojne; miejscowi polecają herbatę z liści koki.|Cusco sits at about 3,400 m — keep the first 1–2 days easy; locals recommend coca leaf tea.","Papier toaletowy wrzuca się do kosza, nie do muszli.|Toilet paper goes in the bin, not the toilet."]},"jp":{"tax":"Hotele doliczają podatek od noclegu: w Kioto od marca 2026 od 200 do 10 000 jenów za osobę za noc (zależnie od ceny pokoju), w Tokio niewielką kwotę od droższych pokoi. Opłata wyjazdowa 1000 jenów jest w cenie biletu.|Hotels add an accommodation tax: in Kyoto from March 2026 it is ¥200–10,000 per person per night (by room rate); Tokyo charges a small amount on pricier rooms. A ¥1,000 departure tax is included in the ticket.","plug":"A/B, 100 V — potrzebna przejściówka; większość ładowarek działa przy 100 V.|A/B, 100 V — adapter needed; most chargers work at 100 V.","sos":"110 (policja), 119 (pogotowie)|110 (police), 119 (ambulance)","water":1,"tip":"Napiwków się nie daje — mogą być odebrane jako niezręczne.|No tipping — it can be seen as awkward.","cus":["Koszy na śmieci na ulicach prawie nie ma — śmieci zabiera się ze sobą; jedzenie w trakcie chodzenia jest źle widziane.|There are almost no street bins — carry rubbish with you; eating while walking is frowned upon.","W pociągach rozmawia się cicho, a przez telefon nie rozmawia się wcale.|On trains talk quietly and do not take phone calls."]},"kr":{"tax":"Brak osobnej opłaty turystycznej.|No separate tourist tax.","plug":"F/C, 220 V — bez przejściówki.|F/C, 220 V — no adapter needed.","sos":"112 (policja), 119 (pogotowie)|112 (police), 119 (ambulance)","water":1,"tip":"Napiwków się nie daje.|No tipping.","cus":["W metrze są miejsca dla seniorów i kobiet w ciąży — nawet gdy są wolne, zwykle się na nich nie siada.|Metro seats for seniors and pregnant women are usually left empty even when free.","Mapy Google działają tu słabo — lepiej zainstalować Naver Map lub KakaoMap.|Google Maps works poorly here — install Naver Map or KakaoMap."]},"th":{"tax":"Brak opłaty przy noclegu; zapowiadana opłata wjazdowa dla turystów — warto sprawdzić jej status przed wylotem.|No accommodation tax; a tourist entry fee has been announced — check its status before flying.","plug":"A/B/C/O, 230 V — wtyczki C zwykle pasują.|A/B/C/O, 230 V — type C plugs usually fit.","sos":"191 (policja), 1669 (pogotowie), 1155 (policja turystyczna)|191 (police), 1669 (ambulance), 1155 (tourist police)","water":0,"tip":"Drobne zaokrąglenie lub 20–100 batów; w lepszych restauracjach często doliczane 10%.|Round up or leave 20–100 baht; better restaurants often add 10%.","cus":["Rodzina królewska otoczona jest ogromnym szacunkiem — żarty czy krytyka są karalne.|The royal family is deeply respected — jokes or criticism are punishable by law.","Nie dotyka się nikogo po głowie i nie wskazuje stopami; w świątyniach zdejmuje się buty i zakrywa ramiona oraz kolana.|Never touch anyone's head or point with your feet; in temples remove shoes and cover shoulders and knees."]},"vn":{"tax":"Brak osobnej opłaty turystycznej.|No separate tourist tax.","plug":"A/C, 220 V — wtyczki C pasują.|A/C, 220 V — type C plugs fit.","sos":"113 (policja), 115 (pogotowie)|113 (police), 115 (ambulance)","water":0,"tip":"Napiwek nie jest wymagany, ale mile widziany.|Tipping is not required but appreciated.","cus":["Przez ulicę przechodzi się powoli i równym krokiem — skutery omijają pieszego; nagłe zatrzymanie jest groźniejsze.|Cross the street slowly and steadily — scooters flow around you; stopping suddenly is more dangerous.","Ceny na targach i u taksówkarzy warto ustalić przed usługą; aplikacja Grab jest najprostsza.|Agree prices at markets and with drivers beforehand; the Grab app is easiest."]},"id":{"tax":"Bali pobiera jednorazową opłatę turystyczną 150 000 IDR od osoby, płaconą online lub na lotnisku.|Bali charges a one-time tourist levy of IDR 150,000 per person, paid online or at the airport.","plug":"C/F, 230 V — bez przejściówki.|C/F, 230 V — no adapter needed.","sos":"112","water":0,"tip":"Często doliczane jest ok. 10–21% (podatek i obsługa); dodatkowo drobne napiwki.|Around 10–21% (tax and service) is often added; small extra tips are welcome.","cus":["Na chodnikach leżą małe ofiary z kwiatów (canang sari) — nie wolno na nie nadepnąć.|Small flower offerings (canang sari) lie on pavements — do not step on them.","W dzień Nyepi (marzec) cała wyspa zamiera na dobę: zamknięte jest lotnisko, nie wolno wychodzić z hotelu.|On Nyepi day (March) the whole island shuts for 24 hours: the airport closes and leaving the hotel is not allowed."]},"in":{"tax":"Do noclegu doliczany jest podatek GST — cena końcowa bywa wyższa niż w ogłoszeniu.|GST is added to accommodation — the final price can be higher than advertised.","plug":"C/D/M, 230 V — warto mieć przejściówkę.|C/D/M, 230 V — bring an adapter.","sos":"112","water":0,"tip":"Ok. 10% w restauracji, jeśli obsługa nie jest doliczona.|About 10% in restaurants if service is not included.","cus":["Je się i podaje rzeczy prawą ręką — lewa uznawana jest za nieczystą.|Eat and pass things with the right hand — the left is considered unclean.","W Goa i świątyniach zdejmuje się buty; topless na plażach jest zakazany.|Remove shoes at temples; topless sunbathing is banned on beaches."]},"kh":{"tax":"Brak opłaty przy noclegu; wstęp do Angkoru wymaga osobnego biletu (Angkor Pass).|No accommodation tax; Angkor requires a separate Angkor Pass.","plug":"A/C/G, 230 V — warto mieć przejściówkę.|A/C/G, 230 V — bring an adapter.","sos":"117 (policja), 119 (pogotowie)|117 (police), 119 (ambulance)","water":0,"tip":"Drobne napiwki są mile widziane; ceny często podawane są w USD.|Small tips are appreciated; prices are often in USD.","cus":["W świątyniach Angkoru wymagane są zakryte ramiona i kolana — bez tego można nie zostać wpuszczonym.|Angkor temples require covered shoulders and knees — entry can be refused otherwise.","Płaci się w dolarach, a resztę często wydaje w rielach.|Payments are in US dollars, with change often given in riel."]},"sg":{"tax":"Brak opłaty turystycznej; ceny w restauracjach często mają dopisek „++\" (doliczana obsługa i podatek).|No tourist tax; restaurant prices marked \"++\" add service charge and tax.","plug":"G, 230 V — potrzebna przejściówka.|G, 230 V — adapter needed.","sos":"999 (policja), 995 (pogotowie)|999 (police), 995 (ambulance)","water":1,"tip":"Napiwek nie jest oczekiwany — obsługa 10% jest doliczana.|Tipping is not expected — a 10% service charge is added.","cus":["Za śmiecenie, jedzenie w metrze czy przechodzenie w niedozwolonym miejscu grożą wysokie mandaty.|Littering, eating on the metro or jaywalking bring heavy fines.","Stoliki w hawker centres „rezerwuje\" się, kładąc na nich paczkę chusteczek.|In hawker centres people reserve tables by leaving a packet of tissues on them."]},"ae":{"tax":"Hotele doliczają opłatę Tourism Dirham za pokój za noc (w Dubaju kilka–kilkanaście AED, zależnie od kategorii) oraz opłaty usługowe.|Hotels add a Tourism Dirham fee per room per night (a few to around 20 AED in Dubai, by category) plus service charges.","plug":"G, 230 V — potrzebna przejściówka.|G, 230 V — adapter needed.","sos":"999 (policja), 998 (pogotowie)|999 (police), 998 (ambulance)","water":1,"tip":"Często doliczana jest obsługa; dodatkowo ok. 10% przy dobrej obsłudze.|Service is often added; about 10% extra for good service.","cus":["Okazywanie czułości w miejscach publicznych jest źle widziane; w centrach handlowych i meczetach obowiązuje skromny strój.|Public displays of affection are frowned upon; dress modestly in malls and mosques.","Weekend przypada na sobotę i niedzielę, ale w piątek w południe jest przerwa na modlitwę.|The weekend is Saturday–Sunday, but there is a prayer break at Friday noon."]},"qa":{"tax":"Opłaty są zwykle wliczone w cenę hotelu.|Fees are usually included in the hotel price.","plug":"G/D, 240 V — potrzebna przejściówka.|G/D, 240 V — adapter needed.","sos":"999","water":1,"tip":"Obsługa bywa doliczona; ok. 10% przy dobrej obsłudze.|Service may be added; about 10% for good service.","cus":["W miejscach publicznych obowiązuje skromny strój — zakryte ramiona i kolana.|Modest dress is expected in public — cover shoulders and knees.","Alkohol podają tylko licencjonowane hotele i restauracje.|Alcohol is served only in licensed hotels and restaurants."]},"jo":{"tax":"Brak opłaty przy noclegu; Jordan Pass łączy wizę i wstęp do Petry, co zwykle wychodzi taniej.|No accommodation tax; the Jordan Pass combines the visa and Petra entry and is usually cheaper.","plug":"C/D/F/G/J, 230 V — warto mieć uniwersalną przejściówkę.|C/D/F/G/J, 230 V — bring a universal adapter.","sos":"911","water":0,"tip":"Ok. 10% w restauracji; drobne napiwki dla przewodników.|About 10% in restaurants; small tips for guides.","cus":["Na zaproszenie na herbatę wypada się zgodzić choć na chwilę — gościnność to tu ważna wartość.|Accepting an invitation for tea, even briefly, is polite — hospitality matters greatly.","Piątek jest dniem świętym — część sklepów i urzędów jest zamknięta.|Friday is the holy day — some shops and offices close."]},"au":{"tax":"Brak opłaty turystycznej.|No tourist tax.","plug":"I, 230 V — potrzebna przejściówka.|I, 230 V — adapter needed.","sos":"000","water":1,"tip":"Napiwek nie jest oczekiwany; 10% przy wyjątkowej obsłudze.|Tipping is not expected; 10% for exceptional service.","cus":["Przy wjeździe deklaruje się każde jedzenie, nasiona i produkty roślinne — kary za zatajenie są wysokie.|Declare all food, seeds and plant products on arrival — fines for not doing so are high.","Słońce jest bardzo silne — kąpie się między flagami ratowników, a krem z filtrem nakłada nawet w pochmurny dzień.|The sun is very strong — swim between the lifeguard flags and wear sunscreen even on cloudy days."]},"nz":{"tax":"Przed przyjazdem płaci się opłatę IVL (100 NZD) razem z elektronicznym zezwoleniem NZeTA.|Before arrival the IVL levy (NZD 100) is paid together with the NZeTA travel authority.","plug":"I, 230 V — potrzebna przejściówka.|I, 230 V — adapter needed.","sos":"111","water":1,"tip":"Napiwek nie jest oczekiwany.|Tipping is not expected.","cus":["Kontrola bioasekuracji na lotnisku jest bardzo ścisła — buty trekkingowe i jedzenie trzeba zgłosić.|Biosecurity checks at the airport are strict — declare hiking boots and food.","Ruch jest lewostronny, a drogi kręte — czasy przejazdów są dłuższe, niż sugeruje mapa.|Traffic drives on the left and roads are winding — journeys take longer than the map suggests."]}};
+  const TRAVEL_DEST = {"lizbona":{"s":["Alfama i zamek św. Jerzego|Alfama and São Jorge Castle","Wieża Belém i klasztor Hieronimitów|Belém Tower and Jerónimos Monastery","tramwaj nr 28|tram 28","punkt widokowy Miradouro da Senhora do Monte|Miradouro da Senhora do Monte"],"g":["LX Factory","dzielnica Campo de Ourique i jej targ|Campo de Ourique and its market"],"x":["Sintra i pałac Pena|Sintra and Pena Palace","Cascais nad oceanem|seaside Cascais"],"f":"pastéis de nata i grillowane sardynki|pastéis de nata and grilled sardines","beach":true,"r":["Pastéis de nata w Pastéis de Belém — przepis od 1837 roku; najlepiej zjeść na miejscu, posypane cynamonem.|Pastéis de nata at Pastéis de Belém — a recipe dating from 1837; eat them there with cinnamon on top.","Kieliszek ginjinhy w maleńkim barze A Ginjinha przy placu Rossio.|A shot of ginjinha at the tiny A Ginjinha bar by Rossio square.","Wieczór fado w jednej z tawern Alfamy — kolację lepiej zarezerwować.|An evening of fado in an Alfama tavern — book dinner ahead."]},"krakow":{"s":["Rynek Główny i Sukiennice|Main Square and Cloth Hall","Wawel|Wawel Castle","Kazimierz","Podziemia Rynku|Rynek Underground Museum"],"g":["Podgórze i Kopiec Krakusa|Podgórze and Krakus Mound","Nowa Huta"],"x":["Kopalnia Soli w Wieliczce|Wieliczka Salt Mine","Ojcowski Park Narodowy|Ojców National Park"],"f":"obwarzanki, pierogi i zapiekanki|obwarzanki, pierogi and zapiekanki","beach":false,"r":["Zapiekanka z okienka w Okrąglaku na placu Nowym — klasyka późnego wieczoru.|A zapiekanka from the hatches of the Okrąglak on Plac Nowy — a late-night classic.","Hejnał z wieży Mariackiej o pełnej godzinie, słuchany z Rynku.|The bugle call from St Mary's tower on the hour, heard from the square.","Kremówka i kawa w kawiarni przy Rynku lub w Jamie Michalika na Floriańskiej.|A cream cake and coffee at a café on the square or Jama Michalika on Floriańska Street."]},"bergen":{"s":["Bryggen — hanzeatyckie nabrzeże|Bryggen — the Hanseatic wharf","kolejka Fløibanen na Fløyen|Fløibanen funicular to Mount Fløyen","targ rybny|Fish Market","KODE — muzea sztuki|KODE art museums"],"g":["dzielnica Nordnes|Nordnes district","kolejka Ulriksbanen na Ulriken|Ulriksbanen cable car to Mount Ulriken"],"x":["rejs po Sognefjordzie|Sognefjord cruise","Norway in a Nutshell (pociąg Flåm)|Norway in a Nutshell (Flåm railway)"],"f":"zupa rybna i świeże krewetki|fish soup and fresh prawns","beach":false,"r":["Spacer z Fløyen w dół leśną ścieżką zamiast kolejki — piękne widoki na miasto.|Walk down from Fløyen on the forest path instead of the funicular — great city views.","Kurtka przeciwdeszczowa zawsze w plecaku — Bergen to jedno z najbardziej deszczowych miast Europy.|Always pack a rain jacket — Bergen is one of Europe's rainiest cities."]},"santorini":{"s":["Oia i zachód słońca|Oia at sunset","Fira nad kalderą|Fira above the caldera","stanowisko archeologiczne Akrotiri|Akrotiri archaeological site","rejs po kalderze z wulkanem|caldera cruise to the volcano"],"g":["wioska Pyrgos|Pyrgos village","plaża Vlychada|Vlychada beach"],"x":["szlak klifem z Firy do Oii|clifftop trail from Fira to Oia","winnice i degustacja Assyrtiko|vineyards and an Assyrtiko tasting"],"f":"fava, tomatokeftedes i wino Assyrtiko|fava, tomatokeftedes and Assyrtiko wine","beach":true,"r":["Zachód słońca w Pyrgos zamiast w Oii — równie pięknie, a tłum dużo mniejszy.|Sunset in Pyrgos instead of Oia — just as beautiful with a far smaller crowd.","Degustacja wina w winnicy Santo Wines nad kalderą.|A wine tasting at Santo Wines overlooking the caldera."]},"zakopane":{"s":["Krupówki","Gubałówka","Kasprowy Wierch","Morskie Oko"],"g":["Dolina Kościeliska|Kościeliska Valley","cmentarz na Pęksowym Brzyzku|Pęksów Brzyzek cemetery"],"x":["termy w Chochołowie lub Bukowinie|thermal pools in Chochołów or Bukowina","spływ Dunajcem|Dunajec rafting"],"f":"oscypek z żurawiną i kwaśnica|oscypek with cranberry and kwaśnica soup","beach":false,"r":["Wejście na Kasprowy Wierch kolejką warto kupić online — kolejki do kasy bywają godzinne.|Buy Kasprowy Wierch cable car tickets online — ticket queues can take an hour.","Oscypek z grilla z żurawiną kupiony od górali, nie z masowych straganów.|Grilled oscypek with cranberry from a highlander stall rather than mass-market stands."]},"zermatt":{"s":["widok na Matterhorn|views of the Matterhorn","Gornergrat (kolej zębata)|Gornergrat rack railway","Matterhorn Glacier Paradise","stare miasteczko Hinterdorf|old Hinterdorf quarter"],"g":["szlak Pięciu Jezior|Five Lakes Walk","wąwóz Gorner|Gorner Gorge"],"x":["Glacier Express do St. Moritz|Glacier Express to St. Moritz"],"f":"fondue i raclette|fondue and raclette","beach":false,"r":["Wschód słońca nad Matterhornem z mostu w centrum — szczyt robi się różowy.|Sunrise over the Matterhorn from the village bridge — the peak turns pink.","Raclette w górskiej chacie przy szlaku Pięciu Jezior.|Raclette in a mountain hut on the Five Lakes Walk."]},"marrakesz":{"s":["plac Dżemaa el-Fna|Jemaa el-Fnaa square","Ogród Majorelle|Majorelle Garden","pałac Bahia|Bahia Palace","medyna i suki|the medina and souks"],"g":["grobowce Saadytów|Saadian Tombs","Le Jardin Secret"],"x":["Góry Atlas i dolina Ourika|Atlas Mountains and Ourika Valley","pustynia Agafay|Agafay desert"],"f":"tadżin, kuskus i miętowa herbata|tagine, couscous and mint tea","beach":false,"r":["Kolacja na tarasie nad placem Dżemaa el-Fna o zmierzchu, gdy zapalają się stragany.|Dinner on a terrace over Jemaa el-Fnaa at dusk as the stalls light up.","Hammam w tradycyjnej łaźni — z peelingiem czarnym mydłem.|A traditional hammam with a black soap scrub."]},"islandia":{"s":["Hallgrímskirkja","Harpa","Złoty Krąg: Þingvellir, Geysir, Gullfoss|Golden Circle: Þingvellir, Geysir, Gullfoss","Błękitna Laguna|Blue Lagoon"],"g":["Sky Lagoon","wąwóz Fjaðrárgljúfur|Fjaðrárgljúfur canyon"],"x":["południowe wybrzeże: Seljalandsfoss i Reynisfjara|South Coast: Seljalandsfoss and Reynisfjara","półwysep Snæfellsnes|Snæfellsnes peninsula"],"f":"zupa z jagnięciny, skyr i hot dog|lamb soup, skyr and a hot dog","beach":false,"r":["Hot dog „ein með öllu\" (ze wszystkim) w budce Bæjarins Beztu Pylsur.|A hot dog \"ein með öllu\" (with everything) at Bæjarins Beztu Pylsur.","Na plaży Reynisfjara nie podchodzi się blisko wody — fale „sneaker waves\" są śmiertelnie groźne.|At Reynisfjara keep well back from the water — sneaker waves are deadly."]},"bangkok":{"s":["Wielki Pałac|Grand Palace","Wat Pho","Wat Arun","targ Chatuchak (weekend)|Chatuchak Market (weekends)"],"g":["Talat Noi","park Lumphini|Lumphini Park"],"x":["pływający targ Damnoen Saduak|Damnoen Saduak floating market","Ajutthaja|Ayutthaya"],"f":"pad thai, tom yum i mango sticky rice|pad thai, tom yum and mango sticky rice","beach":false,"r":["Street food na Yaowarat Road w Chinatown — wieczorem, gdy rusza ruch.|Street food on Yaowarat Road in Chinatown — in the evening when it comes alive.","Rejs promem Chao Phraya Express zamiast taksówki — tanio i bez korków.|The Chao Phraya Express boat instead of a taxi — cheap and traffic-free."]},"bali":{"s":["tarasy ryżowe Tegalalang|Tegalalang rice terraces","świątynia Uluwatu|Uluwatu Temple","Ubud i Monkey Forest|Ubud and the Monkey Forest","świątynia Tanah Lot|Tanah Lot temple"],"g":["wodospad Tukad Cepung|Tukad Cepung waterfall","świątynia Tirta Empul|Tirta Empul temple"],"x":["wschód słońca na wulkanie Batur|sunrise on Mount Batur","wyspa Nusa Penida|Nusa Penida island"],"f":"nasi goreng, babi guling i sate lilit|nasi goreng, babi guling and sate lilit","beach":true,"r":["Taniec kecak o zachodzie słońca w świątyni Uluwatu.|The kecak dance at sunset at Uluwatu Temple.","W Monkey Forest okulary i telefon trzyma się w zamkniętej torbie — małpy kradną.|In the Monkey Forest keep glasses and phones zipped away — the monkeys steal."]},"nowyjork":{"s":["Central Park","Statua Wolności|Statue of Liberty","High Line","Empire State Building lub Top of the Rock|Empire State Building or Top of the Rock"],"g":["DUMBO i most Brookliński|DUMBO and Brooklyn Bridge","Roosevelt Island (kolejka linowa)|Roosevelt Island tramway"],"x":["Coney Island"],"f":"bajgle, pizza na kawałki i pastrami|bagels, pizza by the slice and pastrami","beach":false,"r":["Darmowy prom na Staten Island — przepływa obok Statuy Wolności.|The free Staten Island Ferry — it sails past the Statue of Liberty.","Kanapka z pastrami w Katz's Delicatessen na Lower East Side.|A pastrami sandwich at Katz's Delicatessen on the Lower East Side."]},"kapsztad":{"s":["Góra Stołowa|Table Mountain","Przylądek Dobrej Nadziei|Cape of Good Hope","V&A Waterfront","Robben Island"],"g":["Bo-Kaap","plaża Boulders z pingwinami|Boulders Beach penguins"],"x":["winnice Stellenbosch|Stellenbosch winelands","Chapman's Peak Drive"],"f":"bobotie i braai|bobotie and braai","beach":true,"r":["Kolejka na Górę Stołową rano — po południu szczyt często zakrywa chmura („obrus\").|Take the Table Mountain cableway in the morning — the \"tablecloth\" cloud often covers it later.","Pingwiny na plaży Boulders w Simon's Town.|The penguins at Boulders Beach in Simon's Town."]},"rio":{"s":["Chrystus Zbawiciel|Christ the Redeemer","Głowa Cukru|Sugarloaf Mountain","Copacabana i Ipanema|Copacabana and Ipanema","schody Selarón|Selarón Steps"],"g":["Santa Teresa","Ogród Botaniczny|Botanical Garden"],"x":["Petrópolis","Ilha Grande"],"f":"feijoada, pão de queijo i açaí|feijoada, pão de queijo and açaí","beach":true,"r":["Zachód słońca na skale Arpoador — miejscowi nagradzają go brawami.|Sunset at Arpoador rock — locals applaud it.","Feijoada w sobotę w południe, tak jak jedzą ją Brazylijczycy.|Feijoada at Saturday lunchtime, the way Brazilians eat it."]},"sydney":{"s":["Opera w Sydney|Sydney Opera House","Harbour Bridge","Bondi Beach","The Rocks"],"g":["spacer Bondi–Coogee|Bondi to Coogee walk","Manly (prom)|Manly by ferry"],"x":["Góry Błękitne|Blue Mountains"],"f":"owoce morza i brunch z awokado|seafood and an avocado brunch","beach":true,"r":["Prom do Manly z Circular Quay — najtańszy rejs z widokiem na operę i most.|The Manly ferry from Circular Quay — the cheapest cruise with Opera House and bridge views.","Nadmorski spacer z Bondi do Coogee, najlepiej rano.|The coastal walk from Bondi to Coogee, ideally in the morning."]},"dubaj":{"s":["Burdż Chalifa|Burj Khalifa","Dubai Mall i fontanny|Dubai Mall and the fountains","Stary Dubaj i abry na Creeku|Old Dubai and abra boats on the Creek","Palm Jumeirah"],"g":["dzielnica Al Fahidi|Al Fahidi district","Alserkal Avenue"],"x":["safari na pustyni|desert safari","Abu Zabi i meczet Szejka Zajida|Abu Dhabi and Sheikh Zayed Mosque"],"f":"shawarma, luqaimat i kawa arabska|shawarma, luqaimat and Arabic coffee","beach":true,"r":["Przeprawa abrą przez Creek za 1 AED i spacer po targach złota i przypraw.|An abra across the Creek for 1 AED and a walk through the gold and spice souks.","Pokaz fontann pod Burdż Chalifą — wieczorem co 30 minut, za darmo.|The Dubai Fountain show below Burj Khalifa — every 30 minutes in the evening, free."]},"hanoi":{"s":["Stare Miasto (36 ulic)|Old Quarter (36 streets)","jezioro Hoan Kiem|Hoan Kiem Lake","mauzoleum Ho Chi Minha|Ho Chi Minh Mausoleum","Świątynia Literatury|Temple of Literature"],"g":["Train Street","kawiarnia z kawą jajeczną|an egg coffee café"],"x":["zatoka Ha Long|Ha Long Bay","Ninh Binh"],"f":"pho, bun cha i kawa jajeczna|pho, bun cha and egg coffee","beach":false,"r":["Kawa jajeczna (cà phê trứng) w Café Giảng — tam ją wymyślono.|Egg coffee (cà phê trứng) at Café Giảng, where it was invented.","Bun cha na małym stołeczku przy ulicy, w porze lunchu.|Bun cha on a tiny stool on the pavement at lunchtime."]},"paryz":{"s":["Wieża Eiffla|Eiffel Tower","Luwr|the Louvre","Montmartre i Sacré-Cœur|Montmartre and Sacré-Cœur","Musée d'Orsay"],"g":["Canal Saint-Martin","Promenade Plantée"],"x":["Wersal|Versailles","Giverny — ogrody Moneta|Giverny — Monet's gardens"],"f":"croissanty, sery i bistro|croissants, cheese and bistro fare","beach":false,"r":["Piknik z bagietką i serem na Champ de Mars z widokiem na wieżę.|A picnic with a baguette and cheese on the Champ de Mars facing the tower.","Bilety do Luwru i na wieżę Eiffla kupuje się online z wyprzedzeniem.|Buy Louvre and Eiffel Tower tickets online in advance."]},"rzym":{"s":["Koloseum i Forum Romanum|Colosseum and Roman Forum","Watykan i Kaplica Sykstyńska|Vatican and Sistine Chapel","Fontanna di Trevi|Trevi Fountain","Panteon|the Pantheon"],"g":["Zatybrze|Trastevere","Awentyn i dziurka od klucza|Aventine keyhole"],"x":["Tivoli","Ostia Antica"],"f":"carbonara, cacio e pepe i supplì|carbonara, cacio e pepe and supplì","beach":false,"r":["Lody w Giolitti przy Panteonie.|Gelato at Giolitti near the Pantheon.","Fontanna di Trevi o wschodzie słońca — jedyna pora bez tłumu.|The Trevi Fountain at sunrise — the only time without crowds."]},"barcelona":{"s":["Sagrada Família","Park Güell","Dzielnica Gotycka|Gothic Quarter","Casa Batlló"],"g":["Bunkers del Carmel","dzielnica Gràcia|Gràcia district"],"x":["Montserrat","Girona"],"f":"tapas, pan con tomate i paella|tapas, pan con tomate and paella","beach":true,"r":["Zachód słońca z Bunkers del Carmel — najlepsza panorama miasta, za darmo.|Sunset from the Bunkers del Carmel — the best free city panorama.","Targ La Boqueria rano, zanim zrobi się tłoczno.|La Boqueria market in the morning before it gets crowded."]},"londyn":{"s":["Westminster i Big Ben|Westminster and Big Ben","British Museum","Tower i Tower Bridge|Tower of London and Tower Bridge","Camden Market"],"g":["Little Venice","Leadenhall Market"],"x":["Windsor","Oxford"],"f":"fish and chips, Sunday roast i Borough Market|fish and chips, Sunday roast and Borough Market","beach":false,"r":["Darmowe muzea: British Museum, National Gallery, Tate Modern.|Free museums: British Museum, National Gallery, Tate Modern.","Sunday roast w tradycyjnym pubie — w niedzielę stolik lepiej zarezerwować.|A Sunday roast in a traditional pub — book a table on Sundays."]},"amsterdam":{"s":["rejs po kanałach|canal cruise","Rijksmuseum","Muzeum Van Gogha|Van Gogh Museum","Dom Anny Frank|Anne Frank House"],"g":["De Pijp i targ Albert Cuyp|De Pijp and Albert Cuyp Market","Jordaan"],"x":["Zaanse Schans","Haarlem"],"f":"stroopwafle, śledź i bitterballen|stroopwafels, herring and bitterballen","beach":false,"r":["Bilety do Domu Anny Frank są dostępne tylko online i znikają szybko.|Anne Frank House tickets are online only and sell out fast.","Ciepły stroopwafel na targu Albert Cuyp.|A warm stroopwafel at Albert Cuyp Market."]},"praga":{"s":["Most Karola|Charles Bridge","Hradczany|Prague Castle","Rynek Staromiejski i zegar Orloj|Old Town Square and the Astronomical Clock","Mała Strana|Lesser Town"],"g":["Wyszehrad|Vyšehrad","Letná i ogródek piwny|Letná beer garden"],"x":["Kutná Hora","Karlštejn"],"f":"knedliki, gulasz i piwo|dumplings, goulash and beer","beach":false,"r":["Piwo w ogródku na Letnej z widokiem na mosty o zachodzie słońca.|A beer in the Letná beer garden with a view of the bridges at sunset.","Most Karola o świcie, zanim pojawią się tłumy.|Charles Bridge at dawn before the crowds."]},"wieden":{"s":["Schönbrunn","Hofburg","katedra św. Szczepana|St. Stephen's Cathedral","Belweder i „Pocałunek\" Klimta|Belvedere and Klimt's \"The Kiss\""],"g":["Naschmarkt","Hundertwasserhaus"],"x":["Dolina Wachau|Wachau Valley"],"f":"sznycel wiedeński i sachertorte|Wiener Schnitzel and Sachertorte","beach":false,"r":["Kawa i strudel w kawiarni Café Central lub Café Sperl.|Coffee and strudel at Café Central or Café Sperl.","Miejsca stojące w Operze Wiedeńskiej za kilka euro, kupowane w dniu spektaklu.|Standing places at the Vienna State Opera for a few euros, sold on the day."]},"budapeszt":{"s":["Parlament|Parliament","Wzgórze Zamkowe i Baszta Rybacka|Castle Hill and Fisherman's Bastion","łaźnie Széchenyi|Széchenyi Baths","Most Łańcuchowy|Chain Bridge"],"g":["ruin bary w dzielnicy żydowskiej|ruin bars in the Jewish Quarter","wzgórze Gellerta|Gellért Hill"],"x":["Szentendre","zakole Dunaju|Danube Bend"],"f":"gulasz, lángos i kürtőskalács|goulash, lángos and chimney cake","beach":false,"r":["Wieczór w ruin barze Szimpla Kert.|An evening at the Szimpla Kert ruin bar.","Lángos na targu w Wielkiej Hali Targowej.|Lángos at the Great Market Hall."]},"berlin":{"s":["Brama Brandenburska|Brandenburg Gate","Reichstag (kopuła)|Reichstag dome","East Side Gallery","Wyspa Muzeów|Museum Island"],"g":["Tempelhofer Feld","Kreuzberg i Markthalle Neun|Kreuzberg and Markthalle Neun"],"x":["Poczdam i Sanssouci|Potsdam and Sanssouci"],"f":"currywurst i döner|currywurst and döner","beach":false,"r":["Wejście do kopuły Reichstagu jest bezpłatne, ale wymaga wcześniejszej rejestracji online.|The Reichstag dome is free but needs online registration in advance.","Spacer lub rower po dawnym lotnisku Tempelhof.|A walk or bike ride across the former Tempelhof airport."]},"mediolan":{"s":["Duomo i taras na dachu|Duomo and its rooftop","Galeria Vittorio Emanuele II|Galleria Vittorio Emanuele II","„Ostatnia Wieczerza\" Leonarda|Leonardo's \"Last Supper\"","Zamek Sforzów|Sforza Castle"],"g":["Navigli","Brera"],"x":["Jezioro Como|Lake Como","Bergamo"],"f":"risotto alla milanese i aperitivo|risotto alla milanese and aperitivo","beach":false,"r":["Aperitivo nad kanałami Navigli — do drinka podawane są przekąski.|Aperitivo along the Navigli canals — drinks come with snacks.","Bilety na „Ostatnią Wieczerzę\" rezerwuje się tygodnie wcześniej.|\"Last Supper\" tickets must be booked weeks ahead."]},"wenecja":{"s":["Plac św. Marka i bazylika|St Mark's Square and Basilica","Pałac Dożów|Doge's Palace","Most Rialto|Rialto Bridge","Canal Grande (vaporetto nr 1)|Grand Canal (vaporetto line 1)"],"g":["Cannaregio","Dorsoduro i Zattere|Dorsoduro and the Zattere"],"x":["Murano i Burano"],"f":"cicchetti, sarde in saor i spritz|cicchetti, sarde in saor and spritz","beach":false,"r":["W wybrane dni sezonu turyści jednodniowi płacą opłatę za wstęp do miasta (5–10 €) — przy noclegu w Wenecji nie obowiązuje.|On selected peak days day-trippers pay an access fee (€5–10) — it does not apply when staying overnight.","Cicchetti i ombra (kieliszek wina) w bacaro w Cannaregio.|Cicchetti and an ombra (glass of wine) at a bacaro in Cannaregio."]},"florencja":{"s":["Katedra i kopuła Brunelleschiego|Cathedral and Brunelleschi's Dome","Galeria Uffizi|Uffizi Gallery","Ponte Vecchio","Dawid w Galerii Akademii|David at the Accademia"],"g":["Oltrarno","Piazzale Michelangelo o zachodzie|Piazzale Michelangelo at sunset"],"x":["Toskania: Chianti|Tuscany: Chianti","Siena","Piza|Pisa"],"f":"bistecca alla fiorentina i lampredotto|bistecca alla fiorentina and lampredotto","beach":false,"r":["Kanapka w All'Antico Vinaio — kolejka szybko się przesuwa.|A sandwich at All'Antico Vinaio — the queue moves fast.","Wejście na kopułę rezerwuje się z godziną wejścia — bez tego nie wpuszczą.|Dome climbs are booked with a time slot — no entry without it."]},"madryt":{"s":["Prado","Pałac Królewski|Royal Palace","Park Retiro|Retiro Park","Plaza Mayor"],"g":["La Latina i targ El Rastro (niedziela)|La Latina and El Rastro market (Sunday)","Templo de Debod o zachodzie|Temple of Debod at sunset"],"x":["Toledo","Segowia|Segovia"],"f":"churros z czekoladą i bocadillo z kalmarami|churros with chocolate and calamari sandwich","beach":false,"r":["Churros z czekoladą w Chocolatería San Ginés — czynna niemal całą dobę.|Churros with chocolate at Chocolatería San Ginés — open almost round the clock.","Prado bezpłatnie w ostatnich godzinach otwarcia — kolejka ustawia się wcześniej.|The Prado is free in its last opening hours — the queue forms early."]},"sewilla":{"s":["Alkazar|Real Alcázar","katedra i Giralda|Cathedral and Giralda","Plaza de España","Barrio Santa Cruz"],"g":["Triana","Setas de Sevilla (Metropol Parasol)"],"x":["Kordoba|Córdoba","Kadyks|Cádiz"],"f":"tapas, salmorejo i jamón ibérico|tapas, salmorejo and jamón ibérico","beach":false,"r":["Flamenco w małej peña w Trianie zamiast w dużym show.|Flamenco at a small peña in Triana rather than a big show.","Latem zwiedza się rano i wieczorem — w południe upał przekracza często 40°C.|In summer sightsee in the morning and evening — midday heat often tops 40°C."]},"malaga":{"s":["Alcazaba","Muzeum Picassa|Picasso Museum","katedra|Cathedral","plaża Malagueta|Malagueta beach"],"g":["Gibralfaro (widok)|Gibralfaro viewpoint","targ Atarazanas|Atarazanas market"],"x":["Caminito del Rey","Ronda","Nerja"],"f":"espetos de sardinas i pescaíto frito|espetos de sardinas and pescaíto frito","beach":true,"r":["Sardynki z rożna (espetos) w chiringuito na plaży Pedregalejo.|Skewered sardines (espetos) at a chiringuito on Pedregalejo beach.","Bilety na Caminito del Rey kupuje się z dużym wyprzedzeniem.|Caminito del Rey tickets sell out — buy well ahead."]},"palma":{"s":["katedra La Seu|La Seu Cathedral","Castell de Bellver","Stare Miasto|Old Town","plaże w okolicy|nearby beaches"],"g":["Santa Catalina i targ|Santa Catalina and its market","Sóller (zabytkowym pociągiem)|Sóller by vintage train"],"x":["Serra de Tramuntana","Cala Mondragó"],"f":"ensaïmada i sobrassada","beach":true,"r":["Zabytkowy pociąg z Palmy do Sóller, a dalej tramwaj do portu.|The vintage train from Palma to Sóller, then the tram to the port.","Na Balearach do noclegu doliczany jest podatek ekoturystyczny.|The Balearic Islands add a sustainable tourism tax to accommodation."]},"teneryfa":{"s":["Park Narodowy Teide|Teide National Park","Masca","klify Los Gigantes|Los Gigantes cliffs","La Laguna"],"g":["las Anaga|Anaga forest","Garachico"],"x":["rejs z obserwacją wielorybów|whale-watching trip","La Gomera"],"f":"papas arrugadas z mojo|papas arrugadas with mojo","beach":true,"r":["Na szczyt Teide wymagane jest bezpłatne pozwolenie rezerwowane online z dużym wyprzedzeniem; za niektóre szlaki pobierana jest opłata.|The Teide summit needs a free permit booked online well ahead; some trails charge a fee.","Gwiazdy nad Teide po zmroku — jedno z najlepszych miejsc do obserwacji w Europie.|Stargazing above Teide after dark — one of Europe's best spots."]},"porto":{"s":["Ribeira","Most Ludwika I|Dom Luís I Bridge","Livraria Lello","dworzec São Bento i azulejos|São Bento station and its azulejos"],"g":["Foz do Douro","ogrody Pałacu Kryształowego|Crystal Palace Gardens"],"x":["Dolina Douro|Douro Valley","Guimarães"],"f":"francesinha i wino porto|francesinha and port wine","beach":true,"r":["Słodkie wino porto w piwnicach Vila Nova de Gaia — np. Graham's albo Taylor's, z degustacją.|Sweet port wine in the Vila Nova de Gaia cellars — e.g. Graham's or Taylor's, with a tasting.","Francesinha — kanapka z mięsem i serem w pikantnym sosie — w Café Santiago.|Francesinha — a meat-and-cheese sandwich in spicy sauce — at Café Santiago.","Zachód słońca z górnego poziomu mostu Ludwika I lub z Jardim do Morro.|Sunset from the upper deck of Dom Luís I Bridge or Jardim do Morro."]},"ateny":{"s":["Akropol i Partenon|Acropolis and Parthenon","Muzeum Akropolu|Acropolis Museum","Plaka","Agora"],"g":["wzgórze Filopapposa|Philopappos Hill","Anafiotika"],"x":["Przylądek Sunion|Cape Sounion","Delfy|Delphi"],"f":"souvlaki, gyros i meze|souvlaki, gyros and meze","beach":false,"r":["Akropol zaraz po otwarciu — zanim zrobi się upał i tłok.|The Acropolis right at opening — before the heat and crowds.","Zachód słońca nad Akropolem z wzgórza Filopapposa.|Sunset over the Acropolis from Philopappos Hill."]},"kreta":{"s":["Knossos","Chania i port wenecki|Chania and the Venetian harbour","plaża Balos|Balos beach","plaża Elafonisi|Elafonisi beach"],"g":["wąwóz Samaria|Samaria Gorge","wioski płaskowyżu Lasithi|Lasithi plateau villages"],"x":["Spinalonga","Rethymno"],"f":"dakos, oliwa i raki|dakos, olive oil and raki","beach":true,"r":["Wąwóz Samaria wcześnie rano — trasa ma ok. 16 km i kończy się łodzią.|Samaria Gorge early in the morning — about 16 km, ending with a boat.","Raki podawane gratis na koniec kolacji — tak wygląda kreteńska gościnność.|Free raki served at the end of dinner — Cretan hospitality."]},"dubrownik":{"s":["mury miejskie|city walls","Stradun","kolejka na Srđ|cable car to Mount Srđ","twierdza Lovrijenac|Fort Lovrijenac"],"g":["wyspa Lokrum|Lokrum island","plaża Banje|Banje beach"],"x":["Kotor (Czarnogóra)|Kotor (Montenegro)","Ston i ostrygi|Ston and its oysters"],"f":"owoce morza i czarne risotto|seafood and black risotto","beach":true,"r":["Mury miejskie zaraz po otwarciu albo przed zamknięciem — w południe jest gorąco i tłoczno.|The city walls right at opening or just before closing — midday is hot and crowded.","Kąpiel w Buža Bar — skalny bar przy murach.|A swim at Buža Bar — a cliff bar outside the walls."]},"split":{"s":["Pałac Dioklecjana|Diocletian's Palace","Riva","wzgórze Marjan|Marjan Hill","plaża Bačvice|Bačvice beach"],"g":["Varoš","Klis (twierdza)|Klis Fortress"],"x":["wyspa Hvar|Hvar island","Park Narodowy Krka|Krka National Park"],"f":"peka i pašticada","beach":true,"r":["Peka — mięso duszone pod żeliwnym kloszem — zamawia się z kilkugodzinnym wyprzedzeniem.|Peka — meat slow-cooked under an iron bell — must be ordered hours ahead.","Gra w picigin na plaży Bačvice z miejscowymi.|A game of picigin with locals on Bačvice beach."]},"kopenhaga":{"s":["Nyhavn","Tivoli","Mała Syrenka|The Little Mermaid","Christiansborg"],"g":["Christiania","Nørrebro i cmentarz Assistens|Nørrebro and Assistens Cemetery"],"x":["Muzeum Louisiana|Louisiana Museum","zamek Kronborg|Kronborg Castle"],"f":"smørrebrød i cynamonki|smørrebrød and cinnamon buns","beach":false,"r":["Smørrebrød na lunch w Schønnemann lub Aamanns.|Smørrebrød for lunch at Schønnemann or Aamanns.","Rower miejski zamiast metra — miasto jest dla rowerzystów.|A city bike instead of the metro — the city is built for cyclists."]},"sztokholm":{"s":["Gamla Stan","Muzeum Vasa|Vasa Museum","Skansen","Ratusz|City Hall"],"g":["Södermalm","Djurgården"],"x":["archipelag sztokholmski|Stockholm archipelago","Drottningholm"],"f":"klopsiki, śledź i fika|meatballs, herring and fika","beach":false,"r":["Fika — kawa i bułka cynamonowa — w kawiarni na Södermalmie.|Fika — coffee and a cinnamon bun — at a café in Södermalm.","Stacje metra jako galeria sztuki — szczególnie T-Centralen i Kungsträdgården.|Metro stations as an art gallery — especially T-Centralen and Kungsträdgården."]},"oslo":{"s":["Opera w Oslo (dach)|Oslo Opera House roof","Muzeum Muncha|Munch Museum","park Vigelanda|Vigeland Park","twierdza Akershus|Akershus Fortress"],"g":["Grünerløkka","sauna przy fiordzie|fjord sauna"],"x":["Holmenkollen","rejs po Oslofjordzie|Oslofjord cruise"],"f":"łosoś i brunost|salmon and brunost","beach":false,"r":["Spacer po dachu Opery — wejście jest darmowe.|Walk on the Opera House roof — it is free.","Sauna pływająca przy nabrzeżu Aker Brygge ze skokiem do fiordu.|A floating sauna by Aker Brygge with a dip in the fjord."]},"helsinki":{"s":["Plac Senacki i katedra|Senate Square and Cathedral","twierdza Suomenlinna|Suomenlinna fortress","Kościół w skale|Temppeliaukio rock church","targ przy porcie|Market Square"],"g":["Kallio","sauna Löyly|Löyly sauna"],"x":["Porvoo","Tallinn promem|Tallinn by ferry"],"f":"zupa łososiowa i korvapuusti|salmon soup and korvapuusti","beach":true,"r":["Sauna Löyly nad morzem i zanurzenie w Bałtyku.|Löyly sauna by the sea and a dip in the Baltic.","Prom miejski na Suomenlinnę — w cenie zwykłego biletu komunikacji.|The city ferry to Suomenlinna — included in a normal transport ticket."]},"tallinn":{"s":["Stare Miasto|Old Town","Wzgórze Toompea|Toompea Hill","Ratusz|Town Hall Square","Kadriorg"],"g":["Telliskivi","Kalamaja"],"x":["Park Narodowy Lahemaa|Lahemaa National Park"],"f":"czarny chleb i szprotki|black bread and sprats","beach":false,"r":["Widok na dachy z punktu Kohtuotsa na Toompea.|Rooftop view from Kohtuotsa viewpoint on Toompea.","Telliskivi — dawna fabryka z targiem staroci w soboty.|Telliskivi — a former factory with a Saturday flea market."]},"ryga":{"s":["Stare Miasto|Old Town","Dom Bractwa Czarnogłowych|House of the Blackheads","dzielnica secesji|Art Nouveau district","Rynek Centralny|Central Market"],"g":["Āgenskalns","Miasteczko Kalnciema|Kalnciema Quarter"],"x":["Jurmała|Jūrmala","Sigulda"],"f":"szary groch z boczkiem i balsam ryski|grey peas with bacon and Riga Black Balsam","beach":true,"r":["Rynek Centralny w dawnych hangarach zeppelinów — wędzone ryby i lokalne przysmaki.|The Central Market in former zeppelin hangars — smoked fish and local treats.","Ulica Alberta — najpiękniejsze kamienice secesyjne.|Alberta Street — the finest Art Nouveau facades."]},"wilno":{"s":["Ostra Brama|Gate of Dawn","katedra i Plac Katedralny|Cathedral Square","Uniwersytet Wileński|Vilnius University","Zamek Górny|Upper Castle"],"g":["Zarzecze|Užupis","cmentarz na Rossie|Rasos Cemetery"],"x":["Troki|Trakai"],"f":"cepeliny i chłodnik litewski|cepelinai and cold beet soup","beach":false,"r":["Konstytucja Republiki Zarzecza wywieszona na ulicy Paupio — w wielu językach, także po polsku.|The Užupis Republic constitution on Paupio Street — in many languages, including Polish.","Kibiny w Trokach, nad jeziorem Galwe.|Kibinai pastries in Trakai by Lake Galvė."]},"dublin":{"s":["Trinity College i Księga z Kells|Trinity College and the Book of Kells","Guinness Storehouse","Temple Bar","katedra św. Patryka|St Patrick's Cathedral"],"g":["Howth","Kilmainham Gaol"],"x":["Klify Moheru|Cliffs of Moher","Glendalough"],"f":"irish stew i Guinness|Irish stew and Guinness","beach":false,"r":["Pint Guinnessa w tradycyjnym pubie poza Temple Bar — taniej i bardziej lokalnie.|A pint of Guinness in a traditional pub outside Temple Bar — cheaper and more local.","Spacer klifem w Howth i fish and chips w porcie.|The Howth cliff walk and fish and chips by the harbour."]},"edynburg":{"s":["Zamek w Edynburgu|Edinburgh Castle","Royal Mile","Arthur's Seat","Holyrood"],"g":["Dean Village","Calton Hill"],"x":["Szkockie Highlands i Loch Ness|Scottish Highlands and Loch Ness","St Andrews"],"f":"haggis i whisky|haggis and whisky","beach":false,"r":["Wejście na Arthur's Seat o zachodzie słońca.|Climbing Arthur's Seat at sunset.","W sierpniu trwa festiwal Fringe — noclegi rezerwuje się wiele miesięcy wcześniej.|In August the Fringe festival runs — book accommodation months ahead."]},"monachium":{"s":["Marienplatz i Glockenspiel|Marienplatz and the Glockenspiel","Ogród Angielski|English Garden","Residenz","Nymphenburg"],"g":["surferzy na Eisbachu|Eisbach river surfers","Viktualienmarkt"],"x":["zamek Neuschwanstein|Neuschwanstein Castle","Salzburg"],"f":"biała kiełbasa, precel i piwo|white sausage, pretzel and beer","beach":false,"r":["Ogródek piwny przy Chińskiej Wieży w Ogrodzie Angielskim.|The beer garden at the Chinese Tower in the English Garden.","Weißwurst je się tradycyjnie przed południem, z musztardą i preclem.|Weisswurst is traditionally eaten before noon with mustard and a pretzel."]},"zurych":{"s":["Stare Miasto|Old Town","Jezioro Zuryskie|Lake Zurich","Fraumünster i witraże Chagalla|Fraumünster and Chagall windows","Bahnhofstrasse"],"g":["Zurych-West|Zurich West","Uetliberg"],"x":["Lucerna|Lucerne","Wodospad Renu|Rhine Falls"],"f":"zürcher geschnetzeltes i rösti","beach":false,"r":["Kąpiel w rzece Limmat w miejskich kąpieliskach (np. Frauenbad) latem.|A summer swim in the Limmat at the river baths (e.g. Frauenbad).","Bilet ZürichCARD obejmuje komunikację i wiele muzeów.|The ZürichCARD covers transport and many museums."]},"stambul":{"s":["Hagia Sophia","Błękitny Meczet|Blue Mosque","Wielki Bazar|Grand Bazaar","pałac Topkapı|Topkapı Palace"],"g":["Balat","Kadıköy (strona azjatycka)|Kadıköy (Asian side)"],"x":["Wyspy Książęce|Princes' Islands","rejs po Bosforze|Bosphorus cruise"],"f":"kebab, baklawa i çay|kebab, baklava and çay","beach":false,"r":["Prom publiczny na azjatycką stronę zamiast płatnego rejsu — te same widoki za kilka lir.|A public ferry to the Asian side instead of a paid cruise — same views for a few lira.","Balık ekmek (kanapka z rybą) przy moście Galata.|Balık ekmek (fish sandwich) by Galata Bridge."]},"antalya":{"s":["Kaleiçi","plaża Konyaaltı|Konyaaltı beach","wodospady Düden|Düden Waterfalls","Muzeum Archeologiczne|Archaeological Museum"],"g":["Hadrian's Gate","plaża Kaputaş|Kaputaş beach"],"x":["Aspendos","Pamukkale"],"f":"piyaz i gözleme","beach":true,"r":["Spektakl w antycznym teatrze w Aspendos, jeśli trafi się termin.|A performance at the ancient theatre of Aspendos if dates allow.","Gözleme pieczone na miejscu na targu w Kaleiçi.|Freshly made gözleme at the Kaleiçi market."]},"lofoty":{"s":["Reine","Hamnøy","plaża Haukland|Haukland beach","Henningsvær"],"g":["szlak Reinebringen|Reinebringen hike","Nusfjord"],"x":["rejs po Trollfjordzie|Trollfjord cruise"],"f":"sztokfisz i dorsz|stockfish and cod","beach":true,"r":["Wejście na Reinebringen rano — schody są strome, a widok jeden z najlepszych w Norwegii.|Reinebringen in the morning — the steps are steep and the view is among Norway's best.","Samochód jest niemal niezbędny — komunikacja publiczna kursuje rzadko.|A car is almost essential — public transport is sparse."]},"tromso":{"s":["Katedra Arktyczna|Arctic Cathedral","kolejka Fjellheisen|Fjellheisen cable car","Polaria","centrum nad portem|harbour centre"],"g":["wyspa Kvaløya|Kvaløya island","Telegrafbukta"],"x":["wyprawa na zorzę polarną|northern lights tour","psie zaprzęgi|dog sledding"],"f":"renifer i ryby arktyczne|reindeer and Arctic fish","beach":false,"r":["Wyprawa „chasing the aurora\" z przewodnikiem — kierowcy jadą tam, gdzie niebo jest czyste.|A guided aurora chase — drivers head wherever the sky is clear.","Fjellheisen wieczorem — widok na miasto i fiord pod zorzą.|Fjellheisen at night — city and fjord views under the aurora."]},"tokio":{"s":["Shibuya i skrzyżowanie|Shibuya Crossing","Asakusa i Sensō-ji|Asakusa and Sensō-ji","Shinjuku i Gyoen|Shinjuku and Gyoen garden","Meiji-jingū"],"g":["Yanaka","Shimokitazawa"],"x":["Nikko","Kamakura","Hakone i Fuji|Hakone and Mount Fuji"],"f":"sushi, ramen i izakaya|sushi, ramen and izakaya","beach":false,"r":["Śniadanie z sushi na targu zewnętrznym Tsukiji.|A sushi breakfast at the Tsukiji Outer Market.","Karta Suica w telefonie zamiast biletów — działa też w sklepach.|A Suica card on the phone instead of tickets — it works in shops too."]},"kioto":{"s":["Fushimi Inari","Kinkaku-ji (Złoty Pawilon)|Kinkaku-ji (Golden Pavilion)","las bambusowy Arashiyama|Arashiyama bamboo grove","Gion"],"g":["Ścieżka Filozofa|Philosopher's Path","Ohara"],"x":["Nara","Osaka"],"f":"kaiseki, matcha i tofu|kaiseki, matcha and tofu","beach":false,"r":["Fushimi Inari o świcie — bramy torii bez tłumów.|Fushimi Inari at dawn — the torii gates without crowds.","W Gion nie fotografuje się gejsz z bliska — w części uliczek obowiązuje zakaz zdjęć.|Do not photograph geisha up close in Gion — some lanes ban photos."]},"losangeles":{"s":["Hollywood i Walk of Fame|Hollywood and the Walk of Fame","obserwatorium Griffith|Griffith Observatory","Santa Monica i Venice Beach","Getty Center"],"g":["Arts District","Malibu i El Matador|Malibu and El Matador beach"],"x":["Joshua Tree","Park Disneya w Anaheim|Disneyland Anaheim"],"f":"tacos, burgery i kuchnia koreańska|tacos, burgers and Korean food","beach":true,"r":["Zachód słońca z obserwatorium Griffith z widokiem na napis Hollywood.|Sunset from Griffith Observatory with the Hollywood sign in view.","Tacos z food trucka — najlepsze są często przy stacjach benzynowych.|Food-truck tacos — some of the best park by petrol stations."]},"miami":{"s":["South Beach","Art Deco District","Wynwood Walls","Little Havana"],"g":["Key Biscayne","Coconut Grove"],"x":["Everglades","Key West"],"f":"kanapka cubano i key lime pie|Cuban sandwich and key lime pie","beach":true,"r":["Café cubano i gra w domino w Domino Park w Little Havana.|Café cubano and dominoes at Domino Park in Little Havana.","Przejażdżka łodzią po Everglades z przewodnikiem.|A guided airboat ride in the Everglades."]},"meksyk":{"s":["Zócalo i katedra|Zócalo and the Cathedral","Muzeum Antropologii|National Museum of Anthropology","Teotihuacán","Coyoacán i dom Fridy Kahlo|Coyoacán and Frida Kahlo's house"],"g":["Xochimilco","Roma i Condesa"],"x":["Puebla"],"f":"tacos al pastor i mole|tacos al pastor and mole","beach":false,"r":["Tacos al pastor w taquerii El Huequito lub w ulicznych budkach.|Tacos al pastor at El Huequito or street stands.","Bilety do Domu Fridy Kahlo kupuje się online kilka dni wcześniej.|Buy Frida Kahlo House tickets online a few days ahead."]},"cancun":{"s":["Strefa Hotelowa i plaże|Hotel Zone beaches","Chichén Itzá","Tulum","Isla Mujeres"],"g":["cenote Ik Kil","Valladolid"],"x":["Cozumel","Bacalar"],"f":"cochinita pibil i ceviche","beach":true,"r":["Kąpiel w cenote rano, zanim przyjadą autokary.|A swim in a cenote in the morning before the tour buses.","Do cenotów używa się kremów biodegradowalnych — zwykłe są zakazane.|Use biodegradable sunscreen in cenotes — regular ones are banned."]},"hawana":{"s":["Stara Hawana|Old Havana","Malecón","Plaza de la Catedral","Capitolio"],"g":["Callejón de Hamel","Fusterlandia"],"x":["Viñales","Varadero"],"f":"ropa vieja, mojito i daiquiri|ropa vieja, mojito and daiquiri","beach":true,"r":["Przejażdżka zabytkowym kabrioletem wzdłuż Malecónu o zachodzie słońca.|A classic convertible ride along the Malecón at sunset.","Muzyka na żywo w Callejón de Hamel w niedzielę w południe.|Live rumba at Callejón de Hamel on Sunday noon."]},"kair":{"s":["piramidy w Gizie i Sfinks|Giza Pyramids and the Sphinx","Wielkie Muzeum Egipskie|Grand Egyptian Museum","Chan al-Chalili|Khan el-Khalili bazaar","Kair Islamski|Islamic Cairo"],"g":["Sakkara|Saqqara","Kair Koptyjski|Coptic Cairo"],"x":["Aleksandria|Alexandria"],"f":"koshari i ful|koshari and ful","beach":false,"r":["Piramidy zaraz po otwarciu — przed upałem i tłumem.|The pyramids right at opening — before the heat and crowds.","Koshari w Abou Tarek — kultowa, tania knajpa.|Koshari at Abou Tarek — an iconic cheap spot."]},"hurghada":{"s":["nurkowanie na rafie|reef snorkelling","wyspa Giftun|Giftun Island","marina","plaże|beaches"],"g":["El Gouna","Sahl Hasheesh"],"x":["Luksor|Luxor","safari pustynne|desert safari"],"f":"ryby z grilla i falafel|grilled fish and falafel","beach":true,"r":["Rejs na wyspę Giftun z nurkowaniem — przy rafie nie dotyka się korali.|A trip to Giftun Island with snorkelling — do not touch the coral.","Wycieczka do Luksoru wymaga wczesnego wyjazdu (ok. 4 h drogi).|A Luxor trip means a very early start (about 4 h each way)."]},"zanzibar":{"s":["Stone Town","plaża Nungwi|Nungwi beach","plantacja przypraw|spice farm","Prison Island"],"g":["las Jozani i małpy czerwone|Jozani Forest red colobus","Paje"],"x":["Mnemba (nurkowanie)|Mnemba atoll snorkelling"],"f":"pizza zanzibarska i owoce morza|Zanzibar pizza and seafood","beach":true,"r":["Nocny targ Forodhani w Stone Town — grillowane owoce morza i „pizza zanzibarska\".|Forodhani night market in Stone Town — grilled seafood and \"Zanzibar pizza\".","Zachód słońca na plaży Kendwa — miejsce, gdzie pływy najmniej zmieniają linię brzegu.|Sunset at Kendwa beach — where the tide changes the shore the least."]},"mauritius":{"s":["Le Morne","Chamarel — Ziemia Siedmiu Kolorów|Chamarel Seven Coloured Earth","ogród botaniczny Pamplemousses|Pamplemousses Botanical Garden","Port Louis"],"g":["Île aux Cerfs","wąwóz Black River|Black River Gorges"],"x":["rejs z delfinami|dolphin trip"],"f":"dholl puri i curry|dholl puri and curry","beach":true,"r":["Dholl puri z ulicznego stoiska w Port Louis — lokalny przysmak.|Dholl puri from a street stall in Port Louis — a local favourite.","Rejs łodzią na Île aux Cerfs rano, przed tłumem.|A morning boat to Île aux Cerfs before the crowd."]},"malediwy":{"s":["nurkowanie z rafą domową|house reef snorkelling","sandbank i piknik|sandbank picnic","Malé","rejs o zachodzie słońca|sunset cruise"],"g":["bioluminescencja nocą|night bioluminescence","wyspa lokalna (np. Maafushi)|a local island (e.g. Maafushi)"],"x":["nurkowanie z mantami lub rekinami wielorybimi|diving with mantas or whale sharks"],"f":"mas huni i curry rybne|mas huni and fish curry","beach":true,"r":["Nurkowanie z mantami w sezonie (zależnie od atolu).|Snorkelling with manta rays in season (depends on the atoll).","Śniadanie mas huni — tuńczyk z kokosem i chlebkiem roshi.|A mas huni breakfast — tuna with coconut and roshi bread."]},"phuket":{"s":["Stare Miasto Phuket|Phuket Old Town","Wielki Budda|Big Buddha","Phang Nga Bay","plaża Kata|Kata beach"],"g":["plaża Freedom|Freedom Beach","Promthep Cape"],"x":["Phi Phi","Krabi"],"f":"curry massaman i owoce morza|massaman curry and seafood","beach":true,"r":["Zachód słońca z Promthep Cape.|Sunset from Promthep Cape.","Niedzielny targ uliczny na Thalang Road w Starym Mieście.|The Sunday walking street market on Thalang Road in the Old Town."]},"singapur":{"s":["Gardens by the Bay","Marina Bay Sands","Chinatown","Sentosa"],"g":["Tiong Bahru","Kampong Glam"],"x":["Pulau Ubin"],"f":"chicken rice, laksa i chilli crab","beach":false,"r":["Pokaz świateł Supertree Grove wieczorem — bezpłatny.|The Supertree Grove light show in the evening — free.","Chicken rice w hawker centre Maxwell.|Chicken rice at Maxwell Food Centre."]},"seul":{"s":["pałac Gyeongbokgung|Gyeongbokgung Palace","Bukchon Hanok","Myeongdong","N Seoul Tower"],"g":["Ikseon-dong","strumień Cheonggyecheon|Cheonggyecheon stream"],"x":["strefa DMZ|the DMZ","Suwon"],"f":"bibimbap, BBQ i kimchi|bibimbap, Korean BBQ and kimchi","beach":false,"r":["Wstęp do pałaców jest bezpłatny w hanboku — wypożyczalnie są tuż obok.|Palace entry is free when wearing a hanbok — rental shops are next door.","Koreańskie BBQ na Mapo lub Hongdae wieczorem.|Korean BBQ in Mapo or Hongdae in the evening."]},"goa":{"s":["Stare Goa i kościoły|Old Goa churches","plaża Palolem|Palolem beach","Panaji i Fontainhas|Panaji and Fontainhas","targ w Anjunie|Anjuna flea market"],"g":["wodospad Dudhsagar|Dudhsagar Falls","plaża Butterfly|Butterfly Beach"],"x":["plantacja przypraw|spice plantation"],"f":"vindaloo, curry rybne i bebinca|vindaloo, fish curry and bebinca","beach":true,"r":["Środowy targ w Anjunie i sobotni nocny targ w Arpora.|The Wednesday Anjuna market and the Saturday night market in Arpora.","Curry rybne z ryżem w nadmorskiej shack.|Fish curry rice at a beach shack."]},"doha":{"s":["Muzeum Sztuki Islamskiej|Museum of Islamic Art","Souq Waqif","Corniche","Muzeum Narodowe Kataru|National Museum of Qatar"],"g":["Katara","Msheireb"],"x":["pustynia i Inland Sea|desert and the Inland Sea"],"f":"machboos i karak|machboos and karak tea","beach":true,"r":["Herbata karak i spacer po Souq Waqif wieczorem.|Karak tea and an evening walk in Souq Waqif.","Park MIA przy muzeum — najlepszy widok na panoramę miasta.|MIA Park by the museum — the best skyline view."]},"buenosaires":{"s":["Plaza de Mayo i Casa Rosada|Plaza de Mayo and Casa Rosada","La Boca i Caminito|La Boca and Caminito","cmentarz Recoleta|Recoleta Cemetery","San Telmo"],"g":["Palermo Soho","El Ateneo Grand Splendid"],"x":["Tigre (delta)|the Tigre delta","Colonia del Sacramento (Urugwaj)|Colonia del Sacramento (Uruguay)"],"f":"asado, empanadas i malbec|asado, empanadas and malbec","beach":false,"r":["Księgarnia El Ateneo w dawnym teatrze.|El Ateneo bookshop in a former theatre.","Milonga — wieczór tanga, gdzie tańczą miejscowi, np. w La Catedral.|A milonga — a tango night where locals dance, e.g. La Catedral."]},"cusco":{"s":["Plaza de Armas","Sacsayhuamán","Machu Picchu","Święta Dolina Inków|Sacred Valley"],"g":["San Blas","Moray i Maras|Moray and the Maras salt pans"],"x":["Tęczowa Góra|Rainbow Mountain"],"f":"ceviche, lomo saltado i chicha|ceviche, lomo saltado and chicha","beach":false,"r":["Pierwszy dzień tylko spacer po San Blas — organizm musi przywyknąć do wysokości.|Day one just a stroll in San Blas — the body needs to adjust to the altitude.","Bilety i pociąg do Machu Picchu rezerwuje się z kilkutygodniowym wyprzedzeniem.|Book Machu Picchu tickets and the train weeks ahead."]},"vancouver":{"s":["Stanley Park","Granville Island","Gastown","most Capilano|Capilano Suspension Bridge"],"g":["Kitsilano","Lynn Canyon"],"x":["Whistler","Victoria"],"f":"łosoś pacyficzny i poutine|Pacific salmon and poutine","beach":true,"r":["Rower dookoła Stanley Park po Seawall.|A bike ride around Stanley Park on the Seawall.","Lynn Canyon — darmowa alternatywa dla płatnego mostu Capilano.|Lynn Canyon — a free alternative to the paid Capilano bridge."]},"auckland":{"s":["Sky Tower","Waiheke","Viaduct Harbour","Mount Eden"],"g":["plaża Piha|Piha beach","Devonport"],"x":["Hobbiton","Rotorua","Waitomo"],"f":"jagnięcina, fish and chips i pavlova|lamb, fish and chips and pavlova","beach":true,"r":["Prom na Waiheke i degustacja w winnicach.|A ferry to Waiheke and a winery tasting.","Na plaży Piha kąpie się tylko między flagami — prądy są bardzo silne.|At Piha only swim between the flags — the currents are strong."]},"kenia":{"s":["Masai Mara","Nairobi National Park","Sheldrick Elephant Orphanage","Amboseli i widok na Kilimandżaro|Amboseli and Kilimanjaro views"],"g":["Giraffe Centre","Jezioro Naivasha|Lake Naivasha"],"x":["Diani Beach"],"f":"nyama choma i ugali","beach":false,"r":["Wielka migracja w Masai Mara — od lipca do października.|The Great Migration in Masai Mara — July to October.","Karmienie słoni w sierocińcu Sheldrick (godzinne okno rano).|Elephant feeding at the Sheldrick orphanage (a one-hour morning window)."]},"petra":{"s":["Siq i Skarbiec|the Siq and the Treasury","Klasztor (Ad Deir)|the Monastery (Ad Deir)","Królewskie Grobowce|Royal Tombs","Petra by Night"],"g":["Mała Petra|Little Petra","Wysokie Miejsce Ofiarne|High Place of Sacrifice"],"x":["Wadi Rum","Morze Martwe|the Dead Sea"],"f":"mansaf i maqluba","beach":false,"r":["Wejście o 6:00 — Skarbiec bez tłumu i w porannym świetle.|Enter at 6 am — the Treasury without crowds in morning light.","Noc pod gwiazdami w obozie beduińskim w Wadi Rum.|A night under the stars in a Bedouin camp in Wadi Rum."]},"siemreap":{"s":["Angkor Wat o wschodzie słońca|Angkor Wat at sunrise","Bayon","Ta Prohm","Angkor Thom"],"g":["Banteay Srei","pływająca wioska Kampong Phluk|Kampong Phluk floating village"],"x":["Beng Mealea","Phnom Kulen"],"f":"amok i lok lak|amok and lok lak","beach":false,"r":["Wschód słońca nad Angkor Wat — miejsce przy lewym stawie trzeba zająć przed 5:00.|Sunrise over Angkor Wat — claim a spot by the left pond before 5 am.","Kilkudniowy Angkor Pass zamiast jednodniowego — świątyń jest zbyt wiele na jeden dzień.|A multi-day Angkor Pass rather than one day — there are too many temples for one day."]}};
+
+  function L(str){
+    if(str == null) return '';
+    const i = String(str).indexOf('|');
+    if(i < 0) return String(str);
+    return currentLang === 'en' ? String(str).slice(i + 1) : String(str).slice(0, i);
+  }
+  function destForTrip(trip){
+    const k = trip && (trip.key || trip.icon);
+    return DESTINATIONS.find(function(d){ return d.key === k; }) || null;
+  }
+  function tripAnswers(trip){
+    if(trip && Array.isArray(trip.answers) && trip.answers.length) return trip.answers;
+    return (typeof quizAnswers !== 'undefined' && quizAnswers.length) ? quizAnswers : [];
+  }
+  function tripCity(trip){
+    const d = destForTrip(trip);
+    if(d) return destName(d);
+    return (currentLang === 'en' && trip.cityEn) ? trip.cityEn : (trip.city || '');
+  }
+  /* nocleg i opis planu liczone na nowo z odpowiedzi - zawsze w biezacym jezyku */
+  function tripTexts(trip){
+    const d = destForTrip(trip);
+    const a = tripAnswers(trip);
+    if(!d) return {nocleg: trip.nocleg || '', plan: trip.plan || ''};
+    return {nocleg: getNoclegText(d, a), plan: getPlanText(d, a)};
+  }
+  function tripDateLabel(trip){
+    if(trip && trip.travelDate) return formatTravelDate(trip.travelDate);
+    return trip && trip.date ? trip.date : '';
+  }
+
+  /* ---------- plan dzien po dniu, ulozony z odpowiedzi z quizu ----------
+     osie: 0 plaza/gory, 1 znane/perelki, 2 zwiedzanie/relaks, 3 budzet/rozmach,
+           4 solo/grupa, 5 lokalne/swiat, 6 spontan/plan, 7 miasto/natura */
+  function buildDayPlan(trip){
+    const dest = destForTrip(trip);
+    const D = dest ? TRAVEL_DEST[dest.key] : null;
+    const a = tripAnswers(trip);
+    const days = Math.max(2, (dest && dest.days) || 4);
+    const city = tripCity(trip);
+    const gems     = a[1] === 1;
+    const relax    = a[2] === 1;
+    const lux      = a[3] === 1;
+    const group    = a[4] === 1;
+    const world    = a[5] === 1;
+    const planned  = a[6] === 1;
+    const nature   = a[7] === 1;
+    const wantsSea = a[0] === 0;
+    const T = function(k, v){ return t(k, v); };
+
+    const famous = D ? D.s.map(L) : [];
+    const hidden = D ? D.g.map(L) : [];
+    const trips  = D ? D.x.map(L) : [];
+    const food   = D ? L(D.f) : '';
+    // kolejnosc atrakcji zalezy od odpowiedzi: perelki najpierw albo znane najpierw
+    let pool = gems ? hidden.concat(famous) : famous.concat(hidden);
+    if(nature) pool = pool.slice(0, 2).concat(trips.slice(0, 1), pool.slice(2));   // natura: wycieczka wczesniej
+    const excursions = nature ? trips.slice(1) : trips.slice();
+    const perDay = relax ? 1 : 2;
+
+    const slot = function(time, key, txt){
+      return {time: planned ? time : T('pl.slot.' + key), text: txt};
+    };
+    // kolacje roznia sie z dnia na dzien; dopisek o budzecie/rozmachu tylko raz
+    let dinnerNo = 0, extraUsed = false;
+    const dinner = function(){
+      const v = dinnerNo++ % 3;
+      let txt = world ? T('pl.dinnerWorld' + (v ? v + 1 : ''))
+                      : (v === 0 ? T('pl.dinnerLocal', {food: food || T('pl.localFood')}) : T('pl.dinnerLocal' + (v + 1)));
+      if(!extraUsed && (lux || a[3] === 0) && (lux ? dinnerNo >= 2 : true)){
+        txt += ' ' + (lux ? T('pl.luxDinner') : T('pl.budgetDinner'));
+        extraUsed = true;
+      }
+      return slot('19:30', 'eve', txt);
+    };
+    const cap = function(x){ return x ? x.charAt(0).toUpperCase() + x.slice(1) : x; };
+    const out = [];
+    let take = 0;
+    const nextSights = function(n){ const r = pool.slice(take, take + n); take += r.length; return r; };
+
+    for(let d = 1; d <= days; d++){
+      const items = [];
+      let title;
+      if(d === 1){
+        title = T('pl.t.arrival');
+        items.push(slot('14:00', 'aft', T('pl.arrive', {city: city})));
+        const first = nextSights(1)[0];
+        if(first) items.push(slot('16:30', 'aft', T('pl.firstWalk', {place: first})));
+        items.push(dinner());
+      } else if(d === days){
+        title = T('pl.t.departure');
+        items.push(slot('09:00', 'morn', T('pl.lastMorning')));
+        items.push(slot('11:00', 'morn', T('pl.checkout')));
+      } else {
+        // co trzeci dzien (przy dluzszym pobycie) - wycieczka poza miasto
+        const tripToday = excursions.length && days >= 5 && d % 3 === 0;
+        if(tripToday){
+          const ex = excursions.shift();
+          title = T('pl.t.trip');
+          items.push(slot('08:30', 'morn', T('pl.excursion', {place: ex})));
+          items.push(slot('18:00', 'aft', T('pl.backRest')));
+          items.push(dinner());
+        } else {
+          const sights = nextSights(perDay);
+          if(sights.length){
+            title = relax ? T('pl.t.easy') : T('pl.t.explore');
+            items.push(slot('09:30', 'morn', (planned ? T('pl.morningSight') : T('pl.morningSightFree')).replace('{place}', cap(sights[0]))));
+            items.push(slot('13:00', 'noon', world ? T('pl.lunchAny') : T('pl.lunchLocal')));
+            if(sights[1]) items.push(slot('15:00', 'aft', T('pl.afternoonSight', {place: sights[1]})));
+            else items.push(slot('15:00', 'aft', relaxBlock()));
+          } else {
+            title = T('pl.t.free');
+            items.push(slot('10:00', 'morn', relaxBlock()));
+            items.push(slot('15:00', 'aft', planned ? T('pl.revisit') : T('pl.wander')));
+          }
+          items.push(dinner());
+        }
+      }
+      out.push({title: title, items: items});
+    }
+    return out;
+
+    function relaxBlock(){
+      if(wantsSea && D && D.beach) return T('pl.beach');
+      if(nature) return T('pl.natureWalk');
+      return relax ? T('pl.slowCafe') : T('pl.neighbourhood');
+    }
+  }
+  /* uwagi pod planem - zalezne od odpowiedzi */
+  function planNotes(trip){
+    const a = tripAnswers(trip);
+    const notes = [];
+    if(a[6] !== 1) notes.push(t('pl.n.spont'));
+    if(a[3] === 0) notes.push(t('pl.n.budget'));
+    if(a[3] === 1) notes.push(t('pl.n.lux'));
+    if(a[4] === 1) notes.push(t('pl.n.group'));
+    notes.push(t('pl.n.book'));
+    return notes;
+  }
+  function dayPlanHTML(day, i, cls){
+    return '<div class="' + cls + '">'
+      + '<div class="dp-head"><span class="dp-no">' + (i + 1) + '</span><strong>' + t('plan.day') + ' ' + (i + 1) + ' · ' + escapeHtml(day.title) + '</strong></div>'
+      + '<ul class="dp-items">' + day.items.map(function(it){
+          return '<li><span class="dp-time">' + escapeHtml(it.time) + '</span><span>' + escapeHtml(it.text) + '</span></li>';
+        }).join('') + '</ul></div>';
+  }
+
+  /* ---------- niezbednik: praktyczne informacje dla kraju ---------- */
+  const EU_ROAMING = ['pl','pt','es','it','fr','de','at','nl','cz','hu','gr','hr','dk','se','fi','ee','lv','lt','ie','is','no'];
+  function buildEssentials(trip){
+    const dest = destForTrip(trip);
+    const cc = dest ? dest.cc : null;
+    const C = cc ? TRAVEL_COUNTRY[cc] : null;
+    const city = tripCity(trip);
+    const list = [];
+    list.push({q: t('es.money.q'), a: t('es.money.a', {city: city, cur: currencyForTrip(trip, dest)})});
+    if(C){
+      list.push({q: t('es.tax.q'), a: L(C.tax)});
+      list.push({q: t('es.plug.q'), a: L(C.plug)});
+      list.push({q: t('es.sos.q'), a: t('es.sos.a', {n: L(C.sos)})});
+      list.push({q: t('es.water.q'), a: C.water ? t('es.water.yes') : t('es.water.no')});
+      list.push({q: t('es.tip.q'), a: L(C.tip)});
+      list.push({q: t('es.cus.q'), a: C.cus.map(L).join(' ')});
+    }
+    list.push({q: t('es.net.q'), a: EU_ROAMING.indexOf(cc) >= 0 ? t('es.net.eu') : t('es.net.out')});
+    list.push({q: t('es.air.q'), a: t('es.air.a')});
+    list.push({q: t('es.docs.q'), a: t('es.docs.a')});
+    return list;
+  }
+  function currencyForTrip(trip, dest){
+    const curKey = {lizbona:'eur', santorini:'eur', bergen:'nok', zermatt:'chf', marrakesz:'mad', islandia:'isk',
+      bangkok:'thb', bali:'idr', nowyjork:'usd', kapsztad:'zar', rio:'brl', sydney:'aud',
+      dubaj:'aed', hanoi:'vnd', krakow:'pln', zakopane:'pln'}[trip.key || trip.icon];
+    return curKey ? t('cur.' + curKey) : currencyForCountry(dest);
+  }
+  function tripRecommendations(trip){
+    const dest = destForTrip(trip);
+    const D = dest ? TRAVEL_DEST[dest.key] : null;
+    return D ? D.r.map(L) : [];
+  }
+
   function generateDayPlan(cityName, answers, days){
     const spontaneous = answers[6] === 0;
     const plans = [];
@@ -7992,6 +8343,9 @@
   }
 
   function generateTripFaq(trip){
+    return buildEssentials(trip);
+  }
+  function generateTripFaqOld(trip){
     const city = trip.city || 'miejsce';
     const dest = DESTINATIONS.find(function(d){ return d.key === (trip.key || trip.icon); });
     const curKey = {lizbona:'eur', santorini:'eur', bergen:'nok',
@@ -8017,7 +8371,7 @@
     const unlocked = trip.travelDate ? daysUntilTravel(trip.travelDate) <= 0 : true;
     const titleEl = document.getElementById('trip-control-title');
     const statusEl = document.getElementById('trip-control-status');
-    if(titleEl) titleEl.textContent = trip.city;
+    if(titleEl) titleEl.textContent = tripCity(trip);
     if(statusEl){
       statusEl.textContent = unlocked
         ? t('trip.unlocked')
@@ -8084,13 +8438,10 @@
     if(planList){
       const dest = DESTINATIONS.find(function(d){ return d.key === (trip.key || trip.icon); });
       const days = dest ? dest.days : 5;
-      const plans = generateDayPlan(trip.city, quizAnswers, days);
-      planList.innerHTML = plans.map(function(text, i){
-        return '<div class="day-plan-item'+(unlocked?'':' locked')+'">'
-          + '<span class="day-plan-num">'+t('plan.day')+' '+(i+1)+'</span>'
-          + '<p>'+text+'</p>'
-          + (unlocked ? '' : '<span class="safepocket-lock">🔒</span>')
-          + '</div>';
+      const plans = buildDayPlan(trip);
+      planList.innerHTML = plans.map(function(day, i){
+        return dayPlanHTML(day, i, 'day-plan-item' + (unlocked ? '' : ' locked'))
+          .replace(/<\/div>$/, (unlocked ? '' : '<span class="safepocket-lock">🔒</span>') + '</div>');
       }).join('');
     }
     const backdrop = document.getElementById('trip-control-backdrop');
@@ -8445,9 +8796,44 @@
     {icon:'🌴', pl:'Bali: pora sucha trwa mniej więcej od kwietnia do października.', en:'Bali: the dry season runs roughly from April to October.'},
     {icon:'⛰️', pl:'Rio: na Chrystusa Zbawiciela jedź rano — po południu szczyt częściej chowa się w chmurach.', en:'Rio: visit Christ the Redeemer in the morning — the summit is more often clouded over later.'}
   ];
-  const FIRST_DELAY = 22000, EVERY = 45000, SHOW_MS = 7000, MAX_PER_VISIT = 4;
+  // 2 ciekawostki na minute: pierwsza po 15 s, potem co 30 s, kazda widoczna 8 s
+  const FIRST_DELAY = 15000, EVERY = 30000, SHOW_MS = 8000, MAX_PER_VISIT = 120;
+  /* Pula ciekawostek z calego swiata: rekomendacje i lokalne zwyczaje
+     ze wszystkich kierunkow w bazie (te same, sprawdzone dane co w planach). */
+  let WORLD = null;
+  function worldPool(){
+    if(WORLD) return WORLD;
+    WORLD = [];
+    try{
+      const seenCountry = {};
+      DESTINATIONS.forEach(function(d){
+        const D = (typeof TRAVEL_DEST !== 'undefined') ? TRAVEL_DEST[d.key] : null;
+        if(D) D.r.forEach(function(r){ WORLD.push({icon:d.flag, place:d, txt:r}); });
+        const C = (typeof TRAVEL_COUNTRY !== 'undefined') ? TRAVEL_COUNTRY[d.cc] : null;
+        if(C && !seenCountry[d.cc]){
+          seenCountry[d.cc] = true;
+          C.cus.forEach(function(c){ WORLD.push({icon:d.flag, place:d, txt:c, custom:true}); });
+        }
+      });
+    }catch(e){}
+    // tasowanie, zeby kolejne ciekawostki byly z roznych stron swiata
+    for(let i = WORLD.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = WORLD[i]; WORLD[i] = WORLD[j]; WORLD[j] = tmp;
+    }
+    return WORLD;
+  }
+  function worldItem(n){
+    const pool = worldPool();
+    if(!pool.length) return null;
+    const it = pool[n % pool.length];
+    const en = lang() === 'en';
+    const name = en ? (it.place.nameEn || it.place.name) : it.place.name;
+    const pick = function(str){ const i = str.indexOf('|'); return i < 0 ? str : (en ? str.slice(i + 1) : str.slice(0, i)); };
+    return {icon: it.icon || '🧭', pl: name + ': ' + pick(it.txt), en: name + ': ' + pick(it.txt), custom: it.custom};
+  }
   const queue = [];               // prawdziwe zdarzenia z backendu maja pierwszenstwo
-  let shown = 0, muted = false, tipIdx = Math.floor(Math.random() * TIPS.length);
+  let shown = 0, muted = false, tipIdx = 0;
   let el = null, hideTimer = 0;
 
   function lang(){ return (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'pl'; }
@@ -8478,7 +8864,9 @@
     el.querySelector('.live-toast-icon').textContent = item.icon || '🧭';
     el.querySelector('.live-toast-kicker').textContent = kind === 'live'
       ? (L === 'en' ? 'Live now' : 'Teraz na żywo')
-      : (L === 'en' ? 'Travel tip' : 'Podróżna wskazówka');
+      : kind === 'custom'
+        ? (L === 'en' ? 'Local custom' : 'Lokalny zwyczaj')
+        : (L === 'en' ? 'Travel tip' : 'Ciekawostka z podróży');
     el.querySelector('.live-toast-text').textContent = item[L] || item.pl;
     el.querySelector('.live-toast-close').setAttribute('aria-label', L === 'en' ? 'Close' : 'Zamknij');
     el.classList.add('on');
@@ -8490,7 +8878,11 @@
     if(shown >= MAX_PER_VISIT || muted) return;
     if(!blocked()){
       if(queue.length) show(queue.shift(), 'live');
-      else { show(TIPS[tipIdx % TIPS.length], 'tip'); tipIdx++; }
+      else {
+        const w = worldItem(tipIdx);
+        show(w || TIPS[tipIdx % TIPS.length], w && w.custom ? 'custom' : 'tip');
+        tipIdx++;
+      }
     }
     setTimeout(tick, EVERY);
   }

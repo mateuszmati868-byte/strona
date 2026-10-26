@@ -1748,7 +1748,19 @@
     opacity:0;transition:opacity .6s ease;
   }
   body.bg-sub .topo-bg{opacity:1;}
-  .topo-move{position:absolute;inset:-28px;will-change:transform;transition:transform .9s cubic-bezier(.2,.7,.2,1);}
+  .topo-move{position:absolute;inset:-48px;will-change:transform;}
+  /* ---------- tlo podazajace za kursorem ----------
+     1) warstwice przesuwaja sie plynnie w strone przeciwna do kursora (glebia),
+     2) wokol kursora warstwice ciemnieja - jak latarka nad mapa,
+     3) miekkie, cieple swiatlo plynie za kursorem z lekkim opoznieniem. */
+  .topo-hi{position:absolute;inset:0;opacity:0;transition:opacity .5s ease;
+    -webkit-mask-image:radial-gradient(circle var(--hr, 280px) at var(--mx, 50%) var(--my, 50%), #000 0%, rgba(0,0,0,.55) 45%, transparent 100%);
+            mask-image:radial-gradient(circle var(--hr, 280px) at var(--mx, 50%) var(--my, 50%), #000 0%, rgba(0,0,0,.55) 45%, transparent 100%);}
+  .topo-hi .topo-move{color:rgba(27,94,63,.62);}
+  .topo-hi .topo-svg path{stroke-width:1.7;}
+  .topo-glow{position:absolute;inset:0;opacity:0;transition:opacity .5s ease;pointer-events:none;
+    background:radial-gradient(circle 360px at var(--gx, 50%) var(--gy, 50%), rgba(255,253,246,.75) 0%, rgba(255,250,236,.35) 38%, transparent 70%);}
+  .topo-bg.tracking .topo-hi, .topo-bg.tracking .topo-glow{opacity:1;}
   .topo-svg{width:100%;height:100%;display:block;max-width:none;}
   /* lekkie przyciemnienie brzegow, zeby wzor nie konkurowal z trescia */
   .topo-bg::after{content:"";position:absolute;inset:0;
@@ -4360,22 +4372,49 @@
     document.body.classList.add(TAB_BG[tabName] || 'bg-intro');
   }
 
-  /* tlo podstron przesuwa sie minimalnie za myszka (max ok. 14 px) */
-  (function topoParallax(){
+  /* Tlo podstron (Planner, Paszport, Ustawienia) podaza za kursorem:
+     warstwice odplywaja do ok. 36 px, wokol kursora ciemnieja jak pod latarka,
+     a cieple swiatlo plynie za kursorem. Ruch jest wygladzany (bez szarpania). */
+  (function topoFollow(){
+    const bg = document.getElementById('topo-bg');
     const mv = document.getElementById('topo-move');
-    if(!mv) return;
+    if(!bg || !mv) return;
     if(window.matchMedia && (matchMedia('(prefers-reduced-motion: reduce)').matches || matchMedia('(hover: none)').matches)) return;
-    let tx = 0, ty = 0, raf = 0;
+    // druga, ciemniejsza kopia warstwic widoczna tylko wokol kursora
+    const hi = document.createElement('div');
+    hi.className = 'topo-hi';
+    const mv2 = mv.cloneNode(true);
+    mv2.removeAttribute('id');
+    hi.appendChild(mv2);
+    const glow = document.createElement('div');
+    glow.className = 'topo-glow';
+    bg.insertBefore(hi, mv.nextSibling);
+    bg.insertBefore(glow, hi.nextSibling);
+
+    let mx = innerWidth / 2, my = innerHeight / 2;      // cel (kursor)
+    let px = 0, py = 0, gx = mx, gy = my, lx = mx, ly = my;   // wartosci wygladzone
+    let raf = 0;
+    const tick = function(){
+      const tx = (mx / innerWidth - .5) * -72, ty = (my / innerHeight - .5) * -48;
+      px += (tx - px) * 0.08;  py += (ty - py) * 0.08;      // warstwice - powoli, z bezwladnoscia
+      lx += (mx - lx) * 0.22;  ly += (my - ly) * 0.22;      // latarka - szybko
+      gx += (mx - gx) * 0.10;  gy += (my - gy) * 0.10;      // swiatlo - z opoznieniem
+      const t = 'translate3d(' + px.toFixed(2) + 'px,' + py.toFixed(2) + 'px,0)';
+      mv.style.transform = t; mv2.style.transform = t;
+      bg.style.setProperty('--mx', lx.toFixed(1) + 'px'); bg.style.setProperty('--my', ly.toFixed(1) + 'px');
+      bg.style.setProperty('--gx', gx.toFixed(1) + 'px'); bg.style.setProperty('--gy', gy.toFixed(1) + 'px');
+      const moving = Math.abs(tx - px) + Math.abs(ty - py) + Math.abs(mx - gx) + Math.abs(my - gy) > 0.3;
+      raf = moving ? requestAnimationFrame(tick) : 0;
+    };
     window.addEventListener('mousemove', function(e){
       if(!document.body.classList.contains('bg-sub')) return;
-      tx = (e.clientX / innerWidth - .5) * -14;
-      ty = (e.clientY / innerHeight - .5) * -10;
-      if(raf) return;
-      raf = requestAnimationFrame(function(){
-        raf = 0;
-        mv.style.transform = 'translate3d(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px,0)';
-      });
+      mx = e.clientX; my = e.clientY;
+      bg.classList.add('tracking');
+      if(!raf) raf = requestAnimationFrame(tick);
     }, {passive:true});
+    document.addEventListener('mouseleave', function(){ bg.classList.remove('tracking'); });
+    document.documentElement.addEventListener('mouseleave', function(){ bg.classList.remove('tracking'); });
+    window.addEventListener('blur', function(){ bg.classList.remove('tracking'); });
   })();
 
   function goToTab(tabName, originBtn){

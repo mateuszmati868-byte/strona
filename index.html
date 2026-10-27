@@ -1278,6 +1278,14 @@
   .diag-name{flex:none;width:130px;color:#9FB3AA;}
   .diag-val{flex:1;word-break:break-word;}
   .diag-ok{color:#4ADE80;} .diag-bad{color:#F87171;} .diag-warn{color:#FBBF24;}
+  .diag-modal{width:min(820px,96vw)!important;}
+  .diag-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .diag-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:12px;}
+  .diag-thumb{margin:0;border-radius:10px;overflow:hidden;background:#20262A;}
+  .diag-thumb img{width:100%;height:70px;object-fit:cover;display:block;}
+  .diag-thumb.none{outline:2px solid #F87171;}
+  .diag-thumb.none span{display:flex;height:70px;align-items:center;justify-content:center;color:#F87171;font-weight:700;}
+  .diag-thumb figcaption{font-family:var(--font-body);font-size:.68rem;padding:4px 6px;color:#C9D4CF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .diag-close{
     position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;
     border:none;cursor:pointer;background:rgba(255,255,255,.12);color:#fff;font-size:.9rem;
@@ -1976,6 +1984,10 @@
     border:2px solid #fff;border-radius:50%!important;
   }
   .milestone.locked .milestone-lock{display:flex;}
+  .milestone.earned .milestone-icon-wrap{box-shadow:0 0 0 3px rgba(201,162,75,.55), 0 8px 20px rgba(201,162,75,.25);border-radius:50%;}
+  .milestone.just-earned .milestone-icon-wrap{animation:badgeEarn 1.2s cubic-bezier(.2,.8,.3,1.3);}
+  @keyframes badgeEarn{0%{transform:scale(.6);}50%{transform:scale(1.18);}100%{transform:scale(1);}}
+  @media (prefers-reduced-motion: reduce){ .milestone.just-earned .milestone-icon-wrap{animation:none;} }
 
 
   /* mock settings */
@@ -4865,7 +4877,7 @@
     ateny:'Athens',
     kreta:'Crete',
     dubrownik:'Dubrovnik',
-    split:'Split',
+    split:'Split,_Croatia',      // samo 'Split' to strona ujednoznaczniajaca - stad brak zdjecia
     kopenhaga:'Copenhagen',
     sztokholm:'Stockholm',
     oslo:'Oslo',
@@ -4913,7 +4925,7 @@
   };
   const cityImageCache = {};
   let cityImageDisk = null;      // trwaly cache w window.storage (zdjecia nie zmieniaja sie czesto)
-  const CITY_IMG_CACHE_KEY = 'cityImageCache.v3';   // v3: pomija stare wpisy (w tym zdjecia satelitarne)
+  const CITY_IMG_CACHE_KEY = 'cityImageCache.v4';   // v4: poprawiony Split + nowe zrodlo (Commons)   // v3: pomija stare wpisy (w tym zdjecia satelitarne)
 
   /* Jeden wspolny odczyt pamieci. Wczesniej kilkanascie zdjec naraz czytalo
      pamiec rownolegle - kazde dostawalo WLASNY obiekt i nadpisywalo zapis
@@ -5110,6 +5122,48 @@
     return best;
   }
 
+  /* ZRODLO 3 - wyszukiwarka Wikimedia Commons. Dziala nawet wtedy, gdy artykul
+     nie ma dobrego zdjecia (kraje-wyspy, parki narodowe, strony ujednoznaczniajace).
+     Najpierw szukamy wsrod "Quality images" (zdjecia ocenione przez spolecznosc),
+     potem w calym zbiorze. */
+  const PHOTO_SEARCH = {
+    malediwy:'Maldives island beach aerial', mauritius:'Mauritius Le Morne beach', kenia:'Maasai Mara savanna',
+    zanzibar:'Zanzibar beach', petra:'Petra Treasury Al-Khazneh', siemreap:'Angkor Wat', lofoty:'Lofoten Reine',
+    teneryfa:'Tenerife Teide', kreta:'Crete beach', bali:'Bali rice terraces', goa:'Goa beach', cusco:'Cusco Plaza de Armas',
+    islandia:'Reykjavik Hallgrimskirkja', zermatt:'Zermatt Matterhorn', zakopane:'Zakopane Tatra mountains',
+    split:'Split Croatia waterfront', santorini:'Oia Santorini', hurghada:'Hurghada Red Sea beach',
+    phuket:'Phuket beach', cancun:'Cancun beach', antalya:'Antalya Kaleici harbour', tromso:'Tromso city',
+    palma:'Palma de Mallorca cathedral', bergen:'Bergen Bryggen', doha:'Doha skyline', dubaj:'Dubai skyline'
+  };
+  function photoSearchQuery(key){
+    if(PHOTO_SEARCH[key]) return PHOTO_SEARCH[key];
+    const t = (WIKI_TITLES[key] || key).replace(/_/g, ' ').replace(/,.*$/, '');
+    return t + ' cityscape';
+  }
+  async function imageFromCommonsSearch(key){
+    const q = photoSearchQuery(key);
+    const base = 'https://commons.wikimedia.org/w/api.php?format=json&formatversion=2&origin=*&maxage=86400&smaxage=86400'
+      + '&action=query&generator=search&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=1000&gsrsearch=';
+    const tries = [q + ' incategory:Quality_images', q];
+    for(let t = 0; t < tries.length; t++){
+      const res = await fetch(base + encodeURIComponent(tries[t]));
+      if(!res.ok) continue;
+      const data = await res.json();
+      const pages = ((data && data.query && data.query.pages) || []).slice()
+        .sort(function(a, b){ return (a.index || 0) - (b.index || 0); });     // kolejnosc trafnosci
+      for(let i = 0; i < pages.length; i++){
+        const pg = pages[i], ii = pg.imageinfo && pg.imageinfo[0];
+        if(!ii || !ii.thumburl) continue;
+        if(!/^image\/(jpeg|webp)$/.test(ii.mime || '')) continue;
+        if(!goodFileName(pg.title)) continue;
+        const r = (ii.width || 0) / (ii.height || 1);
+        if(ii.width < 1200 || r < 1.25 || r > 2.6) continue;
+        return ii.thumburl;
+      }
+    }
+    return null;
+  }
+
   const cityImageInflight = {};
   const badPhotoUrls = {};        // adresy, ktore sie nie wczytaly - nastepnym razem bierzemy kolejne zrodlo
   function forgetCityImage(key){
@@ -5130,7 +5184,8 @@
     if(!title) return null;
     const disk = await loadCityImageDisk();
     if(disk[key] && !badPhotoUrls[disk[key]]) return disk[key];
-    const steps = [imageFromLead, imageFromArticleFiles, imageFromMediaList, imageFromSummary];
+    // kolejnosc: zdjecie glowne artykulu -> pliki artykulu -> wyszukiwarka Commons -> REST
+    const steps = [imageFromLead, imageFromArticleFiles, function(){ return imageFromCommonsSearch(key); }, imageFromMediaList, imageFromSummary];
     for(let i = 0; i < steps.length; i++){
       try{
         const url = await steps[i](title.replace(/_/g, ' '));
@@ -5923,8 +5978,24 @@
         else add(srcs[i][0], 'warn', 'odpowiada, ale nie dało zdjęcia (np. same mapy)');
       }catch(e){ add(srcs[i][0], 'bad', 'brak połączenia: ' + e.message); }
     }
+    try{
+      const t0 = Date.now();
+      const u = await imageFromCommonsSearch('split');
+      add('Commons — wyszukiwarka', u ? 'ok' : 'warn', u ? (Date.now()-t0) + ' ms → ' + decodeURIComponent(u.split('/').pop()).slice(0,48) : 'odpowiada, ale bez wyniku');
+      if(u) anyPhoto = true;
+    }catch(e){ add('Commons — wyszukiwarka', 'bad', 'brak połączenia: ' + e.message); }
     add('Zdjęcia miast', anyPhoto ? 'ok' : 'bad',
         anyPhoto ? 'przynajmniej jedno źródło działa — zdjęcia się wyświetlą' : 'żadne źródło nie odpowiada — zostaną gradienty');
+
+    // 4b. mapa Google (osadzenie) - czy ramka sie laduje
+    await new Promise(function(resolve){
+      const f = document.createElement('iframe');
+      f.style.cssText = 'position:absolute;width:10px;height:10px;opacity:0;pointer-events:none;';
+      const timer = setTimeout(function(){ add('Mapy Google', 'warn', 'brak odpowiedzi w 8 s (blokada lub wolne łącze)'); f.remove(); resolve(); }, 8000);
+      f.onload = function(){ clearTimeout(timer); add('Mapy Google', 'ok', 'osadzona mapa się wczytuje'); f.remove(); resolve(); };
+      f.src = gmapEmbedUrl('38.72,-9.14');
+      document.body.appendChild(f);
+    });
 
     // 5. pogoda
     try{
@@ -5992,8 +6063,17 @@
                + '<span class="diag-name">' + escapeHtml(r.name) + '</span>'
                + '<span class="diag-val">' + escapeHtml(String(r.value)) + '</span></div>';
         }).join('')
-      + '<button type="button" class="diag-copy" id="diag-copy">Skopiuj raport</button>';
+      + '<button type="button" class="diag-copy" id="diag-copy">Skopiuj raport</button>'
+      + '<div class="diag-actions">'
+      +   '<button type="button" class="diag-copy" id="diag-photos">Sprawdź zdjęcia wszystkich kierunków</button>'
+      +   '<button type="button" class="diag-copy" id="diag-toast">Pokaż ciekawostkę teraz</button>'
+      + '</div><div id="diag-photo-out"></div>';
     document.getElementById('diag-close2').addEventListener('click', function(){ bd.classList.remove('active'); });
+    document.getElementById('diag-photos').addEventListener('click', function(){ checkAllPhotos(document.getElementById('diag-photo-out')); });
+    document.getElementById('diag-toast').addEventListener('click', function(){
+      bd.classList.remove('active');
+      if(typeof window.wojazerToastNow === 'function') setTimeout(window.wojazerToastNow, 300);
+    });
     document.getElementById('diag-copy').addEventListener('click', function(){
       const txt = 'Wojażer — diagnostyka ' + new Date().toISOString() + '\n'
         + location.href + '\n' + navigator.userAgent + '\n\n'
@@ -6003,6 +6083,46 @@
       if(navigator.clipboard) navigator.clipboard.writeText(txt).then(done).catch(done); else done();
     });
   }
+
+  /* Sprawdza zdjecie dla KAZDEGO kierunku (po 4 naraz) i pokazuje galerie miniatur:
+     od razu widac, ktore miasto nie ma zdjecia albo ma slabe. */
+  async function checkAllPhotos(outEl){
+    if(!outEl) return;
+    const keys = DESTINATIONS.map(function(d){ return d.key; });
+    const res = {};
+    let done = 0;
+    outEl.innerHTML = '<p class="diag-sub">Sprawdzam 0 / ' + keys.length + '…</p>';
+    const worker = async function(){
+      while(keys.length){
+        const k = keys.shift();
+        // pomijamy pamiec podreczna - chcemy wiedziec, co da sie pobrac teraz
+        delete cityImageCache[k];
+        let url = null;
+        try{ url = await resolveCityImage(k); }catch(e){}
+        // sprawdzamy, czy obrazek naprawde sie wczytuje
+        if(url){
+          const ok = await new Promise(function(r){ const im = new Image(); im.onload = function(){ r(true); }; im.onerror = function(){ r(false); }; im.src = url; setTimeout(function(){ r(false); }, 12000); });
+          if(!ok){ badPhotoUrls[url] = true; forgetCityImage(k); try{ url = await resolveCityImage(k); }catch(e){ url = null; } }
+        }
+        res[k] = url;
+        done++;
+        const p = outEl.querySelector('.diag-sub'); if(p) p.textContent = 'Sprawdzam ' + done + ' / ' + DESTINATIONS.length + '…';
+      }
+    };
+    await Promise.all([worker(), worker(), worker(), worker()]);
+    const missing = DESTINATIONS.filter(function(d){ return !res[d.key]; });
+    outEl.innerHTML = '<div class="diag-row"><span class="diag-ico">' + (missing.length ? '<span class="diag-warn">●</span>' : '<span class="diag-ok">●</span>') + '</span>'
+      + '<span class="diag-name">Zdjęcia kierunków</span><span class="diag-val">' + (DESTINATIONS.length - missing.length) + ' / ' + DESTINATIONS.length + ' ze zdjęciem'
+      + (missing.length ? ' — brak: ' + missing.map(function(d){ return d.name; }).join(', ') : '') + '</span></div>'
+      + '<div class="diag-gallery">' + DESTINATIONS.map(function(d){
+          const u = res[d.key];
+          return '<figure class="diag-thumb' + (u ? '' : ' none') + '">' + (u ? '<img src="' + u + '" alt="" loading="lazy">' : '<span>brak</span>')
+            + '<figcaption>' + escapeHtml(d.name) + '</figcaption></figure>';
+        }).join('') + '</div>';
+    console.table(DESTINATIONS.map(function(d){ return {kierunek:d.name, zdjecie: res[d.key] ? 'TAK' : 'NIE', adres:(res[d.key] || '').slice(0, 90)}; }));
+    return res;
+  }
+  window.wojazerSprawdzZdjecia = function(){ const box = document.createElement('div'); return checkAllPhotos(box); };
 
   if((location.hash || '').indexOf('diag') !== -1){ setTimeout(openDiagnostics, 900); }
   window.wojazerDiag = openDiagnostics;   // mozna tez wpisac wojazerDiag() w konsoli
@@ -6644,6 +6764,30 @@
       + '</div>';
   }
 
+  /* Odznaki specjalne odblokowuja sie na podstawie prawdziwych danych
+     (zarezerwowane podroze, ukonczony quiz). Pozostale czekaja na backend. */
+  function updateMilestones(trips){
+    const conts = {};
+    let europe = false, world = false;
+    trips.forEach(function(t){ conts[t.continent] = true; if(t.continent === 'Europa') europe = true; else world = true; });
+    const quizDone = (typeof quizAnswers !== 'undefined' && quizAnswers.length >= quizQuestions.length) || !!lastResultKeys;
+    const rules = {
+      b2: trips.length >= 10,                         // 10 noclegow z nami
+      b3: trips.length >= 1,                          // pierwsza podroz
+      b4: Object.keys(conts).length >= 3,             // 3 kontynenty
+      b7: quizDone,                                   // poznany styl podrozowania
+      b8: europe && world                             // Europa i swiat
+    };
+    Object.keys(rules).forEach(function(k){
+      const label = document.querySelector('.milestone-label[data-i18n="' + k + '"]');
+      const m = label && label.closest('.milestone');
+      if(!m) return;
+      const was = !m.classList.contains('locked');
+      m.classList.toggle('locked', !rules[k]);
+      m.classList.toggle('earned', !!rules[k]);
+      if(rules[k] && !was){ m.classList.add('just-earned'); setTimeout(function(){ m.classList.remove('just-earned'); }, 1600); }
+    });
+  }
   async function renderPassport(){
     const collected = await getCollectedTrips();
     const dynamicTrips = collected.map(function(entry){
@@ -6653,6 +6797,7 @@
                             answers: entry.answers, nocleg: entry.nocleg, plan: entry.plan}, base);
     }).filter(Boolean);
     const all = DEFAULT_TRIPS.concat(dynamicTrips);
+    updateMilestones(dynamicTrips);
     const forContinent = all.filter(function(t){ return t.continent === activeContinent; });
     const grid = document.getElementById('trip-grid');
     const regionLabel = document.getElementById('trip-region-label');
@@ -8529,7 +8674,11 @@
     if(!trip || !trip.travelDate) return '';
     const target = new Date(trip.travelDate);
     const days = daysUntilTravel(trip.travelDate);
-    const MONTHS = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    const EN_CAL = (typeof currentLang !== 'undefined' && currentLang === 'en');
+    const MONTHS = EN_CAL
+      ? ['January','February','March','April','May','June','July','August','September','October','November','December']
+      : ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    const WD = EN_CAL ? ['Mo','Tu','We','Th','Fr','Sa','Su'] : ['Pn','Wt','Śr','Cz','Pt','So','Nd'];
     const y = target.getFullYear(), m = target.getMonth(), depDay = target.getDate();
     const first = new Date(y, m, 1);
     // poniedzialek = 0 (polski uklad tygodnia)
@@ -8554,7 +8703,7 @@
         + (trip.cc ? '<img src="https://flagcdn.com/w40/'+trip.cc+'.png" alt="" class="cal-flag" onerror="flagFail(this)">' : '')
         + '<span class="flag-emoji cal-flag-emoji">'+(trip.flag||'')+'</span>'
         + '<svg class="cal-city-icon" viewBox="0 0 140 60" aria-hidden="true" fill="#fff" fill-opacity=".9">'+iconMarkup+'</svg>'
-        + '<span class="cal-city-name">'+trip.city+'</span>'
+        + '<span class="cal-city-name">'+escapeHtml(tripCity(trip))+'</span>'
       + '</div>'
       + '<div class="cal-rings"><span></span><span></span><span></span><span></span><span></span></div>'
       + '<div class="cal-countdown">'
@@ -8562,7 +8711,7 @@
         + '<span class="cal-count-word">'+(days > 0 ? countWord : t('cal.here'))+'</span>'
       + '</div>'
       + '<div class="cal-month">'+MONTHS[m]+' '+y+'</div>'
-      + '<div class="cal-weekdays"><span>Pn</span><span>Wt</span><span>Śr</span><span>Cz</span><span>Pt</span><span>So</span><span>Nd</span></div>'
+      + '<div class="cal-weekdays">' + WD.map(function(x){ return '<span>' + x + '</span>'; }).join('') + '</div>'
       + '<div class="cal-grid">'+cells+'</div>'
       + '</div>';
   }
@@ -9211,6 +9360,12 @@
     }
     setTimeout(tick, EVERY);
   }
+  // do testow: pokaz ciekawostke od razu (diagnostyka #diag albo konsola: wojazerToastNow())
+  window.wojazerToastNow = function(){
+    muted = false;
+    const w = worldItem(tipIdx++);
+    show(w || TIPS[0], w && w.custom ? 'custom' : 'tip');
+  };
   // hak dla backendu: prawdziwe zdarzenie wskakuje na poczatek kolejki
   window.pushLiveEvent = function(ev){
     if(!ev || !(ev.pl || ev.en)) return;

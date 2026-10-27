@@ -659,6 +659,24 @@
     width:32px;height:32px;border-radius:50%;border:none;
     background:rgba(21,43,60,.08);color:var(--ink);font-size:1rem;cursor:pointer;
   }
+  /* ---------- zamykanie okien: wyrazny przycisk X (plus klawisz Esc) ---------- */
+  .offer-modal-close, .diag-close, .wrapped-close, .cmp-close{
+    width:42px!important;height:42px!important;border-radius:50%!important;
+    background:#173D2B!important;color:#fff!important;border:2px solid rgba(255,255,255,.85)!important;
+    font-size:1.15rem!important;font-weight:700;line-height:1;display:inline-flex!important;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,.28);transition:transform .15s ease, background .15s ease;z-index:20!important;
+  }
+  .offer-modal-close:hover, .diag-close:hover, .wrapped-close:hover, .cmp-close:hover{background:#0F2B1E!important;transform:scale(1.08);}
+  .offer-modal-close:focus-visible, .diag-close:focus-visible, .wrapped-close:focus-visible, .cmp-close:focus-visible{outline:3px solid #6FE0A0;outline-offset:2px;}
+  /* przy dlugim oknie X zostaje widoczny podczas przewijania */
+  .trip-detail-modal > .offer-modal-close, .trip-control-modal > .offer-modal-close, .offer-modal > .offer-modal-close,
+  .settings-modal > .offer-modal-close, .trips-modal > .offer-modal-close, .avatar-modal > .offer-modal-close,
+  .auth-modal > .offer-modal-close{position:sticky!important;float:right;top:14px;margin:14px 14px -56px 0;}
+  .esc-hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:2000;pointer-events:none;
+    background:rgba(23,61,43,.9);color:#F7F1E3;border-radius:999px;padding:7px 14px;font-size:.76rem;font-weight:600;
+    opacity:0;transition:opacity .3s ease;}
+  .esc-hint.on{opacity:1;}
+  @media (hover:none){ .esc-hint{display:none;} }
   .offer-modal-art{position:relative;overflow:hidden;height:150px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;margin-bottom:16px;}
   .offer-modal-title{font-size:1.3rem;font-weight:600;margin-bottom:6px;}
   .offer-modal-sub{font-size:.85rem;color:var(--ink-soft);margin-bottom:18px;}
@@ -898,8 +916,17 @@
   .wall-calendar{
     background:#fff;border-radius:16px;overflow:hidden;margin:18px 0 8px;
     box-shadow:0 14px 30px -14px rgba(0,0,0,.35);border:1px solid rgba(42,36,32,.08);
-    max-width:340px;
+    max-width:none;width:100%;
   }
+  /* kalendarz w "Zarzadzaj podroza" - pelna szerokosc, wieksze dni */
+  .trip-control-modal .cal-photo{height:150px;}
+  .trip-control-modal .cal-city-name{font-size:1.4rem;}
+  .trip-control-modal .cal-count-num{font-size:3.2rem;}
+  .trip-control-modal .cal-month{font-size:1rem;}
+  .trip-control-modal .cal-weekdays, .trip-control-modal .cal-grid{gap:6px;padding:0 20px;}
+  .trip-control-modal .cal-weekdays span{font-size:.72rem;}
+  .trip-control-modal .cal-day{font-size:.92rem;padding:9px 0;border-radius:10px;}
+  .trip-control-modal .cal-grid{padding-bottom:20px;}
   .cal-photo{
     position:relative;height:96px;display:flex;align-items:flex-end;justify-content:center;
   }
@@ -1072,7 +1099,8 @@
   body.palette-sand .topo-bg{color:rgba(27,94,63,.11);}
   body.palette-sand .topo-bg::after{background:radial-gradient(ellipse 75% 65% at 50% 45%, transparent 45%, rgba(214,198,170,.35) 100%);}
   /* ramka wokol przedstrony: na bezu robimy ja odrobine jasniejsza i z cienka obwodka */
-  body.palette-sand .tab-panel.intro-panel{background:#FBF7EF;box-shadow:0 0 0 1px rgba(27,94,63,.12), 0 14px 40px rgba(80,60,30,.08);}
+  /* przedstrona scalona z tlem: bez ramki, cienia i osobnych pasow - wspolne warstwice i swiatlo za kursorem */
+  body.palette-sand .tab-panel.intro-panel{background:transparent;box-shadow:none;margin:0;width:100%;border-radius:0;}
 
   /* --- zielony pasek u gory --- */
   body.palette-sand .topbar-outer{background:#1B5E3F;border-bottom-color:rgba(0,0,0,.12);}
@@ -1109,7 +1137,8 @@
     box-shadow:0 10px 26px rgba(27,94,63,.28);--ring-color:rgba(27,94,63,.55);
   }
   body.palette-sand .intro-cta:hover{background:#174F35;color:#FFFFFF;}
-  body.palette-sand .city-ranking{background:rgba(27,94,63,.05);}
+  body.palette-sand .city-ranking{background:transparent!important;}
+  body.palette-sand .hero-photo, body.palette-sand .hero-photo::after{background:transparent!important;}
 
 
   /* =================== TELEFONY =================== */
@@ -3804,6 +3833,7 @@ window.WojazerGlobe = (function(){
       'planner.intro':'Cieszymy się bardzo, że będziemy mogli razem podróżować. Sprawa jest bardzo prosta — poniżej jest quiz, który pomoże Twojemu asystentowi wybrać odpowiednie dla Ciebie miejsca. Uzupełnij go i daj nam działać.',
       'common.close':'Zamknij',
       'space.skip':'Pomiń →',
+      'esc.hint':'Naciśnij Esc, aby zamknąć',
       'vipcta.text':'Nie trafiliśmy w Twój gust? Stworzymy coś wyjątkowego — tylko dla Ciebie.','vipcta.btn':'✦ Poczuj się jak VIP',
       'map.title':'Mapa: {city}','map.open':'Otwórz w Mapach Google ↗','map.show':'Pokaż mapę Google',
       'map.note':'Mapa ładuje się z serwerów Google. Na razie pokazuje centrum miasta — dokładny adres pojawi się po potwierdzeniu noclegu.',
@@ -4169,6 +4199,7 @@ window.WojazerGlobe = (function(){
       'planner.intro':'We are glad we get to travel together. It is simple — below is a quiz that helps your assistant pick the right places for you. Fill it in and let us do the rest.',
       'common.close':'Close',
       'space.skip':'Skip →',
+      'esc.hint':'Press Esc to close',
       'vipcta.text':'Not quite your taste? We will create something unique — just for you.','vipcta.btn':'✦ Feel like a VIP',
       'map.title':'Map: {city}','map.open':'Open in Google Maps ↗','map.show':'Show Google map',
       'map.note':'The map loads from Google servers. For now it shows the city centre — the exact address appears once the stay is confirmed.',
@@ -4596,7 +4627,7 @@ window.WojazerGlobe = (function(){
 
   // kazda zakladka ma swoje pelnoekranowe tlo (klasa na body)
   // planner, paszport i ustawienia maja JEDNO wspolne tlo (warstwice); VIP zostaje czarno-zloty
-  const TAB_BG = {home:'bg-sub', library:'bg-sub', settings:'bg-sub', vip:'bg-vip', intro:'bg-intro'};
+  const TAB_BG = {home:'bg-sub', library:'bg-sub', settings:'bg-sub', vip:'bg-vip', intro:'bg-sub'};   // przedstrona ma to samo tlo co podstrony
   function setBackgroundForTab(tabName){
     Object.keys(TAB_BG).forEach(function(k){ document.body.classList.remove(TAB_BG[k]); });
     document.body.classList.add(TAB_BG[tabName] || 'bg-intro');
@@ -7515,10 +7546,44 @@ window.WojazerGlobe = (function(){
     if(e.key === 'Escape'){
       // kazda funkcja wywolywana tylko jesli istnieje - brak jednej nie blokuje pozostalych
       ['closeOfferModal','closeAvatarModal','closeTripsModal','closeTripDetail','closeAuthModal','closeSettingsModal',
-       'closeTripControl','closePrivacyModal','closeTermsModal','closeAssistantChat','closeLegal','closeBudgetPreview']
+       'closeTripControl','closePrivacyModal','closeTermsModal','closeAssistantChat','closeLegal','closeBudgetPreview',
+       'closeWrapped','closeCompare','closeConsentPrefs']
         .forEach(function(n){ if(typeof window[n] === 'function'){ try{ window[n](); }catch(_){} } });
+      // wszystko inne, co jeszcze jest otwarte (np. diagnostyka)
+      document.querySelectorAll('[class*="-backdrop"].active').forEach(function(b){ b.classList.remove('active'); });
     }
   });
+
+  /* Kazdy X dostaje opis "Zamknij (Esc)", a przy otwarciu okna na chwile
+     pojawia sie podpowiedz, ze mozna wyjsc klawiszem Esc. */
+  (function escHelp(){
+    const hint = document.createElement('div');
+    hint.className = 'esc-hint';
+    document.body.appendChild(hint);
+    let shownTimes = 0, timer = 0, wasOpen = false;
+    const label = function(){
+      document.querySelectorAll('.offer-modal-close, .diag-close, .wrapped-close, .cmp-close').forEach(function(b){
+        b.title = t('common.close') + ' (Esc)';
+        b.setAttribute('aria-label', t('common.close'));
+      });
+    };
+    new MutationObserver(function(){
+      const open = !!document.querySelector('[class*="-backdrop"].active, .wrapped-overlay.open');
+      if(open && !wasOpen){
+        label();
+        if(shownTimes < 3){
+          shownTimes++;
+          hint.textContent = t('esc.hint');
+          hint.classList.add('on');
+          clearTimeout(timer); timer = setTimeout(function(){ hint.classList.remove('on'); }, 2200);
+        }
+      }
+      // uwaga: classList.remove zawsze zapisuje atrybut, wiec bez warunku obserwator wpadlby w petle
+      if(!open && hint.classList.contains('on')){ hint.classList.remove('on'); }
+      wasOpen = open;
+    }).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
+    label();
+  })();
 
   // ---------- podlaczenie czatu asystenta ----------
   const chatCloseBtn = document.getElementById('chat-close');
@@ -9504,8 +9569,17 @@ window.WojazerGlobe = (function(){
     const cb = document.getElementById('cookie-banner');
     if(cb && cb.classList.contains('visible')) return true;                         // nie zaslaniamy zgod
     if(document.querySelector('[class*="-backdrop"].active')) return true;           // otwarte okno
+    if(!allowedTab()) return true;                                                     // tylko przedstrona i Planner
     return false;
   }
+  function allowedTab(){
+    const a = document.querySelector('.tab-panel.active');
+    return !a || a.id === 'panel-intro' || a.id === 'panel-home';
+  }
+  // po przejsciu do Paszportu, Ustawien lub VIP dymek od razu znika
+  new MutationObserver(function(){
+    if(el && el.classList.contains('on') && !allowedTab()) el.classList.remove('on');
+  }).observe(document.querySelector('.tab-panels') || document.body, {subtree:true, attributes:true, attributeFilter:['class']});
   function build(){
     el = document.createElement('div');
     el.className = 'live-toast';

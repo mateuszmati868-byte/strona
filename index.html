@@ -1622,9 +1622,10 @@
     position:relative;width:100%;height:100%;
     transition:transform .75s cubic-bezier(.3,.8,.3,1);transform-style:preserve-3d;
   }
-  .postcard:hover .postcard-inner,
-  .postcard:focus-within .postcard-inner,
+  /* bez :focus-within - kliknieta kartka zostawala obrocona na zawsze (miala fokus) */
+  @media (hover:hover){ .postcard:hover .postcard-inner{transform:rotateY(180deg);} }
   .postcard.flipped .postcard-inner{transform:rotateY(180deg);}
+  .postcard.no-hover .postcard-inner{transform:none!important;}
   .postcard-face{
     position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
     border-radius:8px;overflow:hidden;box-shadow:0 16px 34px -14px rgba(0,0,0,.6);
@@ -1636,6 +1637,9 @@
   .postcard-photo img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease;}
   .postcard-photo img.loaded{opacity:1;}
   .postcard-front-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.72),transparent 55%);}
+  .ranking-note{text-align:center;font-size:.76rem;color:var(--deep-text-soft);margin:-26px auto 30px;max-width:560px;font-style:italic;}
+  /* numery 1-8 sugerowaly ranking, ktorego jeszcze nie ma - ukryte do czasu prawdziwych danych */
+  .postcard-rank{display:none!important;}
   .postcard-rank{
     position:absolute;top:12px;left:12px;z-index:2;
     background:var(--rust);color:#fff;font-weight:800;font-size:.8rem;
@@ -1910,6 +1914,50 @@
     display:inline-block;width:fit-content;
   }
   .level-track-wrap{margin:0 6px;}
+  /* ---------- panel poziomu - wersja "karta podroznika" ---------- */
+  .level-scale{position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 60% 90% at 100% 0%, rgba(226,190,98,.18), transparent 60%),
+               linear-gradient(135deg,#FFFFFF 0%,#FBFAF5 55%,rgba(37,184,101,.10) 100%)!important;}
+  .level-watermark{position:absolute;right:-60px;bottom:-70px;width:280px;height:280px;color:rgba(27,94,63,.07);pointer-events:none;}
+  .level-scale-header{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:26px!important;position:relative;}
+  .level-avatar-wrap{position:relative;flex:none;}
+  .level-avatar-wrap .level-profile-avatar{width:72px!important;height:72px!important;font-size:2rem!important;
+    box-shadow:0 0 0 5px rgba(37,184,101,.14), 0 10px 22px -8px rgba(23,61,43,.45)!important;}
+  .level-emblem{position:absolute;right:-8px;bottom:-6px;width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(135deg,#F4D27A,#C9A24B);display:flex;align-items:center;justify-content:center;font-size:1.05rem;
+    border:3px solid #fff;box-shadow:0 4px 10px rgba(120,90,20,.35);}
+  .level-profile-persona{font-size:1.35rem!important;}
+  .level-profile-name{font-size:.78rem!important;padding:4px 12px!important;}
+  .level-motto{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin-top:4px;max-width:420px;line-height:1.4;}
+  .level-ring{display:flex;align-items:center;gap:14px;}
+  .level-ring svg{width:96px;height:96px;flex:none;transform:rotate(-90deg);}
+  .level-ring .ring-bg{stroke:rgba(37,184,101,.15);}
+  .level-ring .ring-fg{stroke:url(#ringGrad);stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.3,.8,.3,1);}
+  .level-ring-wrap{position:relative;width:96px;height:96px;flex:none;}
+  .level-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .level-ring-center b{font-family:var(--font-display);font-size:1.45rem;color:var(--rust-dark);line-height:1;}
+  .level-ring-center span{font-size:.66rem;color:var(--ink-soft);margin-top:3px;}
+  .level-ring-caption{font-size:.8rem;color:var(--ink);line-height:1.4;max-width:170px;text-align:left;}
+  .level-ring-caption strong{display:block;font-size:.95rem;color:var(--rust-dark);}
+  .level-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:34px;position:relative;}
+  .level-stat{background:rgba(255,255,255,.75);border:1px solid rgba(27,94,63,.12);border-radius:16px;padding:12px 14px;text-align:left;display:flex;gap:10px;align-items:center;}
+  .level-stat-ico{font-size:1.35rem;flex:none;}
+  .level-stat b{display:block;font-family:var(--font-display);font-size:1.3rem;color:#173D2B;line-height:1.1;}
+  .level-stat small{display:block;font-size:.72rem;color:var(--ink-soft);}
+  .level-track{height:8px!important;background:rgba(37,184,101,.14)!important;}
+  .level-track-fill{background:linear-gradient(90deg,#25B865 0%,#178A4C 60%,#C9A24B 100%)!important;transition:width 1.2s cubic-bezier(.3,.8,.3,1);}
+  .level-mark-dot{width:14px!important;height:14px!important;}
+  .level-mark.current .level-mark-dot{width:20px!important;height:20px!important;background:#C9A24B!important;border-color:#fff!important;
+    box-shadow:0 0 0 4px rgba(201,162,75,.35), 0 0 18px rgba(201,162,75,.6)!important;animation:lvlPulse 2.4s ease-in-out infinite;}
+  @keyframes lvlPulse{0%,100%{box-shadow:0 0 0 4px rgba(201,162,75,.35), 0 0 12px rgba(201,162,75,.45);}50%{box-shadow:0 0 0 8px rgba(201,162,75,.12), 0 0 24px rgba(201,162,75,.7);}}
+  @media (prefers-reduced-motion: reduce){ .level-mark.current .level-mark-dot{animation:none;} }
+  @media (max-width:720px){
+    .level-stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .level-scale-header{justify-content:center;}
+    .level-profile{flex-direction:column;text-align:center;}
+    .level-profile-info{align-items:center;text-align:center!important;}
+    .level-scale{padding:24px 18px 36px!important;}
+  }
   .level-track{position:relative;height:5px;width:100%;border-radius:999px!important;background:rgba(37,184,101,.18);}
   .level-track-fill{position:absolute;top:0;left:0;height:100%;border-radius:999px!important;background:linear-gradient(90deg,var(--rust) 0%,var(--rust-dark) 100%);}
   .level-mark{position:absolute;top:50%;transform:translate(-50%,-50%);}
@@ -3131,8 +3179,9 @@ window.WojazerGlobe = (function(){
             <button class="intro-cta pulse-ring" id="intro-cta" data-i18n="intro.cta">Zacznij od Plannera</button>
           </div>
           <section class="city-ranking" id="city-ranking">
-            <h2 class="ranking-title" data-i18n="rank.title">Najchętniej wybierane kierunki</h2>
+            <h2 class="ranking-title" data-i18n="rank.title">Polecane kierunki na start</h2>
             <p class="ranking-sub" data-i18n="rank.sub">Najedź na pocztówkę lub ją kliknij, żeby zobaczyć drugą stronę</p>
+            <p class="ranking-note" data-i18n="rank.note">Wybór redakcji Wojażera. Ranking oparty na prawdziwych wyborach podróżnych pojawi się po starcie serwisu.</p>
             <div class="ranking-grid" id="ranking-grid"></div>
             <div class="affiliate-footer">
               <p data-i18n="footer.affiliate">☕ Ty podróżujesz, a ja mam świeżą kawę — część linków do noclegów i lotów to linki partnerskie. Cena dla Ciebie się nie zmienia, a Wojażer może dalej rosnąć. Dzięki!</p>
@@ -3188,15 +3237,22 @@ window.WojazerGlobe = (function(){
           <div class="passport-main">
 
           <div class="level-scale">
+            <svg class="level-watermark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" stroke-width=".6" stroke-dasharray="1 3"/><path d="M50 8 L56 50 L50 92 L44 50 Z" fill="currentColor" opacity=".55"/><path d="M8 50 L50 44 L92 50 L50 56 Z" fill="currentColor" opacity=".3"/></svg>
             <div class="level-scale-header">
               <div class="level-profile">
-                <span class="level-profile-avatar" id="passport-avatar">W</span>
+                <span class="level-avatar-wrap">
+                  <span class="level-profile-avatar" id="passport-avatar">W</span>
+                  <span class="level-emblem" id="level-emblem" aria-hidden="true">🧭</span>
+                </span>
                 <div class="level-profile-info">
                   <span class="level-profile-persona" id="passport-persona" data-i18n="persona.default">Podróżny</span>
                   <span class="level-profile-name" id="passport-level-name">Poziom: Nowicjusz</span>
+                  <span class="level-motto" id="level-motto"></span>
                 </div>
               </div>
+              <div class="level-ring" id="level-ring" aria-live="polite"></div>
             </div>
+            <div class="level-stats" id="level-stats"></div>
             <div class="level-track-wrap"><div class="level-track" id="level-track"></div></div>
           </div>
 
@@ -3826,13 +3882,20 @@ window.WojazerGlobe = (function(){
       'intro.badge':'Wersja beta', 'intro.title':'Twój pierwszy osobisty<br>asystent podróży',
       'intro.lead':'Bądź jednym z pierwszych odkrywców.', 'intro.cta':'Zacznij od Plannera',
       'intro.counter':'odkrywców już z nami',
-      'rank.title':'Najchętniej wybierane kierunki', 'rank.sub':'Najedź na pocztówkę lub ją kliknij, żeby zobaczyć drugą stronę',
+      'rank.title':'Polecane kierunki na start', 'rank.sub':'Najedź na pocztówkę lub ją kliknij, żeby zobaczyć drugą stronę',
+      'rank.note':'Wybór redakcji Wojażera. Ranking oparty na prawdziwych wyborach podróżnych pojawi się po starcie serwisu.',
       'rank.see':'Co zobaczyć', 'rank.eat':'Co zjeść', 'rank.famous':'Z czego słynie',
       'rank.stamp':'Przyklej swój znaczek pocztowy',
       'planner.welcome':'Witamy na pokładzie!',
       'planner.intro':'Cieszymy się bardzo, że będziemy mogli razem podróżować. Sprawa jest bardzo prosta — poniżej jest quiz, który pomoże Twojemu asystentowi wybrać odpowiednie dla Ciebie miejsca. Uzupełnij go i daj nam działać.',
       'common.close':'Zamknij',
       'space.skip':'Pomiń →',
+      'lvl.ringUnit':'podróży','lvl.ringLeft':'jeszcze {n} — każda rezerwacja to nowa pieczątka','lvl.max':'maks.','lvl.maxText':'Najwyższy poziom — świat stoi otworem.',
+      'lvl.stTrips':'podróże','lvl.stConts':'kontynenty','lvl.stCountries':'kraje','lvl.stKm':'km w drodze (szac.)',
+      'motto.novice':'Każda wielka podróż zaczyna się od pierwszej pieczątki.','motto.explorer':'Mapa zaczyna mieć Twoje ślady.',
+      'motto.traveler':'Walizka stoi już zawsze w gotowości.','motto.wanderer':'Szlaki znasz lepiej niż rozkład jazdy.',
+      'motto.globetrotter':'Świat to Twoje podwórko.','motto.conqueror':'Kontynenty odhaczasz jak listę zakupów.',
+      'motto.legend':'O Twoich podróżach opowiada się legendy.',
       'esc.hint':'Naciśnij Esc, aby zamknąć',
       'vipcta.text':'Nie trafiliśmy w Twój gust? Stworzymy coś wyjątkowego — tylko dla Ciebie.','vipcta.btn':'✦ Poczuj się jak VIP',
       'map.title':'Mapa: {city}','map.open':'Otwórz w Mapach Google ↗','map.show':'Pokaż mapę Google',
@@ -4192,13 +4255,20 @@ window.WojazerGlobe = (function(){
       'intro.badge':'Beta version', 'intro.title':'Your first personal<br>travel assistant',
       'intro.lead':'Be one of the first explorers.', 'intro.cta':'Start with the Planner',
       'intro.counter':'explorers already with us',
-      'rank.title':'Most popular destinations', 'rank.sub':'Hover over a postcard or tap it to see the other side',
+      'rank.title':'Recommended to start with', 'rank.sub':'Hover over a postcard or tap it to see the other side',
+      'rank.note':'Picked by the Wojażer team. A ranking based on real travellers\' choices will appear once the service launches.',
       'rank.see':'What to see', 'rank.eat':'What to eat', 'rank.famous':'Known for',
       'rank.stamp':'Stick your stamp here',
       'planner.welcome':'Welcome aboard!',
       'planner.intro':'We are glad we get to travel together. It is simple — below is a quiz that helps your assistant pick the right places for you. Fill it in and let us do the rest.',
       'common.close':'Close',
       'space.skip':'Skip →',
+      'lvl.ringUnit':'trips','lvl.ringLeft':'{n} to go — every booking adds a stamp','lvl.max':'max','lvl.maxText':'Top level — the world is your oyster.',
+      'lvl.stTrips':'trips','lvl.stConts':'continents','lvl.stCountries':'countries','lvl.stKm':'km travelled (est.)',
+      'motto.novice':'Every great journey starts with the first stamp.','motto.explorer':'The map is starting to show your footprints.',
+      'motto.traveler':'Your suitcase is always ready.','motto.wanderer':'You know the trails better than the timetables.',
+      'motto.globetrotter':'The world is your backyard.','motto.conqueror':'You tick off continents like a shopping list.',
+      'motto.legend':'Legends are told about your travels.',
       'esc.hint':'Press Esc to close',
       'vipcta.text':'Not quite your taste? We will create something unique — just for you.','vipcta.btn':'✦ Feel like a VIP',
       'map.title':'Map: {city}','map.open':'Open in Google Maps ↗','map.show':'Show Google map',
@@ -7094,6 +7164,7 @@ window.WojazerGlobe = (function(){
     }).filter(Boolean);
     const all = DEFAULT_TRIPS.concat(dynamicTrips);
     updateMilestones(dynamicTrips);
+    renderLevelStats(dynamicTrips);
     const forContinent = all.filter(function(t){ return t.continent === activeContinent; });
     const grid = document.getElementById('trip-grid');
     const regionLabel = document.getElementById('trip-region-label');
@@ -7554,6 +7625,15 @@ window.WojazerGlobe = (function(){
     }
   });
 
+  // klikniecie poza pocztowkami (albo Esc) obraca wszystkie z powrotem na przod
+  document.addEventListener('click', function(e){
+    if(e.target.closest('.postcard')) return;
+    document.querySelectorAll('.postcard.flipped').forEach(function(c){ c.classList.remove('flipped'); });
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') document.querySelectorAll('.postcard.flipped').forEach(function(c){ c.classList.remove('flipped'); });
+  });
+
   /* Kazdy X dostaje opis "Zamknij (Esc)", a przy otwarciu okna na chwile
      pojawia sie podpowiedz, ze mozna wyjsc klawiszem Esc. */
   (function escHelp(){
@@ -7659,10 +7739,50 @@ window.WojazerGlobe = (function(){
   let currentAvatarEmoji = 'W';
   let currentPersonaName = '';
   let lastTripCount = 0;
+  const LEVEL_ICONS = {'lvl.novice':'🧭','lvl.explorer':'🔭','lvl.traveler':'🎒','lvl.wanderer':'🥾','lvl.globetrotter':'🌍','lvl.conqueror':'🗺️','lvl.legend':'👑'};
+  function renderLevelRing(count){
+    const ring = document.getElementById('level-ring');
+    if(!ring) return;
+    const cur = getCurrentLevel(count), i = LEVELS.indexOf(cur), nx = LEVELS[i + 1];
+    const from = cur.threshold, to = nx ? nx.threshold : cur.threshold;
+    const frac = nx ? Math.max(0, Math.min(1, (count - from) / (to - from))) : 1;
+    const C = 2 * Math.PI * 40;
+    ring.innerHTML = '<div class="level-ring-wrap"><svg viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#25B865"/><stop offset="1" stop-color="#C9A24B"/></linearGradient></defs>'
+      + '<circle class="ring-bg" cx="48" cy="48" r="40" fill="none" stroke-width="9"/>'
+      + '<circle class="ring-fg" cx="48" cy="48" r="40" fill="none" stroke-width="9" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '"/></svg>'
+      + '<div class="level-ring-center"><b>' + (nx ? (count - from) + '/' + (to - from) : '★') + '</b><span>' + (nx ? t('lvl.ringUnit') : t('lvl.max')) + '</span></div></div>'
+      + '<div class="level-ring-caption">' + (nx ? '<strong>' + levelName(nx) + ' ' + (LEVEL_ICONS[nx.key] || '') + '</strong>' + t('lvl.ringLeft', {n: to - count}) : '<strong>' + levelName(cur) + '</strong>' + t('lvl.maxText')) + '</div>';
+    const fg = ring.querySelector('.ring-fg');
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ fg.setAttribute('stroke-dashoffset', (C * (1 - frac)).toFixed(1)); }); });
+  }
+  function renderLevelStats(trips){
+    const box = document.getElementById('level-stats');
+    if(!box) return;
+    const conts = {}, countries = {};
+    let km = 0;
+    const home = (typeof userCountry !== 'undefined' && userCountry && userCountry.lat != null) ? [userCountry.lat, userCountry.lon] : [52.23, 21.01];
+    (trips || []).forEach(function(tr){
+      if(tr.continent) conts[tr.continent] = true;
+      if(tr.cc) countries[tr.cc] = true;
+      const co = WRAPPED_COORDS[tr.key];
+      if(co) km += haversineKm(home, co) * 2;
+    });
+    const fmt = function(n){ return n.toLocaleString(currentLang === 'en' ? 'en-GB' : 'pl-PL'); };
+    const tile = function(ico, val, label){ return '<div class="level-stat"><span class="level-stat-ico">' + ico + '</span><div><b>' + val + '</b><small>' + label + '</small></div></div>'; };
+    box.innerHTML = tile('✈️', (trips || []).length, t('lvl.stTrips'))
+      + tile('🌍', Object.keys(conts).length + '/6', t('lvl.stConts'))
+      + tile('🏳️', Object.keys(countries).length, t('lvl.stCountries'))
+      + tile('📏', fmt(Math.round(km / 10) * 10), t('lvl.stKm'));
+  }
   function updateLevelDisplays(count){
     lastTripCount = count;
     const level = getCurrentLevel(count);
     renderLevelTrack(count);
+    renderLevelRing(count);
+    const emb = document.getElementById('level-emblem');
+    if(emb) emb.textContent = LEVEL_ICONS[level.key] || '🧭';
+    const motto = document.getElementById('level-motto');
+    if(motto) motto.textContent = t('motto.' + level.key.replace('lvl.', ''));
     const nameEl = document.getElementById('passport-level-name');
     if(nameEl) nameEl.textContent = t('lvl.label')+' '+levelName(level);
     const badgeChip = document.querySelector('.settings-badge-chip');
@@ -9351,7 +9471,15 @@ window.WojazerGlobe = (function(){
     }).join('');
     // klikniecie / Enter tez obraca kartke - na telefonie nie ma najechania myszka
     grid.querySelectorAll('.postcard').forEach(function(card){
-      card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
+      card.addEventListener('click', function(){
+        const on = !card.classList.contains('flipped');
+        // tylko jedna kartka obrocona naraz
+        grid.querySelectorAll('.postcard.flipped').forEach(function(c){ if(c !== card) c.classList.remove('flipped'); });
+        card.classList.toggle('flipped', on);
+        // na komputerze po kliknieciu "odwracamy" kartke dopiero przy zjechaniu kursorem
+        if(!on && window.matchMedia && matchMedia('(hover:hover)').matches) card.classList.add('no-hover');
+      });
+      card.addEventListener('mouseleave', function(){ card.classList.remove('no-hover'); });
       card.addEventListener('keydown', function(e){
         if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); card.classList.toggle('flipped'); }
       });
